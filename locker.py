@@ -128,8 +128,3 @@ def show_locker(screen):
 
         pygame.display.flip()
         clock.tick(60)
-<<<<<<< HEAD
-        return "game", selected_color
-show_locker()
-=======
->>>>>>> f11d07e9761b25b4926bba66ac02b95b74599cc8
