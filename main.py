@@ -15,8 +15,9 @@ def main():
     state = "home"
     running = True
 
-    # (optioneel) spelerdata
-    player_color = None
+    # standaard vis (voor het geval locker niet wordt geopend)
+    player_color = (255, 0, 0)
+    player_pattern = "none"
 
     while running:
 
@@ -35,24 +36,19 @@ def main():
 
         # ================= LOCKER =================
         elif state == "locker":
-            result = show_locker(screen)
+            action, color, pattern = show_locker(screen)
 
-            # locker geeft nu (actie, kleur) terug
-            if result is not None:
-                action, player_color = result
-
-                if action == "start":
-                    state = "game"
-                else:  # "back"
-                    state = "home"
-            else:
+            if action == "start":
+                player_color = color
+                player_pattern = pattern
+                state = "game"
+            else:  # "back"
                 state = "home"
 
         # ================= GAME =================
         elif state == "game":
-            result = run_game(screen)
+            result = run_game(screen, player_color, player_pattern)
 
-            # game klaar → terug naar menu
             if result == "quit":
                 running = False
             else:
