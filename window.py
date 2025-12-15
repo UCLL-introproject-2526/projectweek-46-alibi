@@ -2,7 +2,12 @@ import pygame
 import random
 import math
 
-def create_main_surface(screen):
+def create_main_surface():
+    pygame.init()
+
+    width, height = 1024, 768
+    screen = pygame.display.set_mode((width, height))
+    pygame.display.set_caption("Deep Sea")
 
     clock = pygame.time.Clock()
     running = True
