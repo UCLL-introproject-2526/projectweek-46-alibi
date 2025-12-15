@@ -27,7 +27,7 @@ def main():
                 running = False
 
         elif state == "game":
-            create_main_surface()
+            create_main_surface(screen)
             state = "home"   # ⬅️ BELANGRIJK: terug naar homescreen
 
         elif state == "locker":
