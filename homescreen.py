@@ -1,10 +1,9 @@
 import pygame
 import math
 
-WIDTH, HEIGHT = 1024, 768
-
-
 def draw_lightblue_background(screen, time):
+    WIDTH, HEIGHT = screen.get_size()
+
     screen.fill((135, 200, 240))
 
     for x in range(0, WIDTH, 160):
@@ -20,6 +19,8 @@ def draw_lightblue_background(screen, time):
 def show_home_screen(screen):
     clock = pygame.time.Clock()
 
+    WIDTH, HEIGHT = screen.get_size()  # ✅ HIER DE FIX
+
     title_font = pygame.font.SysFont("arialblack", 72)
     sub_font = pygame.font.SysFont("arial", 32)
     button_font = pygame.font.SysFont("arial", 34)
@@ -28,8 +29,6 @@ def show_home_screen(screen):
     locker_button = pygame.Rect(WIDTH // 2 - 160, HEIGHT // 2 + 210, 320, 70)
 
     time = 0
-
-    # 🧹 leeg oude events (veilig, maar niet blokkeren)
     pygame.event.clear()
 
     while True:
@@ -39,7 +38,6 @@ def show_home_screen(screen):
             if event.type == pygame.QUIT:
                 return "quit"
 
-            # ✅ ENIGE klik-logica die je nodig hebt
             if event.type == pygame.MOUSEBUTTONUP:
                 if start_button.collidepoint(event.pos):
                     return "start"
