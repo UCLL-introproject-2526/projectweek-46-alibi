@@ -22,7 +22,8 @@ def show_locker(screen):
     START_X = 40
     Y = HEIGHT - 120
 
-    play_button = pygame.Rect(WIDTH//2 - 80, HEIGHT - 50, 160, 40)
+    start_button = pygame.Rect(WIDTH//2 - 170, HEIGHT - 55, 160, 40)
+    back_button  = pygame.Rect(WIDTH//2 + 10,  HEIGHT - 55, 160, 40)
 
     # Bubbels
     bubbles = [{
@@ -52,7 +53,7 @@ def show_locker(screen):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return None
+                return ("back", selected_color)
 
             if event.type == pygame.MOUSEBUTTONUP:
                 mx, my = event.pos
@@ -68,9 +69,13 @@ def show_locker(screen):
                     if rect.collidepoint(mx, my):
                         selected_color = color
 
-                # terug naar homescreen
-                if play_button.collidepoint(mx, my):
-                    return selected_color
+                # START GAME
+                if start_button.collidepoint(mx, my):
+                    return ("start", selected_color)
+
+                # TERUG
+                if back_button.collidepoint(mx, my):
+                    return ("back", selected_color)
 
         # ---------------- TEKENEN ----------------
         screen.fill((5, 50, 120))
@@ -118,11 +123,17 @@ def show_locker(screen):
             pygame.draw.rect(screen, color, rect)
             pygame.draw.rect(screen, (0, 0, 0), rect, 2)
 
-        # Speelknop
-        pygame.draw.rect(screen, (0, 200, 100), play_button)
-        pygame.draw.rect(screen, (0, 0, 0), play_button, 2)
+        # Knoppen
+        pygame.draw.rect(screen, (0, 200, 100), start_button)
+        pygame.draw.rect(screen, (0, 0, 0), start_button, 2)
+        screen.blit(font.render("START GAME", True, (0, 0, 0)),
+                    (start_button.x + 25, start_button.y + 10))
+
+        pygame.draw.rect(screen, (200, 200, 200), back_button)
+        pygame.draw.rect(screen, (0, 0, 0), back_button, 2)
         screen.blit(font.render("TERUG", True, (0, 0, 0)),
-                    (play_button.x + 50, play_button.y + 10))
+                    (back_button.x + 55, back_button.y + 10))
+
         screen.blit(font.render("Kies je viskleur", True, (255, 255, 255)),
                     (WIDTH//2 - 80, 20))
 
