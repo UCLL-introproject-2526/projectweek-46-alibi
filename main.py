@@ -3,6 +3,7 @@ import pygame
 from homescreen import show_home_screen
 from locker import show_locker
 from sharks import run_game
+from window import create_main_surface
 
 WIDTH, HEIGHT = 1024, 768
 
