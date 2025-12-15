@@ -8,7 +8,9 @@ def show_locker(screen):
 
     WIDTH, HEIGHT = screen.get_size()
 
-   
+    # -------------------------------
+    #   KLEUREN & PATRONEN
+    # -------------------------------
     colors = [
         (255, 0, 0),
         (0, 255, 0),
@@ -26,8 +28,7 @@ def show_locker(screen):
     COLOR_Y = HEIGHT - 130
     PATTERN_Y = HEIGHT - 70
 
-    start_button = pygame.Rect(WIDTH//2 - 170, HEIGHT - 55, 160, 40)
-    back_button  = pygame.Rect(WIDTH//2 + 10,  HEIGHT - 55, 160, 40)
+    play_button = pygame.Rect(WIDTH//2 - 80, HEIGHT - 50, 160, 40)
 
     # -------------------------------
     #   BUBBELS & PLANTEN (achtergrond)
@@ -84,11 +85,7 @@ def show_locker(screen):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-<<<<<<< HEAD
                 return None, None
-=======
-                return ("back", selected_color)
->>>>>>> b4ab8eae72c94593c213481afbd13afe488fee90
 
             if event.type == pygame.MOUSEBUTTONUP:
                 mx, my = event.pos
@@ -99,7 +96,6 @@ def show_locker(screen):
                     if rect.collidepoint(mx, my):
                         selected_color = color
 
-<<<<<<< HEAD
                 # patronen
                 for i, pattern in enumerate(patterns):
                     rect = pygame.Rect(START_X + i * (BOX_SIZE + 10), PATTERN_Y, BOX_SIZE, BOX_SIZE)
@@ -109,15 +105,6 @@ def show_locker(screen):
                 # terugknop
                 if play_button.collidepoint(mx, my):
                     return selected_color, selected_pattern
-=======
-                # START GAME
-                if start_button.collidepoint(mx, my):
-                    return ("start", selected_color)
-
-                # TERUG
-                if back_button.collidepoint(mx, my):
-                    return ("back", selected_color)
->>>>>>> b4ab8eae72c94593c213481afbd13afe488fee90
 
         # ---------------- TEKENEN ----------------
         screen.fill((5, 50, 120))
@@ -149,7 +136,6 @@ def show_locker(screen):
             pygame.draw.rect(screen, color, rect)
             pygame.draw.rect(screen, (0, 0, 0), rect, 2)
 
-<<<<<<< HEAD
         screen.blit(font.render("KLEUR", True, (255, 255, 255)), (START_X, COLOR_Y - 25))
 
         # patroon palet
@@ -165,22 +151,6 @@ def show_locker(screen):
         pygame.draw.rect(screen, (0, 200, 100), play_button)
         pygame.draw.rect(screen, (0, 0, 0), play_button, 2)
         screen.blit(font.render("TERUG", True, (0, 0, 0)), (play_button.x + 50, play_button.y + 10))
-=======
-        # Knoppen
-        pygame.draw.rect(screen, (0, 200, 100), start_button)
-        pygame.draw.rect(screen, (0, 0, 0), start_button, 2)
-        screen.blit(font.render("START GAME", True, (0, 0, 0)),
-                    (start_button.x + 25, start_button.y + 10))
-
-        pygame.draw.rect(screen, (200, 200, 200), back_button)
-        pygame.draw.rect(screen, (0, 0, 0), back_button, 2)
-        screen.blit(font.render("TERUG", True, (0, 0, 0)),
-                    (back_button.x + 55, back_button.y + 10))
-
-        screen.blit(font.render("Kies je viskleur", True, (255, 255, 255)),
-                    (WIDTH//2 - 80, 20))
->>>>>>> b4ab8eae72c94593c213481afbd13afe488fee90
 
         pygame.display.flip()
         clock.tick(60)
-
