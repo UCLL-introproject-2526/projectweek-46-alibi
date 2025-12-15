@@ -100,5 +100,4 @@ def show_locker():
         pygame.display.flip()
         clock.tick(60)
 
-# Functie starten
-show_locker()
+
