@@ -1,20 +1,41 @@
 import pygame
-from homescreen import show_home_screen
-from game import create_main_surface   # of waar je game-functie staat
 
-pygame.init()
+from homescreen import show_home_screen
+from locker import show_locker
+from window import create_main_surface
 
 WIDTH, HEIGHT = 1024, 768
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Deep Sea")
 
-while True:
-    action = show_home_screen(screen)
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Deep Sea")
 
-    if action == "start":
-        create_main_surface()
+    state = "home"
+    running = True
 
-    if action == "quit":
-        break
+    while running:
 
-pygame.quit()
+        if state == "home":
+            action = show_home_screen(screen)
+
+            if action == "start":
+                state = "game"
+            elif action == "locker":
+                state = "locker"
+            elif action == "quit":
+                running = False
+
+        elif state == "game":
+            create_main_surface(screen)
+            state = "home"   # ⬅️ BELANGRIJK: terug naar homescreen
+
+        elif state == "locker":
+            show_locker(screen)
+            state = "home"   # ⬅️ BELANGRIJK: terug naar homescreen
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()

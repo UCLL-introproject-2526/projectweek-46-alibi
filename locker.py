@@ -11,40 +11,71 @@ pygame.display.set_caption("Vis Kleurenpalet")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 24)
 
-# Alle kleuren direct beschikbaar
-colors = [
-    (255, 0, 0),    # rood
-    (0, 255, 0),    # groen
-    (0, 0, 255),    # blauw
-    (255, 255, 0),  # geel
-    (255, 0, 255),  # paars
-]
+def show_locker():
+    # States
+    LOCKER = "locker"
+    GAME = "game"
+    state = LOCKER
 
-selected_color = colors[0]
+    # Kleuren
+    colors = [
+        (255, 0, 0),
+        (0, 255, 0),
+        (0, 0, 255),
+        (255, 255, 0),
+        (255, 0, 255),
+    ]
 
-# Palet layout
-BOX_SIZE = 50
-START_X = 40
-Y = 200
+    selected_color = colors[0]
 
-def draw_fish(color):
-    pygame.draw.ellipse(screen, color, (260, 110, 120, 60))
-    pygame.draw.polygon(
-        screen,
-        color,
-        [(260, 140), (220, 110), (220, 170)]
-    )
-    pygame.draw.circle(screen, (0, 0, 0), (360, 140), 5)
+    # Palet layout
+    BOX_SIZE = 50
+    START_X = 40
+    Y = 180
 
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+    # Speel knop
+    play_button = pygame.Rect(220, 240, 160, 40)
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mx, my = pygame.mouse.get_pos()
+    def draw_fish(color, x=240, y=60):
+        pygame.draw.ellipse(screen, color, (x, y, 120, 60))
+        pygame.draw.polygon(
+            screen,
+            color,
+            [(x, y + 30), (x - 40, y), (x - 40, y + 60)]
+        )
+        pygame.draw.circle(screen, (0, 0, 0), (x + 100, y + 30), 5)
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mx, my = pygame.mouse.get_pos()
+
+                if state == LOCKER:
+                    # Kleur kiezen
+                    for i, color in enumerate(colors):
+                        rect = pygame.Rect(
+                            START_X + i * (BOX_SIZE + 10),
+                            Y,
+                            BOX_SIZE,
+                            BOX_SIZE
+                        )
+                        if rect.collidepoint(mx, my):
+                            selected_color = color
+
+                    # Naar spel
+                    if play_button.collidepoint(mx, my):
+                        state = GAME
+
+        # LOCKER
+        if state == LOCKER:
+            screen.fill((0, 120, 200))
+            draw_fish(selected_color)
+
             for i, color in enumerate(colors):
                 rect = pygame.Rect(
                     START_X + i * (BOX_SIZE + 10),
@@ -52,26 +83,22 @@ while running:
                     BOX_SIZE,
                     BOX_SIZE
                 )
-                if rect.collidepoint(mx, my):
-                    selected_color = color
+                pygame.draw.rect(screen, color, rect)
+                pygame.draw.rect(screen, (0, 0, 0), rect, 2)
 
-    screen.fill((0, 120, 200))  # zee
+            pygame.draw.rect(screen, (0, 200, 100), play_button)
+            pygame.draw.rect(screen, (0, 0, 0), play_button, 2)
+            screen.blit(font.render("SPELEN", True, (0, 0, 0)), (270, 250))
+            screen.blit(font.render("Kies je viskleur", True, (255, 255, 255)), (250, 20))
 
-    draw_fish(selected_color)
+        # GAME
+        elif state == GAME:
+            screen.fill((0, 120, 200))
+            draw_fish(selected_color, 240, 120)
+            screen.blit(font.render("Spel gestart!", True, (255, 255, 255)), (250, 20))
 
-    # Palet tekenen
-    for i, color in enumerate(colors):
-        rect = pygame.Rect(
-            START_X + i * (BOX_SIZE + 10),
-            Y,
-            BOX_SIZE,
-            BOX_SIZE
-        )
-        pygame.draw.rect(screen, color, rect)
-        pygame.draw.rect(screen, (0, 0, 0), rect, 2)
+        pygame.display.flip()
+        clock.tick(60)
+        return "game", selected_color
 
-    info = font.render("Klik een kleur om je vis te veranderen", True, (255, 255, 255))
-    screen.blit(info, (150, 20))
 
-    pygame.display.flip()
-    clock.tick(60)
