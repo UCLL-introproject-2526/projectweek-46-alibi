@@ -8,7 +8,9 @@ def show_locker(screen):
 
     WIDTH, HEIGHT = screen.get_size()
 
-    # Kleuren
+    # -------------------------------
+    #   KLEUREN & PATRONEN
+    # -------------------------------
     colors = [
         (255, 0, 0),
         (0, 255, 0),
@@ -18,13 +20,20 @@ def show_locker(screen):
     ]
     selected_color = colors[0]
 
+    patterns = ["none", "stripes", "dots", "waves"]
+    selected_pattern = "none"
+
     BOX_SIZE = 50
     START_X = 40
-    Y = HEIGHT - 120
+    COLOR_Y = HEIGHT - 130
+    PATTERN_Y = HEIGHT - 70
 
     play_button = pygame.Rect(WIDTH//2 - 80, HEIGHT - 50, 160, 40)
 
-    # Bubbels
+    # -------------------------------
+    #   BUBBELS & PLANTEN (achtergrond)
+    # -------------------------------
+
     bubbles = [{
         "x": random.randint(0, WIDTH),
         "y": random.randint(HEIGHT - 100, HEIGHT),
@@ -32,7 +41,6 @@ def show_locker(screen):
         "size": random.randint(3, 7)
     } for _ in range(25)]
 
-    # Zeewier
     plants = []
     for _ in range(15):
         x = random.randint(0, WIDTH)
@@ -40,91 +48,110 @@ def show_locker(screen):
         wiggle = random.uniform(0.02, 0.06)
         plants.append((x, h, wiggle))
 
-    def draw_fish(color, x=WIDTH//2 - 60, y=60):
+    # -------------------------------
+    #   VIS MET PATRONEN
+    # -------------------------------
+    def draw_fish(color, pattern, x=WIDTH//2 - 60, y=60):
+        # fis-body
         pygame.draw.ellipse(screen, color, (x, y, 120, 60))
         pygame.draw.polygon(screen, color, [(x, y+30), (x-40, y), (x-40, y+60)])
         pygame.draw.circle(screen, (0, 0, 0), (x + 100, y + 30), 5)
 
+        # --- patronen ---
+        if pattern == "stripes":
+            for i in range(4):
+                sx = x + 20 + i * 20
+                pygame.draw.rect(screen, (255, 255, 255), (sx, y + 5, 10, 50), 2)
+
+        elif pattern == "dots":
+            for i in range(5):
+                dx = x + 20 + i * 18
+                dy = y + 20 + (i % 2) * 10
+                pygame.draw.circle(screen, (255, 255, 255), (dx, dy), 6)
+
+        elif pattern == "waves":
+            for i in range(6):
+                wx = x + 15 + i * 17
+                wy = y + 10 + math.sin(i * 0.8) * 6
+                pygame.draw.circle(screen, (255, 255, 255), (wx, wy), 4)
+
     time = 0
 
+    # -------------------------------
+    #   MAIN LOOP
+    # -------------------------------
     while True:
         time += 1
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return None
+                return None, None
 
             if event.type == pygame.MOUSEBUTTONUP:
                 mx, my = event.pos
 
-                # kleur selecteren
+                # kleuren
                 for i, color in enumerate(colors):
-                    rect = pygame.Rect(
-                        START_X + i * (BOX_SIZE + 10),
-                        Y,
-                        BOX_SIZE,
-                        BOX_SIZE
-                    )
+                    rect = pygame.Rect(START_X + i * (BOX_SIZE + 10), COLOR_Y, BOX_SIZE, BOX_SIZE)
                     if rect.collidepoint(mx, my):
                         selected_color = color
 
-                # terug naar homescreen
+                # patronen
+                for i, pattern in enumerate(patterns):
+                    rect = pygame.Rect(START_X + i * (BOX_SIZE + 10), PATTERN_Y, BOX_SIZE, BOX_SIZE)
+                    if rect.collidepoint(mx, my):
+                        selected_pattern = pattern
+
+                # terugknop
                 if play_button.collidepoint(mx, my):
-                    return selected_color
+                    return selected_color, selected_pattern
 
         # ---------------- TEKENEN ----------------
         screen.fill((5, 50, 120))
 
-        # Lichtstralen
+        # lichtstralen
         for i in range(80):
             lx = (i * 15 + time * 0.7) % WIDTH
             pygame.draw.line(screen, (80, 130, 200), (lx, 0), (lx - 40, HEIGHT), 1)
 
-        # Zeewier
+        # planten
         for x, h, wiggle in plants:
             top_x = x + math.sin(time * wiggle) * 6
-            pygame.draw.line(
-                screen,
-                (20, 90, 70),
-                (x, HEIGHT),
-                (top_x, HEIGHT - h),
-                5
-            )
+            pygame.draw.line(screen, (20, 90, 70), (x, HEIGHT), (top_x, HEIGHT - h), 5)
 
-        # Bubbels
+        # bubbels
         for b in bubbles:
             b["y"] -= b["speed"]
             if b["y"] < 0:
                 b["y"] = HEIGHT
                 b["x"] = random.randint(0, WIDTH)
-            pygame.draw.circle(
-                screen,
-                (200, 220, 255),
-                (int(b["x"]), int(b["y"])),
-                b["size"]
-            )
+            pygame.draw.circle(screen, (200, 220, 255), (int(b["x"]), int(b["y"])), b["size"])
 
-        # Vis voorbeeld
-        draw_fish(selected_color)
+        # VIS voorbeeld
+        draw_fish(selected_color, selected_pattern)
 
-        # Kleurenpalet
+        # kleuren palet
         for i, color in enumerate(colors):
-            rect = pygame.Rect(
-                START_X + i * (BOX_SIZE + 10),
-                Y,
-                BOX_SIZE,
-                BOX_SIZE
-            )
+            rect = pygame.Rect(START_X + i * (BOX_SIZE + 10), COLOR_Y, BOX_SIZE, BOX_SIZE)
             pygame.draw.rect(screen, color, rect)
             pygame.draw.rect(screen, (0, 0, 0), rect, 2)
 
-        # Speelknop
+        screen.blit(font.render("KLEUR", True, (255, 255, 255)), (START_X, COLOR_Y - 25))
+
+        # patroon palet
+        for i, pattern in enumerate(patterns):
+            rect = pygame.Rect(START_X + i * (BOX_SIZE + 10), PATTERN_Y, BOX_SIZE, BOX_SIZE)
+            pygame.draw.rect(screen, (180, 180, 180), rect)
+            pygame.draw.rect(screen, (0, 0, 0), rect, 2)
+            screen.blit(font.render(pattern, True, (0, 0, 0)), (rect.x + 5, rect.y + 15))
+
+        screen.blit(font.render("PATRONEN", True, (255, 255, 255)), (START_X, PATTERN_Y - 25))
+
+        # terug-knop
         pygame.draw.rect(screen, (0, 200, 100), play_button)
         pygame.draw.rect(screen, (0, 0, 0), play_button, 2)
-        screen.blit(font.render("TERUG", True, (0, 0, 0)),
-                    (play_button.x + 50, play_button.y + 10))
-        screen.blit(font.render("Kies je viskleur", True, (255, 255, 255)),
-                    (WIDTH//2 - 80, 20))
+        screen.blit(font.render("TERUG", True, (0, 0, 0)), (play_button.x + 50, play_button.y + 10))
 
         pygame.display.flip()
         clock.tick(60)
+
