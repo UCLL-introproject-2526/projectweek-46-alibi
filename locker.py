@@ -8,9 +8,7 @@ def show_locker(screen):
 
     WIDTH, HEIGHT = screen.get_size()
 
-    # -------------------------------
-    #   KLEUREN & PATRONEN
-    # -------------------------------
+   
     colors = [
         (255, 0, 0),
         (0, 255, 0),
