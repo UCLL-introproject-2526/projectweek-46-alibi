@@ -19,8 +19,19 @@ def run_game(screen):
     sharks = []
 
     spawn_timer = 0
-    spawn_delay = 90   # minder delay → vaker haaien
+    spawn_delay = 90   # spawn vaker haaien
     shark_speed = 4
+    vertical_speed = 0.8  # minder snel naar boven/beneden
+
+    # SCORE
+    score = 0
+    highscore = 0
+    score_timer = 0
+
+    game_over = False
+
+    font = pygame.font.SysFont(None, 32)
+    big_font = pygame.font.SysFont(None, 56)
 
     while True:
         draw_background(screen, time)
@@ -29,52 +40,76 @@ def run_game(screen):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quit"
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                return "home"
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return "home"
+                if game_over and event.key == pygame.K_RETURN:
+                    # reset game
+                    fish_rect.y = HEIGHT // 2
+                    sharks = []
+                    spawn_timer = 0
+                    score = 0
+                    score_timer = 0
+                    game_over = False
 
-        # VIS BEWEGEN
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_UP]:
-            fish_rect.y -= fish_speed
-        if keys[pygame.K_DOWN]:
-            fish_rect.y += fish_speed
-        fish_rect.y = max(0, min(HEIGHT - fish_rect.height, fish_rect.y))
+        if not game_over:
+            # SCORE OPHOOG
+            score_timer += 1
+            if score_timer >= 30:  # 30 frames ≈ 0.5 seconde
+                score += 1
+                score_timer = 0
 
-        # HAAIEN SPAWNEN
-        spawn_timer += 1
-        if spawn_timer > spawn_delay:
-            spawn_timer = 0
-            # spawn 1-2 haaien tegelijk
-            for _ in range(random.randint(1, 2)):
-                rect = shark_image.get_rect(
-                    x=WIDTH,
-                    y=random.randint(0, HEIGHT - shark_image.get_height())
-                )
-                sharks.append(rect)
+            # VIS BEWEGEN
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_UP]:
+                fish_rect.y -= fish_speed
+            if keys[pygame.K_DOWN]:
+                fish_rect.y += fish_speed
+            fish_rect.y = max(0, min(HEIGHT - fish_rect.height, fish_rect.y))
 
-        # HAAIEN BEWEGEN
-        for shark in sharks[:]:
-            # horizontaal naar links
-            shark.x -= shark_speed
+            # HAAIEN SPAWNEN
+            spawn_timer += 1
+            if spawn_timer > spawn_delay:
+                spawn_timer = 0
+                for _ in range(random.randint(1, 2)):
+                    rect = shark_image.get_rect(
+                        x=WIDTH,
+                        y=random.randint(0, HEIGHT - shark_image.get_height())
+                    )
+                    sharks.append(rect)
 
-            # verticaal aanpassen richting vis
-            if shark.y + shark.height/2 < fish_rect.y + fish_rect.height/2:
-                shark.y += 1.5  # bewegen naar beneden
-            elif shark.y + shark.height/2 > fish_rect.y + fish_rect.height/2:
-                shark.y -= 1.5  # bewegen naar boven
+            # HAAIEN BEWEGEN
+            for shark in sharks[:]:
+                shark.x -= shark_speed
 
-            # verwijderd als buiten scherm
-            if shark.right < 0:
-                sharks.remove(shark)
+                if shark.y + shark.height/2 < fish_rect.y + fish_rect.height/2:
+                    shark.y += vertical_speed
+                elif shark.y + shark.height/2 > fish_rect.y + fish_rect.height/2:
+                    shark.y -= vertical_speed
 
-            # botsing
-            if shark.colliderect(fish_rect):
-                return "home"
+                if shark.right < 0:
+                    sharks.remove(shark)
 
-        # TEKENEN
-        screen.blit(fish_image, fish_rect)
-        for shark in sharks:
-            screen.blit(shark_image, shark)
+                if shark.colliderect(fish_rect):
+                    game_over = True
+                    highscore = max(highscore, score)
+
+            # TEKENEN
+            screen.blit(fish_image, fish_rect)
+            for shark in sharks:
+                screen.blit(shark_image, shark)
+
+            # SCORE DISPLAY
+            screen.blit(font.render(f"Score: {score}", True, (255,255,255)), (10, 10))
+            screen.blit(font.render(f"Highscore: {highscore}", True, (255,255,255)), (10, 40))
+
+        else:
+            # GAME OVER SCOREBORD
+            screen.blit(big_font.render("GAME OVER", True, (255,255,255)), (WIDTH//2 - 150, 80))
+            screen.blit(font.render(f"Score: {score}", True, (255,255,255)), (WIDTH//2 - 70, 160))
+            screen.blit(font.render(f"Highscore: {highscore}", True, (255,255,255)), (WIDTH//2 - 90, 200))
+            screen.blit(font.render("ENTER = opnieuw spelen", True, (255,255,255)), (WIDTH//2 - 150, 260))
+            screen.blit(font.render("ESC = afsluiten", True, (255,255,255)), (WIDTH//2 - 120, 300))
 
         pygame.display.flip()
         clock.tick(60)
