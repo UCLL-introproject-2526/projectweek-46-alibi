@@ -255,5 +255,3 @@ def create_main_surface():
         clock.tick(60)
 
     pygame.quit()
-
-create_main_surface()

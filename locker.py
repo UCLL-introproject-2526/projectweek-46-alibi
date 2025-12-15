@@ -148,6 +148,8 @@ def show_locker():
 
         pygame.display.flip()
         clock.tick(60)
+        return "game", selected_color
 
 
-
+# Functie starten
+show_locker()
