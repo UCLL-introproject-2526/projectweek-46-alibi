@@ -3,14 +3,13 @@ import pygame
 from homescreen import show_home_screen
 from locker import show_locker
 from sharks import run_game
-from window import create_main_surface
 
 WIDTH, HEIGHT = 1024, 768
 
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Shark Attack")
+    pygame.display.set_caption("Deep Sea")
 
     state = "home"
     running = True
@@ -28,17 +27,21 @@ def main():
                 running = False
 
         elif state == "locker":
+            # ⬅️ LOCKER KRIJGT NU ECHT CONTROLE
             show_locker(screen)
             state = "home"
 
         elif state == "game":
+            # ⬅️ SHARKS GAME
             result = run_game(screen)
+
             if result == "quit":
                 running = False
             else:
                 state = "home"
 
     pygame.quit()
+
 
 if __name__ == "__main__":
     main()
