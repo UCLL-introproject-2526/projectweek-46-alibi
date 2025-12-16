@@ -5,7 +5,7 @@ from homescreen import show_home_screen
 from locker import show_locker
 from sharks import run_game
 from window import draw_background
-from itemshop import show_itemshop       # ⬅️ DIT MOET JE OOK IMPORTEREN!
+from itemshop import show_itemshop       
 
 WIDTH, HEIGHT = 1024, 768
 
