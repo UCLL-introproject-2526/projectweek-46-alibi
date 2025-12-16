@@ -1,150 +1,63 @@
 import pygame
-import math
 
 from homescreen import show_home_screen
 from locker import show_locker
 from sharks import run_game
-from window import draw_background
-from itemshop import show_itemshop      
+from highscores import show_highscores
 
-WIDTH, HEIGHT = 1024, 768
+# -------------------------------
+#   INIT
+# -------------------------------
+pygame.init()
+SCREEN_W, SCREEN_H = 1024, 768
+screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
+pygame.display.set_caption("Shark Attack")
 
-FISH_W = 50
-FISH_H = 30
+clock = pygame.time.Clock()
 
-def draw_player_fish(surface, fish, pattern, x, y, w=FISH_W, h=FISH_H):
-    image = pygame.image.load(fish + ".png").convert_alpha()
-    image = pygame.transform.scale(image, (int(w), int(h)))
-    surface.blit(image, (x, y))
+# -------------------------------
+#   GAME STATE
+# -------------------------------
+state = "home"
 
-    scale_x = w / FISH_W
-    scale_y = h / FISH_H
+# gekozen vis (default)
+selected_fish = "img/fish"
+selected_pattern = "none"
 
-    if pattern == "stripes":
-        for i in range(3):
-            pygame.draw.rect(surface, (255, 255, 255),
-                (x + 18*scale_x + i*18*scale_x, y + 4*scale_y,
-                 8*scale_x, h - 8*scale_y), 2)
+# -------------------------------
+#   MAIN LOOP
+# -------------------------------
+running = True
+while running:
 
-    elif pattern == "dots":
-        for i in range(4):
-            pygame.draw.circle(surface, (255, 255, 255),
-                (x + 18*scale_x + i*18*scale_x,
-                 y + 16*scale_y + (i % 2)*8*scale_y),
-                5*scale_x)
+    if state == "home":
+        state = show_home_screen(screen)
 
-    elif pattern == "waves":
-        for i in range(5):
-            wx = x + 14*scale_x + i*16*scale_x
-            wy = y + h//2 + math.sin(i*0.9) * 6 * scale_y
-            pygame.draw.circle(surface, (255,255,255), (wx, int(wy)), 3)
+    elif state == "locker":
+        result = show_locker(screen)
 
-
-def main():
-    pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Shark Attack")
-    clock = pygame.time.Clock()
-
-    state = "home"
-    running = True
-
-    # ----------------------------
-    #   COINS + UNLOCK INFORMATION
-    # ----------------------------
-    coins = 0
-    unlocked_colors = []
-    unlocked_patterns = []
-
-    # standaard vis
-    player_color = (255, 0, 0)
-    player_pattern = "none"
-    player_fish = "vis1"
-
-    transition_start_pos = (WIDTH//2 - 60, HEIGHT // 2 - 30)
-    transition_end_pos = (100, HEIGHT // 2)
-    transition_start_size = (120, 60)
-    transition_end_size = (50, 30)
-    transition_duration = 120
-    transition_frame = 0
-
-    while running:
-
-        # ========== HOME ==========
-        if state == "home":
-            action = show_home_screen(screen)
+        # show_locker geeft terug:
+        # ("start", fish, pattern)
+        # ("back", None, None)
+        if result:
+            action, fish, pattern = result
 
             if action == "start":
-                state = "game"
-
-            elif action == "locker":
-                state = "locker"
-
-            elif action == "quit":
-                running = False
-
-        # ========== LOCKER ==========
-        elif state == "locker":
-            action, color, pattern = show_locker(screen)
-
-            if action == "start":
-                player_fish = color
-                player_pattern = pattern
-                state = "transition"
-
-            elif action == "itemshop":
-                state = "itemshop"
-
+                selected_fish = fish
+                selected_pattern = pattern
+                state = "start"
             else:
                 state = "home"
 
-        # ========== ITEMSHOP ==========
-        elif state == "itemshop":
-            coins, unlocked_colors, unlocked_patterns = show_itemshop(
-                screen,
-                coins,
-                unlocked_colors,
-                unlocked_patterns
-            )
+    elif state == "start":
+        state = run_game(screen, selected_fish, selected_pattern)
 
-            # TERUG NAAR LOCKER
-            state = "locker"
+    elif state == "highscores":
+        state = show_highscores(screen)
 
-        # ========== TRANSITION ==========
-        elif state == "transition":
-            t = transition_frame / transition_duration
-            current_x = transition_start_pos[0] + (transition_end_pos[0] - transition_start_pos[0]) * t
-            current_y = transition_start_pos[1] + (transition_end_pos[1] - transition_start_pos[1]) * t
-            current_w = transition_start_size[0] + (transition_end_size[0] - transition_start_size[0]) * t
-            current_h = transition_start_size[1] + (transition_end_size[1] - transition_start_size[1]) * t
+    elif state == "quit":
+        running = False
 
-            draw_background(screen, transition_frame)
-            draw_player_fish(screen, player_fish, player_pattern, current_x,current_y, current_w, current_h)
+    clock.tick(60)
 
-            transition_frame += 1
-
-            if transition_frame >= transition_duration:
-                state = "game"
-                transition_frame = 0
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-
-            pygame.display.flip()
-            clock.tick(60)
-
-        # ========== GAME ==========
-        elif state == "game":
-            result = run_game(screen, player_fish, player_pattern)
-
-            if result == "quit":
-                running = False
-            else:
-                state = "home"
-
-    pygame.quit()
-
-
-if __name__ == "__main__":
-    main()
+pygame.quit()

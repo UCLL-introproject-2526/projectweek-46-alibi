@@ -2,6 +2,7 @@ import pygame
 import random
 import math
 from window import draw_background
+from highscores import load_scores
 
 # -------------------------------
 #   CONSTANTEN
@@ -12,6 +13,18 @@ FPS = 60
 LEVEL_SCORE = 100
 POWER_UP_DURATION = 10 * FPS
 
+
+# -------------------------------
+#   SCORE OPSLAAN
+# -------------------------------
+def save_score(score):
+    with open("scores.txt", "a") as f:
+        f.write(str(score) + "\n")
+
+
+# -------------------------------
+#   VIS TEKENEN
+# -------------------------------
 def draw_player_fish(surface, fish, pattern, x, y):
     image = pygame.image.load(fish + ".png").convert_alpha()
     image = pygame.transform.scale(image, (FISH_W, FISH_H))
@@ -19,19 +32,24 @@ def draw_player_fish(surface, fish, pattern, x, y):
 
     if pattern == "stripes":
         for i in range(3):
-            pygame.draw.rect(surface, (255,255,255),
-                (x + 18 + i*18, y + 4, 8, FISH_H - 8), 2)
+            pygame.draw.rect(
+                surface, (255, 255, 255),
+                (x + 18 + i * 18, y + 4, 8, FISH_H - 8), 2
+            )
 
     elif pattern == "dots":
         for i in range(4):
-            pygame.draw.circle(surface, (255,255,255),
-                (x + 18 + i*18, y + 16 + (i % 2) * 8), 5)
+            pygame.draw.circle(
+                surface, (255, 255, 255),
+                (x + 18 + i * 18, y + 16 + (i % 2) * 8), 5
+            )
 
     elif pattern == "waves":
         for i in range(5):
             wx = x + 14 + i * 16
-            wy = y + FISH_H//2 + math.sin(i * 0.9) * 6
-            pygame.draw.circle(surface, (255,255,255), (wx, int(wy)), 3)
+            wy = y + FISH_H // 2 + math.sin(i * 0.9) * 6
+            pygame.draw.circle(surface, (255, 255, 255), (wx, int(wy)), 3)
+
 
 # -------------------------------
 #   GAME
@@ -44,21 +62,15 @@ def run_game(screen, fish, pattern):
     player_x = 100
     player_y = HEIGHT // 2
     fish_speed = 5
-    boss_image = pygame.image.load("img/boss.png").convert_alpha()
-    # haaien
+
+    # afbeeldingen
     shark_image = pygame.image.load("img/shark.png").convert_alpha()
     shark_image = pygame.transform.scale(shark_image, (80, 50))
 
-    # kist image
-    kist_image = pygame.image.load("img/kist.png").convert_alpha()
-    kist_image = pygame.transform.scale(kist_image, (50, 50))
+    boss_image = pygame.image.load("img/boss.png").convert_alpha()
 
-    # fluobeam image
-    fluobeam_image = pygame.image.load("img/Fluobeam.png").convert_alpha()
-    fluobeam_image = pygame.transform.scale(fluobeam_image, (12, 12))
-
+    # game objecten
     sharks = []
-    boxes = []
     laser_bullets = []
 
     spawn_timer = 0
@@ -68,14 +80,12 @@ def run_game(screen, fish, pattern):
 
     score = 0
     score_timer = 0
-    highscore = load_highscore()
+
+    scores = load_scores()
+    highscore = max(scores) if scores else 0
+
     level = 1
     game_over = False
-
-    power_up_active = False
-    power_up_timer = 0
-    last_box_spawn_score = 0
-    box_speed = 4
 
     boss_active = False
     boss_rect = None
@@ -85,6 +95,9 @@ def run_game(screen, fish, pattern):
     font = pygame.font.SysFont(None, 32)
     big_font = pygame.font.SysFont(None, 56)
 
+    # -------------------------------
+    #   MAIN LOOP
+    # -------------------------------
     while True:
         draw_background(screen, time)
         time += 1
@@ -92,13 +105,14 @@ def run_game(screen, fish, pattern):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quit"
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return "home"
+
                 if game_over and event.key == pygame.K_RETURN:
                     player_y = HEIGHT // 2
                     sharks.clear()
-                    boxes.clear()
                     laser_bullets.clear()
                     score = 0
                     score_timer = 0
@@ -106,12 +120,16 @@ def run_game(screen, fish, pattern):
                     game_over = False
                     boss_active = False
 
+        # -------------------------------
+        #   GAME LOGICA
+        # -------------------------------
         if not game_over:
             score_timer += 1
             if score_timer >= 30:
                 score += 1
                 score_timer = 0
 
+            # level scaling
             new_level = score // LEVEL_SCORE + 1
             if new_level != level:
                 level = new_level
@@ -123,11 +141,12 @@ def run_game(screen, fish, pattern):
                     sharks.clear()
                     boss_rect = boss_image.get_rect(
                         x=WIDTH + 40,
-                        y=HEIGHT//2 - boss_image.get_height()//2
+                        y=HEIGHT // 2 - boss_image.get_height() // 2
                     )
                     boss_max_hp = 20 + level * 5
                     boss_hp = boss_max_hp
 
+            # beweging speler
             keys = pygame.key.get_pressed()
             if keys[pygame.K_UP]:
                 player_y -= fish_speed
@@ -135,18 +154,22 @@ def run_game(screen, fish, pattern):
                 player_y += fish_speed
             player_y = max(0, min(HEIGHT - FISH_H, player_y))
 
-            player_rect = pygame.Rect(player_x - 32, player_y, FISH_W, FISH_H)
+            player_rect = pygame.Rect(player_x, player_y, FISH_W, FISH_H)
 
+            # spawn haaien
             if not boss_active:
                 spawn_timer += 1
                 if spawn_timer > spawn_delay:
                     spawn_timer = 0
-                    for _ in range(min(1 + level//2, 4)):
-                        sharks.append(shark_image.get_rect(
-                            x=WIDTH,
-                            y=random.randint(0, HEIGHT - 50)
-                        ))
+                    for _ in range(min(1 + level // 2, 4)):
+                        sharks.append(
+                            shark_image.get_rect(
+                                x=WIDTH,
+                                y=random.randint(0, HEIGHT - 50)
+                            )
+                        )
 
+            # haaien gedrag
             for shark in sharks[:]:
                 shark.x -= shark_speed
                 if shark.centery < player_rect.centery:
@@ -156,15 +179,18 @@ def run_game(screen, fish, pattern):
 
                 if shark.right < 0:
                     sharks.remove(shark)
+
                 elif shark.colliderect(player_rect):
                     game_over = True
-                    if score > highscore:
-                        highscore = score
-                        save_highscore(highscore)
+                    save_score(score)
+                    scores.append(score)
+                    highscore = max(scores)
 
+            # boss gedrag
             if boss_active and boss_rect:
                 if boss_rect.x > WIDTH - 220:
                     boss_rect.x -= 2
+
                 if boss_rect.centery < player_rect.centery:
                     boss_rect.y += 1.5
                 elif boss_rect.centery > player_rect.centery:
@@ -172,29 +198,13 @@ def run_game(screen, fish, pattern):
 
                 if boss_rect.colliderect(player_rect):
                     game_over = True
+                    save_score(score)
+                    scores.append(score)
+                    highscore = max(scores)
 
-            if power_up_active:
-                power_up_timer -= 1
-                if power_up_timer <= 0:
-                    power_up_active = False
-                if random.random() < 0.05:
-                    laser_bullets.append({
-                        "x": player_x + FISH_W//2,
-                        "y": player_y + FISH_H//2,
-                        "dx": 15
-                    })
-
-            for bullet in laser_bullets[:]:
-                bullet["x"] += bullet["dx"]
-                bullet_rect = pygame.Rect(bullet["x"]-5, bullet["y"]-5, 10, 10)
-
-                if boss_active and boss_rect and bullet_rect.colliderect(boss_rect):
-                    boss_hp -= 1
-                    laser_bullets.remove(bullet)
-                elif bullet["x"] > WIDTH:
-                    laser_bullets.remove(bullet)
-
-            # tekenen
+            # -------------------------------
+            #   TEKENEN
+            # -------------------------------
             draw_player_fish(screen, fish, pattern, player_x, player_y)
 
             for shark in sharks:
@@ -203,20 +213,21 @@ def run_game(screen, fish, pattern):
             if boss_active and boss_rect:
                 screen.blit(boss_image, boss_rect)
                 bar_w = 200
-                pygame.draw.rect(screen, (255,0,0),
-                    (WIDTH//2 - bar_w//2, 20, bar_w, 16))
-                pygame.draw.rect(screen, (0,255,0),
-                    (WIDTH//2 - bar_w//2, 20, int(bar_w * boss_hp / boss_max_hp), 16))
+                pygame.draw.rect(screen, (255, 0, 0),
+                                 (WIDTH // 2 - bar_w // 2, 20, bar_w, 16))
+                pygame.draw.rect(screen, (0, 255, 0),
+                                 (WIDTH // 2 - bar_w // 2, 20,
+                                  int(bar_w * boss_hp / boss_max_hp), 16))
 
-            screen.blit(font.render(f"Score: {score}", True, (255,255,255)), (10,10))
-            screen.blit(font.render(f"Highscore: {highscore}", True, (255,255,255)), (10,40))
-            screen.blit(font.render(f"Level: {level}", True, (255,255,255)), (10,70))
+            screen.blit(font.render(f"Score: {score}", True, (255, 255, 255)), (10, 10))
+            screen.blit(font.render(f"Highscore: {highscore}", True, (255, 255, 255)), (10, 40))
+            screen.blit(font.render(f"Level: {level}", True, (255, 255, 255)), (10, 70))
 
         else:
-            screen.blit(big_font.render("GAME OVER", True, (255,255,255)),
-                        (WIDTH//2 - 150, 100))
-            screen.blit(font.render("ENTER = opnieuw", True, (255,255,255)),
-                        (WIDTH//2 - 100, 180))
+            screen.blit(big_font.render("GAME OVER", True, (255, 255, 255)),
+                        (WIDTH // 2 - 150, 120))
+            screen.blit(font.render("ENTER = opnieuw", True, (255, 255, 255)),
+                        (WIDTH // 2 - 100, 200))
 
         pygame.display.flip()
         clock.tick(FPS)
