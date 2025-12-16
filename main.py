@@ -6,6 +6,7 @@ from sharks import run_game,draw_player_fish
 from coin import CoinManager
 from highscores import show_highscores
 from window import draw_background
+from itemshop import show_itemshop
 # -------------------------------
 #   INIT
 # -------------------------------

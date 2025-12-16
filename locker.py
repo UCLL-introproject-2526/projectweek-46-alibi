@@ -20,6 +20,8 @@ def show_locker(screen):
     WIDTH, HEIGHT = screen.get_size()
     SAND_HEIGHT = 140
 
+    click_sound = pygame.mixer.Sound("muziek/shark_bite.mp3")
+    click_sound.set_volume(0.6)
 
     # -------------------------------
     #   VISSEN & PATRONEN
@@ -41,6 +43,11 @@ def show_locker(screen):
 
     # 👉 ITEMSHOP BUTTON (rechtsboven)
     itemshop_button = pygame.Rect(WIDTH - 150, 20, 130, 40)
+    if event.type == pygame.MOUSEBUTTONUP:
+                if start_button.collidepoint(event.pos):
+                    click_sound.play()
+                    pygame.mixer.music.stop()
+                    return "start"
 
     # -------------------------------
     #   ACHTERGROND EFFECTEN
@@ -149,7 +156,7 @@ def show_locker(screen):
                     pygame.mixer.music.stop()
                     return "back", None, None
 
-                # 👉 ITEMSHOP OPENEN
+                #  ITEMSHOP OPENEN
                 if itemshop_button.collidepoint(mx, my):
                     pygame.mixer.music.stop()
                     return "itemshop", selected_fish, selected_pattern
