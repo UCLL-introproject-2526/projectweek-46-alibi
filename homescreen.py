@@ -33,7 +33,7 @@ def show_home_screen(screen):
 
     # -------- AFBEELDING --------
     shark_img = pygame.image.load("img/shark_mouth.png").convert_alpha()
-    shark_img = pygame.transform.scale(shark_img, (420, 320))
+    shark_img = pygame.transform.scale(shark_img, (420, 620))
 
     # -------- EFFECTEN --------
     bubbles = [{
