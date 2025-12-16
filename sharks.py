@@ -368,12 +368,13 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
                 elif shark.colliderect(player_rect):
                     if not game_over:
+                        game_over = True                 # Zet direct game_over
                         death_effect(screen, death_sound)
-                    game_over = True
-                    save_score(score)
-                    scores.append(score)
-                    highscore = max(scores)
-                    pygame.mixer.music.fadeout(1000)
+                        save_score(score)
+                        scores.append(score)
+                        highscore = max(scores)
+                        pygame.mixer.music.fadeout(1000)
+
 
 
             # laser bullets
@@ -410,12 +411,13 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 # check collision met speler
                 elif bullet["rect"].colliderect(player_rect):
                     if not game_over:
+                        game_over = True
                         death_effect(screen, death_sound)
-                    game_over = True
-                    save_score(score)
-                    scores.append(score)
-                    highscore = max(scores)
-                    pygame.mixer.music.fadeout(1000)
+                        save_score(score)
+                        scores.append(score)
+                        highscore = max(scores)
+                        pygame.mixer.music.fadeout(1000)
+
 
 
 
@@ -479,12 +481,13 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
                 if boss_rect.colliderect(player_rect):
                     if not game_over:
+                        game_over = True
                         death_effect(screen, death_sound)
-                    game_over = True
-                    save_score(score)
-                    scores.append(score)
-                    highscore = max(scores)
-                    pygame.mixer.music.fadeout(1000)
+                        save_score(score)
+                        scores.append(score)
+                        highscore = max(scores)
+                        pygame.mixer.music.fadeout(1000)
+
             # boss verslaan
             if boss_active and boss_hp <= 0:
                 boss_active = False
