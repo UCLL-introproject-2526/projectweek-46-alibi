@@ -13,8 +13,7 @@ def draw_outlined_text(screen, text, font, color, outline_color, pos):
                 outline = font.render(text, True, outline_color)
                 screen.blit(outline, (pos[0] + dx, pos[1] + dy))
 
-    text_surf = font.render(text, True, color)
-    screen.blit(text_surf, pos)
+    screen.blit(font.render(text, True, color), pos)
 
 
 # --------------------------------
@@ -32,7 +31,11 @@ def show_home_screen(screen):
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1)
 
-    # -------- ACHTERGROND EFFECTEN --------
+    # -------- AFBEELDING --------
+    shark_img = pygame.image.load("img/shark_mouth.png").convert_alpha()
+    shark_img = pygame.transform.scale(shark_img, (420, 620))
+
+    # -------- EFFECTEN --------
     bubbles = [{
         "x": random.randint(0, WIDTH),
         "y": random.randint(HEIGHT - 200, HEIGHT),
@@ -68,12 +71,18 @@ def show_home_screen(screen):
     locker_button = pygame.Rect(WIDTH//2 - 160, HEIGHT//2 + 210, 320, 70)
     close_button  = pygame.Rect(WIDTH//2 - 160, HEIGHT//2 + 300, 320, 70)
 
+    # -------- BIJT ANIMATIE --------
+    bite_anim = False
+    bite_target = None
+    bite_timer = 0
+
     time = 0
     pygame.event.clear()
 
     # -------- LOOP --------
     while True:
         mouse_pos = pygame.mouse.get_pos()
+        shake_x = shake_y = 0
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -82,12 +91,14 @@ def show_home_screen(screen):
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if start_button.collidepoint(event.pos):
-                    pygame.mixer.music.stop()
-                    return "start"
+                    bite_anim = True
+                    bite_target = "start"
+                    bite_timer = 0
 
                 if locker_button.collidepoint(event.pos):
-                    pygame.mixer.music.stop()
-                    return "locker"
+                    bite_anim = True
+                    bite_target = "locker"
+                    bite_timer = 0
 
                 if close_button.collidepoint(event.pos):
                     pygame.mixer.music.stop()
@@ -101,50 +112,63 @@ def show_home_screen(screen):
             py = (random.randint(0, HEIGHT) + time) % HEIGHT
             screen.set_at((px, py), (70, 120, 170))
 
-        pygame.draw.rect(
-            screen,
-            (170, 150, 110),
-            (0, HEIGHT - 140, WIDTH, 140)
-        )
+        pygame.draw.rect(screen, (170, 150, 110),
+                         (0, HEIGHT - 140, WIDTH, 140))
 
         for s in stones:
-            pygame.draw.ellipse(
-                screen,
-                s["color"],
-                (s["x"], s["y"], s["w"], s["h"])
-            )
+            pygame.draw.ellipse(screen, s["color"],
+                                (s["x"], s["y"], s["w"], s["h"]))
 
         for x, h, wiggle in plants:
             top_x = x + math.sin(time * wiggle) * (5 + h * 0.05)
-            pygame.draw.line(
-                screen,
-                (40, 120, 90),
-                (x, HEIGHT),
-                (top_x, HEIGHT - h),
-                4
-            )
+            pygame.draw.line(screen, (40, 120, 90),
+                             (x, HEIGHT), (top_x, HEIGHT - h), 4)
 
         for b in bubbles:
             b["y"] -= b["speed"]
             if b["y"] < 0:
                 b["y"] = HEIGHT
                 b["x"] = random.randint(0, WIDTH)
-            pygame.draw.circle(
-                screen,
-                (200, 220, 255),
-                (int(b["x"]), int(b["y"])),
-                b["size"]
+            pygame.draw.circle(screen, (200, 220, 255),
+                               (int(b["x"]), int(b["y"])), b["size"])
+
+        # ===== HAAI + BIJT =====
+        if bite_anim:
+            bite_timer += 1
+            shake_x = random.randint(-6, 6)
+            shake_y = random.randint(-6, 6)
+
+            scale = 1 + bite_timer * 0.05
+            shark_zoom = pygame.transform.scale(
+                shark_img,
+                (int(420 * scale), int(320 * scale))
+            )
+
+            screen.blit(
+                shark_zoom,
+                (
+                    WIDTH//2 - shark_zoom.get_width()//2 + shake_x,
+                    120 + shake_y
+                )
+            )
+
+            if bite_timer > 12:
+                pygame.mixer.music.stop()
+                return bite_target
+        else:
+            screen.blit(
+                shark_img,
+                (WIDTH//2 - shark_img.get_width()//2, 120)
             )
 
         # ===== TITEL =====
-        title_surf = title_font.render("SHARK ATTACK", True, (30, 70, 120))
         draw_outlined_text(
             screen,
             "SHARK ATTACK",
             title_font,
             (30, 70, 120),
             (255, 255, 255),
-            (WIDTH//2 - title_surf.get_width()//2, 200)
+            (WIDTH//2 - 260, 200)
         )
 
         subtitle = sub_font.render(
