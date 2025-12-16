@@ -32,9 +32,15 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
         for i, name in enumerate(fish_names)
     ]
 
-    scroll_x = 0
+    scroll_y = 0
     SCROLL_SPEED = 40
-    max_scroll = 0
+
+    items_per_row = 4
+    item_width = 120
+    item_height = 100
+    spacing_x = 40
+    spacing_y = 30
+
 
 
     # -------------------------------
@@ -74,8 +80,12 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
         spacing_x = 160
 
         for i, item in enumerate(fish_items):
-            x = start_x + i * spacing_x + scroll_x
-            y = start_y
+            row = i // items_per_row
+            col = i % items_per_row
+
+            x = start_x + col * (item_width + spacing_x)
+            y = start_y + row * (item_height + spacing_y) + scroll_y
+
 
             rect = pygame.Rect(x, y, 120, 100)
             pygame.draw.rect(screen, (180, 220, 255), rect, border_radius=12)
@@ -109,11 +119,16 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
         # -------------------------------
         for event in pygame.event.get():
             if event.type == pygame.MOUSEWHEEL:
-                scroll_x += event.y * SCROLL_SPEED
-                max_scroll = 0
-                min_scroll = -(len(fish_items) * spacing_x - WIDTH + 200)
+                scroll_y += event.y * SCROLL_SPEED
+                total_rows = (len(fish_items) + items_per_row - 1) // items_per_row
+                content_height = total_rows * (item_height + spacing_y)
 
-                scroll_x = max(min_scroll, min(max_scroll, scroll_x))
+                max_scroll = 0
+                min_scroll = HEIGHT - content_height - start_y - 40
+
+                scroll_y = max(min_scroll, min(max_scroll, scroll_y))
+
+
 
 
 
