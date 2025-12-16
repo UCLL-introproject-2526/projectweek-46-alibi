@@ -194,24 +194,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
             player_rect = pygame.Rect(player_x, player_y, FISH_W, FISH_H)
 
-<<<<<<< HEAD
-            if chest_active and chest_rect and chest_rect.colliderect(player_rect):
-                laser_active = True
-                laser_timer = 10 * FPS
-                fire_timer = random.randint(30, 120)
-                chest_active = False
-                chest_rect = None
-
-            # check coin collisions
-            if coin_manager:
-                if coin_manager.check_collision(player_rect):
-                    # coin_manager increments its internal counters
-                    pass
-
-            # spawn haaien
-=======
             # haaien spawn
->>>>>>> 995f91f9dd6eaa47f842808b8b3c6d2a41a35765
             if not boss_active:
                 spawn_timer += 1
                 if spawn_timer > spawn_delay:
