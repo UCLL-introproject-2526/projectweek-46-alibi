@@ -11,7 +11,7 @@ import os
 FISH_W = 50
 FISH_H = 30
 FPS = 60
-LEVEL_SCORE = 100
+LEVEL_SCORE = 250
 
 SHARK_SIZE = (80, 50)
 BOSS_SIZE = (160, 100)   # 2x zo groot
@@ -96,7 +96,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
     vertical_speed = 0.8
 
     # score & level
-    score = 0
+    score = 240
     score_timer = 0
 
     scores = load_scores()
@@ -112,8 +112,13 @@ def run_game(screen, fish, pattern, coin_manager=None):
     boss_hp = 0
     boss_max_hp = 0
 
+    # boss spawn elke 250 punten
+    last_boss_score = 0
+
     font = pygame.font.SysFont(None, 32)
     big_font = pygame.font.SysFont(None, 56)
+
+
 
     # -------------------------------
     #   MAIN LOOP
@@ -192,16 +197,22 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 spawn_delay = max(30, 90 - level * 5)
                 boss_defeated_this_level = False
 
-            # boss spawn aan begin van elk level >= 2
-            if level >= 2 and not boss_active and not boss_defeated_this_level:
+
+            # in de loop
+            # boss spawn elke 250 punten
+            if score >= last_boss_score + 250 and not boss_active:
                 boss_active = True
                 sharks.clear()
                 boss_rect = boss_image.get_rect(
                     x=WIDTH + 40,
                     y=HEIGHT // 2 - boss_image.get_height() // 2
                 )
-                boss_max_hp = 30 + level * 10
+                boss_max_hp = 30 + score // 10
                 boss_hp = boss_max_hp
+                last_boss_score = score  # update nu correct
+
+
+
 
             # speler beweging
             keys = pygame.key.get_pressed()
@@ -268,26 +279,26 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     highscore = max(scores)
 
             # laser bullets
-                can_shoot = laser_active or boss_active
+            can_shoot = laser_active or boss_active
 
-                if can_shoot:
-                    fire_timer -= 1
-                    if fire_timer <= 0:
-                        laser_bullets.append(
-                            pygame.Rect(player_x + FISH_W, player_y + FISH_H//2 - 2, 20, 4)
-                        )
-                        fire_timer = random.randint(8, 15)  # iets sneller schieten bij boss
+            if can_shoot:
+                fire_timer -= 1
+                if fire_timer <= 0:
+                    laser_bullets.append(
+                        pygame.Rect(player_x + FISH_W, player_y + FISH_H//2 - 2, 20, 4)
+                    )
+                    fire_timer = random.randint(4, 10)  # iets sneller schieten bij boss
 
 
-                    for bullet in laser_bullets[:]:
-                        bullet.x += 10
-                        if bullet.x > WIDTH:
-                            laser_bullets.remove(bullet)
-                            
                 for bullet in laser_bullets[:]:
                     bullet.x += 10
                     if bullet.x > WIDTH:
                         laser_bullets.remove(bullet)
+
+            for bullet in laser_bullets[:]:
+                bullet.x += 10
+                if bullet.x > WIDTH:
+                    laser_bullets.remove(bullet)
 
 
             # collision bullets with sharks
@@ -296,7 +307,6 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     if bullet.colliderect(shark):
                         sharks.remove(shark)
                         laser_bullets.remove(bullet)
-                        score += 10
                         break
 
             # collision with boss
@@ -307,7 +317,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
                         laser_bullets.remove(bullet)
                         if boss_hp <= 0:
                             boss_active = False
-                            score += 100
+
 
             # boss gedrag
             if boss_active and boss_rect:
@@ -332,7 +342,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 boss_active = False
                 boss_defeated_this_level = True
                 boss_rect = None
-                score += 50
+                score += 1
 
             # -------------------------------
             #   TEKENEN
