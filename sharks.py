@@ -349,7 +349,12 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 idx += 1
 
             if coin_manager:
-                screen.blit(font.render(f"Coins: {coin_manager.get_count()}", True, (255, 255, 255)), (hud_x, hud_y + idx * line_h))
+                # draw coin icon then count to the right
+                icon = coin_manager.image
+                icon_w, icon_h = icon.get_size()
+                y_pos = hud_y + idx * line_h
+                screen.blit(icon, (hud_x, y_pos))
+                screen.blit(font.render(str(coin_manager.get_count()), True, (255, 255, 255)), (hud_x + icon_w + 8, y_pos))
 
         else:
             screen.blit(big_font.render("GAME OVER", True, (255, 255, 255)),
