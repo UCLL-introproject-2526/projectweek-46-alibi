@@ -139,28 +139,37 @@ def show_home_screen(screen):
                 b["size"]
             )
 
-        # ===== HAAI (STIL) =====
-        screen.blit(
-            shark_img,
-            (WIDTH//2 - shark_img.get_width()//2, 120)
-        )
+        # ===== HAAI =====
+        shark_x = WIDTH // 2 - shark_img.get_width() // 2
+        shark_y = 120
+        screen.blit(shark_img, (shark_x, shark_y))
 
-        # ===== TITEL =====
+        # ===== TITEL (GE CENTREERD) =====
+        title_text = "SHARK ATTACK"
+        title_surface = title_font.render(title_text, True, (30, 70, 120))
+
+        title_x = WIDTH // 2 - title_surface.get_width() // 2
+        title_y = 200
+
         draw_outlined_text(
             screen,
-            "SHARK ATTACK",
+            title_text,
             title_font,
             (30, 70, 120),
             (255, 255, 255),
-            (WIDTH//2 - 260, 200)
+            (title_x, title_y)
         )
 
+        # ===== SUBTITEL =====
         subtitle = sub_font.render(
             "Ontwijk de hongerige haaien en verzamel schatten!",
             True,
             (50, 100, 160)
         )
-        screen.blit(subtitle, (WIDTH//2 - subtitle.get_width()//2, 280))
+        screen.blit(
+            subtitle,
+            (WIDTH // 2 - subtitle.get_width() // 2, 280)
+        )
 
         # ===== KNOPPEN =====
         for rect, text in [
@@ -181,8 +190,8 @@ def show_home_screen(screen):
             label = button_font.render(text, True, (255, 255, 255))
             screen.blit(
                 label,
-                (rect.centerx - label.get_width()//2,
-                 rect.centery - label.get_height()//2)
+                (rect.centerx - label.get_width() // 2,
+                 rect.centery - label.get_height() // 2)
             )
 
         time += 1
