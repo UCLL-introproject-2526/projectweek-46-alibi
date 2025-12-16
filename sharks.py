@@ -61,6 +61,14 @@ def run_game(screen, fish, pattern, coin_manager=None):
     clock = pygame.time.Clock()
     WIDTH, HEIGHT = screen.get_size()
     time = 0
+    boss_direction = 1  # 1 = naar beneden, -1 = naar boven
+    boss_speed_y = 1.5
+    boss_bullets = []  # lijst voor de boss kogels
+    BOSS_BULLET_SPEED = 5
+    boss_fire_timer = 0  # frames tot volgende schot
+
+
+
 
     # speler
     player_x = 100
@@ -80,6 +88,20 @@ def run_game(screen, fish, pattern, coin_manager=None):
     fluobeam_image = pygame.image.load("img/Fluobeam.png").convert_alpha()
     fluobeam_image = pygame.transform.scale(fluobeam_image, (20, 4))
 
+    boss_bullet_image = pygame.image.load("img/boss_kogels.png").convert_alpha()
+    boss_bullet_image = pygame.transform.scale(boss_bullet_image, (40,40))  # pas grootte aan indien nodig
+
+    boss_images = [
+    pygame.image.load("img/bombini.png").convert_alpha(),
+    pygame.image.load("img/boss.png").convert_alpha(),
+    pygame.image.load("img/tung.png").convert_alpha()
+]
+
+    # schaal alle afbeeldingen naar dezelfde grootte
+    boss_images = [pygame.transform.scale(img, BOSS_SIZE) for img in boss_images]
+
+
+
     # game objecten
     sharks = []
     laser_bullets = []   # 👈 TOEVOEGEN
@@ -97,7 +119,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
     vertical_speed = 0.8
 
     # score & level
-    score = 0
+    score = 240
     score_timer = 0
 
     scores = load_scores()
@@ -204,10 +226,13 @@ def run_game(screen, fish, pattern, coin_manager=None):
             if score >= last_boss_score + 250 and not boss_active:
                 boss_active = True
                 sharks.clear()
+                # kies willekeurige boss
+                boss_image = random.choice(boss_images)
                 boss_rect = boss_image.get_rect(
                     x=WIDTH + 40,
                     y=HEIGHT // 2 - boss_image.get_height() // 2
                 )
+
                 boss_max_hp = 30 + score // 10
                 boss_hp = boss_max_hp
                 last_boss_score = score  # update nu correct
@@ -228,7 +253,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
             if chest_active and chest_rect and chest_rect.colliderect(player_rect):
                 laser_active = True
                 laser_timer = 10 * FPS
-                fire_timer = random.randint(30, 120)
+                fire_timer = 0
                 chest_active = False
                 chest_rect = None
 
@@ -288,7 +313,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     laser_bullets.append(
                         pygame.Rect(player_x + FISH_W, player_y + FISH_H//2 - 2, 20, 4)
                     )
-                    fire_timer = random.randint(4, 10)  # iets sneller schieten bij boss
+                    fire_timer = int(0.5 * FPS)  # iets sneller schieten bij boss
 
 
                 for bullet in laser_bullets[:]:
@@ -300,6 +325,24 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 bullet.x += 10
                 if bullet.x > WIDTH:
                     laser_bullets.remove(bullet)
+            
+            # boss bullets
+
+            for bullet in boss_bullets[:]:
+                bullet["rect"].x += bullet["dx"]
+                bullet["rect"].y += bullet["dy"]
+
+                # verwijder als buiten scherm
+                if bullet["rect"].right < 0 or bullet["rect"].left > WIDTH or bullet["rect"].top > HEIGHT or bullet["rect"].bottom < 0:
+                    boss_bullets.remove(bullet)
+                # check collision met speler
+                elif bullet["rect"].colliderect(player_rect):
+                    game_over = True
+                    save_score(score)
+                    scores.append(score)
+                    highscore = max(scores)
+
+
 
 
             # collision bullets with sharks
@@ -319,16 +362,43 @@ def run_game(screen, fish, pattern, coin_manager=None):
                         if boss_hp <= 0:
                             boss_active = False
 
+            if boss_active and boss_rect:
+                boss_fire_timer -= 1
+                if boss_fire_timer <= 0:
+                    # spawn 5 kogels in halve cirkel (90 graden), naar links
+                    num_bullets = 5
+                    start_angle = -45   # graden, naar boven links
+                    end_angle = 45      # graden, naar beneden links
+                    for i in range(num_bullets):
+                        angle_deg = start_angle + i * (end_angle - start_angle) / (num_bullets - 1)
+                        angle_rad = math.radians(angle_deg)
+                        dx = -BOSS_BULLET_SPEED * math.cos(angle_rad)  # naar links
+                        dy = BOSS_BULLET_SPEED * math.sin(angle_rad)
+                        boss_bullets.append({
+                            "rect": pygame.Rect(boss_rect.centerx, boss_rect.centery, 20, 20),
+                            "dx": dx,
+                            "dy": dy
+                        })
+                    boss_fire_timer = 90  # nieuwe schot na 90 frames (~1.5 sec)
+
+
+
 
             # boss gedrag
             if boss_active and boss_rect:
                 if boss_rect.x > WIDTH - 220:
                     boss_rect.x -= 2
 
-                if boss_rect.centery < player_rect.centery:
-                    boss_rect.y += 1.5
-                elif boss_rect.centery > player_rect.centery:
-                    boss_rect.y -= 1.5
+                # boss beweegt onafhankelijk op en neer
+                boss_rect.y += boss_speed_y * boss_direction
+
+                # keer om bij boven- of ondergrens
+                if boss_rect.top <= 0:
+                    boss_direction = 1
+                elif boss_rect.bottom >= HEIGHT:
+                    boss_direction = -1
+
+
 
                 boss_rect.y = max(0, min(HEIGHT - boss_rect.height, boss_rect.y))
 
@@ -364,6 +434,10 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
             if boss_active and boss_rect:
                 screen.blit(boss_image, boss_rect)
+
+            for bullet in boss_bullets:
+                screen.blit(boss_bullet_image, bullet["rect"])
+
 
                 # HP balk
                 bar_w = 200
