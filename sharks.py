@@ -75,6 +75,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
     # game objecten
     sharks = []
+    laser_bullets = []   # 👈 TOEVOEGEN
 
     laser_active = False
     laser_timer = 0
