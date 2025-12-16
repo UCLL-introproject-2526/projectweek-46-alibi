@@ -6,6 +6,7 @@ from unlocked_fishes import save_unlocked_fishes
 
 def show_itemshop(screen, coin_manager, unlocked_fishes):
     pygame.init()
+    pygame.mixer.init()
     clock = pygame.time.Clock()
 
     font = pygame.font.SysFont(None, 26)
@@ -13,6 +14,10 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
 
     coin_img = pygame.image.load("img/muntje.png").convert_alpha()
     coin_img = pygame.transform.scale(coin_img, (24, 24))
+
+    # SOUND
+    kaching_sound = pygame.mixer.Sound("muziek/kaging.mp3")
+    kaching_sound.set_volume(0.6)
 
     WIDTH, HEIGHT = screen.get_size()
 
@@ -82,9 +87,9 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
         )
 
         # -------------------------------
-        # GRID BEREKENING (CRUCIAAL)
+        # GRID BEREKENING
         # -------------------------------
-        available_width = WIDTH - 40  # padding links + rechts
+        available_width = WIDTH - 40
 
         items_per_row = max(
             1,
@@ -110,7 +115,6 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
 
             rect = pygame.Rect(x, y, item_width, item_height)
 
-            # alleen tekenen als (bijna) in beeld
             if y > HEIGHT or y + item_height < 100:
                 continue
 
@@ -168,6 +172,7 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
                                 coin_manager._save()
                                 unlocked_fishes.append(item["name"])
                                 save_unlocked_fishes(unlocked_fishes)
+                                kaching_sound.play()
 
         # -------------------------------
         # SCROLL LIMITS
