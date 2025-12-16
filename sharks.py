@@ -51,9 +51,9 @@ class Boss:
 # BOSS TYPES
 # -------------------------------
 BOSS_TYPES = [
-    Boss("img/boss.png", (160, 100), 30, 1.0, 90, 6),
-    Boss("img/bombini.png", (140, 80), 20, 1.5, 60, 8),
-    Boss("img/tung.png", (200, 120), 60, 0.8, 120, 4),
+    ("img/boss.png", (160, 100), 30, 1.0, 90, 6),
+    ("img/bombini.png", (140, 80), 20, 1.5, 60, 8),
+    ("img/tung.png", (200, 120), 60, 0.8, 120, 4),
 ]
 
 # -------------------------------
@@ -167,7 +167,9 @@ def run_game(screen, fish, pattern, coin_manager=None):
             if score >= last_boss_score + 250 and not boss_active:
                 boss_active = True
                 sharks.clear()
-                current_boss = random.choice(BOSS_TYPES)
+                params = random.choice(BOSS_TYPES)
+                current_boss = Boss(*params)
+
 
                 boss_rect = current_boss.image.get_rect(
                     x=WIDTH + 40,
