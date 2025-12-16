@@ -132,13 +132,14 @@ def show_home_screen(screen):
             )
 
         # ===== TITEL =====
+        title_surf = title_font.render("SHARK ATTACK", True, (30, 70, 120))
         draw_outlined_text(
             screen,
             "SHARK ATTACK",
             title_font,
             (30, 70, 120),
             (255, 255, 255),
-            (WIDTH//2 - 260, 200)
+            (WIDTH//2 - title_surf.get_width()//2, 200)
         )
 
         subtitle = sub_font.render(
