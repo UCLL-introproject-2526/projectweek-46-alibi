@@ -69,9 +69,22 @@ def run_game(screen, fish, pattern):
 
     boss_image = pygame.image.load("img/boss.png").convert_alpha()
 
+    chest_image = pygame.image.load("img/kist.png").convert_alpha()
+    chest_image = pygame.transform.scale(chest_image, (50, 50))
+
+    fluobeam_image = pygame.image.load("img/Fluobeam.png").convert_alpha()
+    fluobeam_image = pygame.transform.scale(fluobeam_image, (20, 4))
+
     # game objecten
     sharks = []
     laser_bullets = []
+
+    laser_active = False
+    laser_timer = 0
+    fire_timer = 0
+    chest_active = False
+    chest_rect = None
+    previous_chest_level = 0
 
     spawn_timer = 0
     spawn_delay = 90
@@ -119,6 +132,12 @@ def run_game(screen, fish, pattern):
                     level = 1
                     game_over = False
                     boss_active = False
+                    laser_active = False
+                    laser_timer = 0
+                    fire_timer = 0
+                    chest_active = False
+                    chest_rect = None
+                    previous_chest_level = 0
 
         # -------------------------------
         #   GAME LOGICA
@@ -128,6 +147,17 @@ def run_game(screen, fish, pattern):
             if score_timer >= 30:
                 score += 1
                 score_timer = 0
+
+            chest_level = score // 50
+            if chest_level > previous_chest_level:
+                previous_chest_level = chest_level
+                chest_active = True
+                chest_rect = chest_image.get_rect(x=WIDTH, y=random.randint(0, HEIGHT - 50))
+
+            if laser_active:
+                laser_timer -= 1
+                if laser_timer <= 0:
+                    laser_active = False
 
             # level scaling
             new_level = score // LEVEL_SCORE + 1
@@ -156,6 +186,13 @@ def run_game(screen, fish, pattern):
 
             player_rect = pygame.Rect(player_x, player_y, FISH_W, FISH_H)
 
+            if chest_active and chest_rect and chest_rect.colliderect(player_rect):
+                laser_active = True
+                laser_timer = 10 * FPS
+                fire_timer = random.randint(30, 120)
+                chest_active = False
+                chest_rect = None
+
             # spawn haaien
             if not boss_active:
                 spawn_timer += 1
@@ -168,6 +205,13 @@ def run_game(screen, fish, pattern):
                                 y=random.randint(0, HEIGHT - 50)
                             )
                         )
+
+            # chest gedrag
+            if chest_active and chest_rect:
+                chest_rect.x -= shark_speed
+                if chest_rect.right < 0:
+                    chest_active = False
+                    chest_rect = None
 
             # haaien gedrag
             for shark in sharks[:]:
@@ -185,6 +229,37 @@ def run_game(screen, fish, pattern):
                     save_score(score)
                     scores.append(score)
                     highscore = max(scores)
+
+            # laser bullets
+            if laser_active:
+                fire_timer -= 1
+                if fire_timer <= 0:
+                    laser_bullets.append(pygame.Rect(player_x + FISH_W, player_y + FISH_H//2 - 2, 20, 4))
+                    fire_timer = random.randint(10, 30)
+
+            for bullet in laser_bullets[:]:
+                bullet.x += 10
+                if bullet.x > WIDTH:
+                    laser_bullets.remove(bullet)
+
+            # collision bullets with sharks
+            for bullet in laser_bullets[:]:
+                for shark in sharks[:]:
+                    if bullet.colliderect(shark):
+                        sharks.remove(shark)
+                        laser_bullets.remove(bullet)
+                        score += 10
+                        break
+
+            # collision with boss
+            if boss_active and boss_rect:
+                for bullet in laser_bullets[:]:
+                    if bullet.colliderect(boss_rect):
+                        boss_hp -= 1
+                        laser_bullets.remove(bullet)
+                        if boss_hp <= 0:
+                            boss_active = False
+                            score += 100
 
             # boss gedrag
             if boss_active and boss_rect:
@@ -207,6 +282,12 @@ def run_game(screen, fish, pattern):
             # -------------------------------
             draw_player_fish(screen, fish, pattern, player_x, player_y)
 
+            if chest_active and chest_rect:
+                screen.blit(chest_image, chest_rect)
+
+            for bullet in laser_bullets:
+                screen.blit(fluobeam_image, bullet)
+
             for shark in sharks:
                 screen.blit(shark_image, shark)
 
@@ -222,6 +303,10 @@ def run_game(screen, fish, pattern):
             screen.blit(font.render(f"Score: {score}", True, (255, 255, 255)), (10, 10))
             screen.blit(font.render(f"Highscore: {highscore}", True, (255, 255, 255)), (10, 40))
             screen.blit(font.render(f"Level: {level}", True, (255, 255, 255)), (10, 70))
+
+            if laser_active:
+                seconds = laser_timer // FPS
+                screen.blit(font.render(f"Power-up: {seconds}s", True, (255, 255, 255)), (10, 100))
 
         else:
             screen.blit(big_font.render("GAME OVER", True, (255, 255, 255)),
