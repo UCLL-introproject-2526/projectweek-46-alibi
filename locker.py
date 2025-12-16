@@ -41,6 +41,9 @@ def show_locker(screen):
     start_button = pygame.Rect(WIDTH//2 - 170, HEIGHT - 45, 160, 40)
     back_button  = pygame.Rect(WIDTH//2 + 10,  HEIGHT - 45, 160, 40)
 
+    # 👉 ITEMSHOP BUTTON (rechtsboven)
+    itemshop_button = pygame.Rect(WIDTH - 150, 20, 130, 40)
+
     # -------------------------------
     #   ACHTERGROND EFFECTEN
     # -------------------------------
@@ -142,6 +145,11 @@ def show_locker(screen):
                     pygame.mixer.music.stop()
                     return "back", None, None
 
+                # 👉 ITEMSHOP OPENEN
+                if itemshop_button.collidepoint(mx, my):
+                    pygame.mixer.music.stop()
+                    return "itemshop", selected_color, selected_pattern
+
         # --- TEKENEN ---
         screen.fill((8, 30, 70))
 
@@ -194,7 +202,6 @@ def show_locker(screen):
             pygame.draw.rect(screen, color, rect)
             pygame.draw.rect(screen, (0, 0, 0), rect, 2)
 
-        # tekst "kleur"
         screen.blit(font.render("KLEUR", True, (255,255,255)),
                     (START_X, COLOR_Y - 25))
 
@@ -226,6 +233,12 @@ def show_locker(screen):
         pygame.draw.rect(screen, (0, 0, 0), back_button, 2)
         screen.blit(font.render("TERUG", True, (0,0,0)),
                     (back_button.x + 55, back_button.y + 10))
+
+        # 👉 ITEMSHOP KNOP
+        pygame.draw.rect(screen, (255, 200, 0), itemshop_button)
+        pygame.draw.rect(screen, (0, 0, 0), itemshop_button, 2)
+        screen.blit(font.render("ITEMSHOP", True, (0,0,0)),
+                    (itemshop_button.x + 10, itemshop_button.y + 10))
 
         pygame.display.flip()
         clock.tick(60)
