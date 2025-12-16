@@ -44,7 +44,7 @@ def run_game(screen, fish, pattern):
     player_x = 100
     player_y = HEIGHT // 2
     fish_speed = 5
-
+    boss_image = pygame.image.load("img/boss.png").convert_alpha()
     # haaien
     shark_image = pygame.image.load("img/shark.png").convert_alpha()
     shark_image = pygame.transform.scale(shark_image, (80, 50))
