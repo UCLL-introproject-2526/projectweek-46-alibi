@@ -121,15 +121,6 @@ def show_itemshop(screen, coins, unlocked_colors, unlocked_patterns):
                                 coins -= item["price"]
                                 unlocked_colors.append(item["color"])
 
-                    # PATRONEN KOPEN
-                    for i, item in enumerate(pattern_items):
-                        x = 40 + i * 140
-                        rect = pygame.Rect(x, 210, 110, 40)
-
-                        if rect.collidepoint(mx, my) and coins >= item["price"]:
-                            if item["name"] not in unlocked_patterns:
-                                coins -= item["price"]
-                                unlocked_patterns.append(item["name"])
-
+                  
         pygame.display.flip()
         clock.tick(60)
