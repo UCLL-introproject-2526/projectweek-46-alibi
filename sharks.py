@@ -29,17 +29,7 @@ pygame.mixer.init()
 
 NORMAL_MUSIC = "muziek/normal_theme.mp3"
 BOSS_MUSIC = "muziek/boss_theme.mp3"
-
-
-
-# -------------------------------
-#   MUSIC
-# -------------------------------
-
-pygame.mixer.init()
-
-NORMAL_MUSIC = "muziek/normal_theme.mp3"
-BOSS_MUSIC = "muziek/boss_theme.mp3"
+death_sound = pygame.mixer.Sound("muziek/death.mp3")
 
 
 # -------------------------------
@@ -116,11 +106,13 @@ def run_game(screen, fish, pattern, coin_manager=None):
     # -------------------------------
     #   AUDIO (DEATH SOUND)
     # -------------------------------
-    if not pygame.mixer.get_init():
-        pygame.mixer.init()
 
-    death_sound = pygame.mixer.Sound("muziek/death.mp3")
     death_sound.set_volume(0.7)
+    # start normale muziek bij game begin
+    pygame.mixer.music.load(NORMAL_MUSIC)
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play(-1)  # -1 = oneindig herhalen
+
     WIDTH, HEIGHT = screen.get_size()
     time = 0
     boss_direction = 1  # 1 = naar beneden, -1 = naar boven
@@ -128,6 +120,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
     boss_bullets = []  # lijst voor de boss kogels
     BOSS_BULLET_SPEED = 5
     boss_fire_timer = 0  # frames tot volgende schot
+
 
 
     # speler
@@ -179,7 +172,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
     vertical_speed = 0.8
 
     # score & level
-    score = 0
+    score = 240
     score_timer = 0
 
     scores = load_scores()
@@ -375,6 +368,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     save_score(score)
                     scores.append(score)
                     highscore = max(scores)
+                    pygame.mixer.music.fadeout(1000)
 
 
             # laser bullets
@@ -416,6 +410,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     save_score(score)
                     scores.append(score)
                     highscore = max(scores)
+                    pygame.mixer.music.fadeout(1000)
 
 
 
@@ -484,6 +479,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     save_score(score)
                     scores.append(score)
                     highscore = max(scores)
+                    pygame.mixer.music.fadeout(1000)
             # boss verslaan
             if boss_active and boss_hp <= 0:
                 boss_active = False
