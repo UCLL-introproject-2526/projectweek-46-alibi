@@ -75,8 +75,6 @@ def show_locker(screen):
         image = pygame.transform.scale(image, (120, 60))
         screen.blit(image, (x, y))
 
-        # rugvin
-        pygame.draw.polygon(screen, (0,0,0), [(x + 55, y), (x + 60, y - 20), (x + 65, y)])
 
         if pattern == "stripes":
             for i in range(4):

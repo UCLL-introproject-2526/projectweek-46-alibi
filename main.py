@@ -58,6 +58,11 @@ while running:
     elif state == "quit":
         running = False
 
+<<<<<<< HEAD
     clock.tick(60)
+=======
+            draw_background(screen, transition_frame)
+            draw_player_fish(screen, player_fish, player_pattern, current_x, current_y, current_w, current_h)
+>>>>>>> 2b3db616e7a6a538f232f46de01d4b8b62c1833c
 
 pygame.quit()
