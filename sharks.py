@@ -54,7 +54,7 @@ def draw_player_fish(surface, fish, pattern, x, y):
 # -------------------------------
 #   GAME
 # -------------------------------
-def run_game(screen, fish, pattern):
+def run_game(screen, fish, pattern, coin_manager=None):
     clock = pygame.time.Clock()
     WIDTH, HEIGHT = screen.get_size()
     time = 0
@@ -153,6 +153,9 @@ def run_game(screen, fish, pattern):
                 previous_chest_level = chest_level
                 chest_active = True
                 chest_rect = chest_image.get_rect(x=WIDTH, y=random.randint(0, HEIGHT - 50))
+                # spawn a coin alongside the chest if a coin manager was provided
+                if coin_manager:
+                    coin_manager.spawn_at(WIDTH, random.randint(0, HEIGHT - 50))
 
             if laser_active:
                 laser_timer -= 1
@@ -193,6 +196,12 @@ def run_game(screen, fish, pattern):
                 chest_active = False
                 chest_rect = None
 
+            # check coin collisions
+            if coin_manager:
+                if coin_manager.check_collision(player_rect):
+                    # coin_manager increments its internal counter
+                    pass
+
             # spawn haaien
             if not boss_active:
                 spawn_timer += 1
@@ -212,6 +221,10 @@ def run_game(screen, fish, pattern):
                 if chest_rect.right < 0:
                     chest_active = False
                     chest_rect = None
+
+            # update coins
+            if coin_manager:
+                coin_manager.update(WIDTH, HEIGHT)
 
             # haaien gedrag
             for shark in sharks[:]:
@@ -285,6 +298,9 @@ def run_game(screen, fish, pattern):
             if chest_active and chest_rect:
                 screen.blit(chest_image, chest_rect)
 
+            if coin_manager:
+                coin_manager.draw(screen)
+
             for bullet in laser_bullets:
                 screen.blit(fluobeam_image, bullet)
 
@@ -300,13 +316,25 @@ def run_game(screen, fish, pattern):
                                  (WIDTH // 2 - bar_w // 2, 20,
                                   int(bar_w * boss_hp / boss_max_hp), 16))
 
-            screen.blit(font.render(f"Score: {score}", True, (255, 255, 255)), (10, 10))
-            screen.blit(font.render(f"Highscore: {highscore}", True, (255, 255, 255)), (10, 40))
-            screen.blit(font.render(f"Level: {level}", True, (255, 255, 255)), (10, 70))
+            # HUD: render score, highscore, level, optional power-up, then coins below them
+            hud_x = 10
+            hud_y = 10
+            line_h = 30
+            idx = 0
+            screen.blit(font.render(f"Score: {score}", True, (255, 255, 255)), (hud_x, hud_y + idx * line_h))
+            idx += 1
+            screen.blit(font.render(f"Highscore: {highscore}", True, (255, 255, 255)), (hud_x, hud_y + idx * line_h))
+            idx += 1
+            screen.blit(font.render(f"Level: {level}", True, (255, 255, 255)), (hud_x, hud_y + idx * line_h))
+            idx += 1
 
             if laser_active:
                 seconds = laser_timer // FPS
-                screen.blit(font.render(f"Power-up: {seconds}s", True, (255, 255, 255)), (10, 100))
+                screen.blit(font.render(f"Power-up: {seconds}s", True, (255, 255, 255)), (hud_x, hud_y + idx * line_h))
+                idx += 1
+
+            if coin_manager:
+                screen.blit(font.render(f"Coins: {coin_manager.get_count()}", True, (255, 255, 255)), (hud_x, hud_y + idx * line_h))
 
         else:
             screen.blit(big_font.render("GAME OVER", True, (255, 255, 255)),
