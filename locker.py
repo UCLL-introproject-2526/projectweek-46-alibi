@@ -19,16 +19,10 @@ def show_locker(screen):
     WIDTH, HEIGHT = screen.get_size()
 
     # -------------------------------
-    #   KLEUREN & PATRONEN
+    #   VISSEN & PATRONEN
     # -------------------------------
-    colors = [
-        (255, 0, 0),
-        (0, 255, 0),
-        (0, 0, 255),
-        (255, 255, 0),
-        (255, 0, 255),
-    ]
-    selected_color = colors[0]
+    fishes = ["vis1", "vis2", "vis3", "vis4", "vis5"]
+    selected_fish = "vis1"
 
     patterns = ["none", "stripes", "dots", "waves"]
     selected_pattern = "none"
@@ -40,6 +34,9 @@ def show_locker(screen):
 
     start_button = pygame.Rect(WIDTH//2 - 170, HEIGHT - 45, 160, 40)
     back_button  = pygame.Rect(WIDTH//2 + 10,  HEIGHT - 45, 160, 40)
+
+    # 👉 ITEMSHOP BUTTON (rechtsboven)
+    itemshop_button = pygame.Rect(WIDTH - 150, 20, 130, 40)
 
     # -------------------------------
     #   ACHTERGROND EFFECTEN
@@ -73,10 +70,13 @@ def show_locker(screen):
     # -------------------------------
     #   VIS VOORBEELD
     # -------------------------------
-    def draw_fish(color, pattern, x=WIDTH//2 - 60, y=HEIGHT // 2 - 30):
-        pygame.draw.ellipse(screen, color, (x, y, 120, 60))
-        pygame.draw.polygon(screen, color, [(x, y+30), (x-40, y), (x-40, y+60)])
-        pygame.draw.circle(screen, (0, 0, 0), (x + 100, y + 30), 5)
+    def draw_fish(fish, pattern, x=WIDTH//2 - 60, y=HEIGHT // 2 - 30):
+        image = pygame.image.load(fish + ".png").convert_alpha()
+        image = pygame.transform.scale(image, (120, 60))
+        screen.blit(image, (x, y))
+
+        # rugvin
+        pygame.draw.polygon(screen, (0,0,0), [(x + 55, y), (x + 60, y - 20), (x + 65, y)])
 
         if pattern == "stripes":
             for i in range(4):
@@ -110,8 +110,8 @@ def show_locker(screen):
             if event.type == pygame.MOUSEBUTTONUP:
                 mx, my = event.pos
 
-                # kleur selecteren
-                for i, color in enumerate(colors):
+                # vis selecteren
+                for i, fish in enumerate(fishes):
                     rect = pygame.Rect(
                         START_X + i*(BOX_SIZE[0]+10),
                         COLOR_Y,
@@ -119,7 +119,7 @@ def show_locker(screen):
                         BOX_SIZE[1]
                     )
                     if rect.collidepoint(mx, my):
-                        selected_color = color
+                        selected_fish = fish
 
                 # patroon selecteren
                 for i, pat in enumerate(patterns):
@@ -135,12 +135,17 @@ def show_locker(screen):
                 # START GAME
                 if start_button.collidepoint(mx, my):
                     pygame.mixer.music.stop()
-                    return "start", selected_color, selected_pattern
+                    return "start", selected_fish, selected_pattern
 
                 # TERUG
                 if back_button.collidepoint(mx, my):
                     pygame.mixer.music.stop()
                     return "back", None, None
+
+                # 👉 ITEMSHOP OPENEN
+                if itemshop_button.collidepoint(mx, my):
+                    pygame.mixer.music.stop()
+                    return "itemshop", selected_color, selected_pattern
 
         # --- TEKENEN ---
         screen.fill((8, 30, 70))
@@ -181,21 +186,28 @@ def show_locker(screen):
                                b["size"])
 
         # vis voorbeeld
-        draw_fish(selected_color, selected_pattern)
+        draw_fish(selected_fish, selected_pattern)
 
-        # kleurpalet
-        for i, color in enumerate(colors):
+        # vispalet
+        for i, fish in enumerate(fishes):
             rect = pygame.Rect(
                 START_X + i*(BOX_SIZE[0]+10),
                 COLOR_Y,
                 BOX_SIZE[0],
                 BOX_SIZE[1]
             )
-            pygame.draw.rect(screen, color, rect)
+            # laad kleine image
+            small_image = pygame.image.load(fish + ".png").convert_alpha()
+            small_image = pygame.transform.scale(small_image, (BOX_SIZE[0], BOX_SIZE[1]))
+            screen.blit(small_image, rect)
             pygame.draw.rect(screen, (0, 0, 0), rect, 2)
 
-        # tekst "kleur"
+<<<<<<< HEAD
         screen.blit(font.render("KLEUR", True, (255,255,255)),
+=======
+        # tekst "VIS"
+        screen.blit(font.render("VIS", True, (255,255,255)),
+>>>>>>> 1b390b184ed12dcab632eee9ef358cb1c723fe9d
                     (START_X, COLOR_Y - 25))
 
         # patroonpalet
@@ -226,6 +238,12 @@ def show_locker(screen):
         pygame.draw.rect(screen, (0, 0, 0), back_button, 2)
         screen.blit(font.render("TERUG", True, (0,0,0)),
                     (back_button.x + 55, back_button.y + 10))
+
+        # 👉 ITEMSHOP KNOP
+        pygame.draw.rect(screen, (255, 200, 0), itemshop_button)
+        pygame.draw.rect(screen, (0, 0, 0), itemshop_button, 2)
+        screen.blit(font.render("ITEMSHOP", True, (0,0,0)),
+                    (itemshop_button.x + 10, itemshop_button.y + 10))
 
         pygame.display.flip()
         clock.tick(60)

@@ -5,47 +5,55 @@ from homescreen import show_home_screen
 from locker import show_locker
 from sharks import run_game
 from window import draw_background
+from itemshop import show_itemshop       # ⬅️ DIT MOET JE OOK IMPORTEREN!
 
 WIDTH, HEIGHT = 1024, 768
 
-
-# -------------------------------
-#   SPELER VIS (kleiner formaat)
-# -------------------------------
 FISH_W = 50
 FISH_H = 30
 
-def draw_player_fish(surface, color, pattern, x, y, w=FISH_W, h=FISH_H):
-    scale_x = w / FISH_W
-    scale_y = h / FISH_H
+def draw_player_fish(surface, fish, pattern, x, y, w=FISH_W, h=FISH_H):
+    image = pygame.image.load(fish + ".png").convert_alpha()
+    image = pygame.transform.scale(image, (int(w), int(h)))
+    surface.blit(image, (x, y))
 
-    # body
+<<<<<<< HEAD
     pygame.draw.ellipse(surface, color, (x, y, w, h))
-
-    # staart
     tail_length = 32 * scale_x
-    pygame.draw.polygon(
-        surface, color,
+    pygame.draw.polygon(surface, color,
         [(x, y + h//2), (x - tail_length, y), (x - tail_length, y + h)]
     )
 
-    # oog
     eye_x = x + w - 16 * scale_x
     eye_y = y + h//2
-    eye_radius = 4 * scale_x
-    pygame.draw.circle(
-        surface, (0, 0, 0),
-        (eye_x, eye_y),
-        eye_radius
-    )
+    pygame.draw.circle(surface, (0, 0, 0), (eye_x, eye_y), 4)
 
-    # patronen
     if pattern == "stripes":
         for i in range(3):
-            rect_x = x + 18 * scale_x + i * 18 * scale_x
-            rect_y = y + 4 * scale_y
-            rect_w = 8 * scale_x
-            rect_h = (h - 8 * scale_y)
+            pygame.draw.rect(surface, (255, 255, 255),
+                (x + 18*scale_x + i*18*scale_x, y + 4*scale_y,
+                 8*scale_x, h - 8*scale_y), 2)
+
+    elif pattern == "dots":
+        for i in range(4):
+            pygame.draw.circle(surface, (255, 255, 255),
+                (x + 18*scale_x + i*18*scale_x,
+                 y + 16*scale_y + (i % 2)*8*scale_y),
+                5*scale_x)
+
+    elif pattern == "waves":
+        for i in range(5):
+            wx = x + 14*scale_x + i*16*scale_x
+            wy = y + h//2 + math.sin(i*0.9) * 6 * scale_y
+            pygame.draw.circle(surface, (255,255,255), (wx, int(wy)), 3)
+=======
+    # patronen over de image
+    if pattern == "stripes":
+        for i in range(3):
+            rect_x = x + 18 * (w / FISH_W) + i * 18 * (w / FISH_W)
+            rect_y = y + 4 * (h / FISH_H)
+            rect_w = 8 * (w / FISH_W)
+            rect_h = (h - 8 * (h / FISH_H))
             pygame.draw.rect(
                 surface, (255, 255, 255),
                 (rect_x, rect_y, rect_w, rect_h),
@@ -54,9 +62,9 @@ def draw_player_fish(surface, color, pattern, x, y, w=FISH_W, h=FISH_H):
 
     elif pattern == "dots":
         for i in range(4):
-            dot_x = x + 18 * scale_x + i * 18 * scale_x
-            dot_y = y + 16 * scale_y + (i % 2) * 8 * scale_y
-            dot_radius = 5 * scale_x
+            dot_x = x + 18 * (w / FISH_W) + i * 18 * (w / FISH_W)
+            dot_y = y + 16 * (h / FISH_H) + (i % 2) * 8 * (h / FISH_H)
+            dot_radius = 5 * (w / FISH_W)
             pygame.draw.circle(
                 surface, (255, 255, 255),
                 (dot_x, dot_y),
@@ -65,10 +73,11 @@ def draw_player_fish(surface, color, pattern, x, y, w=FISH_W, h=FISH_H):
 
     elif pattern == "waves":
         for i in range(5):
-            wx = x + 14 * scale_x + i * 16 * scale_x
-            wy = y + h//2 + math.sin(i * 0.9) * 6 * scale_y
-            wave_radius = 3 * scale_x
+            wx = x + 14 * (w / FISH_W) + i * 16 * (w / FISH_W)
+            wy = y + h//2 + math.sin(i * 0.9) * 6 * (h / FISH_H)
+            wave_radius = 3 * (w / FISH_W)
             pygame.draw.circle(surface, (255, 255, 255), (wx, int(wy)), wave_radius)
+>>>>>>> 1b390b184ed12dcab632eee9ef358cb1c723fe9d
 
 
 def main():
@@ -80,21 +89,32 @@ def main():
     state = "home"
     running = True
 
-    # standaard vis (voor het geval locker niet wordt geopend)
+<<<<<<< HEAD
+    # ----------------------------------------
+    #   NIEUW: COINS + ITEMSHOP DATA
+    # ----------------------------------------
+    coins = 50  # start coins
+    unlocked_colors = []
+    unlocked_patterns = []
+
+    # standaard vis
     player_color = (255, 0, 0)
+=======
+    # standaard vis (voor het geval locker niet wordt geopend)
+    player_fish = "vis1"
+>>>>>>> 1b390b184ed12dcab632eee9ef358cb1c723fe9d
     player_pattern = "none"
 
-    # transition variables
     transition_start_pos = (WIDTH//2 - 60, HEIGHT // 2 - 30)
     transition_end_pos = (100, HEIGHT // 2)
     transition_start_size = (120, 60)
     transition_end_size = (50, 30)
-    transition_duration = 120  # frames (2 seconds at 60 FPS)
+    transition_duration = 120
     transition_frame = 0
 
     while running:
 
-        # ================= HOMESCREEN =================
+        # ========== HOME ==========
         if state == "home":
             action = show_home_screen(screen)
 
@@ -107,21 +127,33 @@ def main():
             elif action == "quit":
                 running = False
 
-        # ================= LOCKER =================
+        # ========== LOCKER ==========
         elif state == "locker":
             action, color, pattern = show_locker(screen)
 
             if action == "start":
-                player_color = color
+                player_fish = color
                 player_pattern = pattern
                 state = "transition"
-                transition_frame = 0
-            else:  # "back"
+
+            elif action == "itemshop":        # ⬅️ JOUW CODE TOEGEVOEGD
+                state = "itemshop"
+
+            else:
                 state = "home"
 
-        # ================= TRANSITION =================
+        # ========== ITEMSHOP ==========
+        elif state == "itemshop":              # ⬅️ NIEUWE STATE
+            coins, unlocked_colors, unlocked_patterns = show_itemshop(
+                screen,
+                coins,
+                unlocked_colors,
+                unlocked_patterns
+            )
+            state = "locker"
+
+        # ========== TRANSITION ==========
         elif state == "transition":
-            # animate fish from locker to game start position
             t = transition_frame / transition_duration
             current_x = transition_start_pos[0] + (transition_end_pos[0] - transition_start_pos[0]) * t
             current_y = transition_start_pos[1] + (transition_end_pos[1] - transition_start_pos[1]) * t
@@ -129,8 +161,12 @@ def main():
             current_h = transition_start_size[1] + (transition_end_size[1] - transition_start_size[1]) * t
 
             draw_background(screen, transition_frame)
-
+<<<<<<< HEAD
             draw_player_fish(screen, player_color, player_pattern, current_x, current_y, current_w, current_h)
+=======
+
+            draw_player_fish(screen, player_fish, player_pattern, current_x, current_y, current_w, current_h)
+>>>>>>> 1b390b184ed12dcab632eee9ef358cb1c723fe9d
 
             transition_frame += 1
 
@@ -138,7 +174,6 @@ def main():
                 state = "game"
                 transition_frame = 0
 
-            # handle events during transition
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -146,9 +181,9 @@ def main():
             pygame.display.flip()
             clock.tick(60)
 
-        # ================= GAME =================
+        # ========== GAME ==========
         elif state == "game":
-            result = run_game(screen, player_color, player_pattern)
+            result = run_game(screen, player_fish, player_pattern)
 
             if result == "quit":
                 running = False
