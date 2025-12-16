@@ -8,7 +8,7 @@ def show_locker(screen):
     # Muziek laden
     try:
         pygame.mixer.music.load("muziek/baby-shark-rhapsody-199067.mp3")
-        pygame.mixer.music.set_volume(0.4)
+        pygame.mixer.music.set_volume(10)
         pygame.mixer.music.play(-1)
     except:
         print("Kon locker_music.mp3 niet laden!")
@@ -145,7 +145,7 @@ def show_locker(screen):
                 # 👉 ITEMSHOP OPENEN
                 if itemshop_button.collidepoint(mx, my):
                     pygame.mixer.music.stop()
-                    return "itemshop", selected_color, selected_pattern
+                    return "itemshop", selected_fish, selected_pattern
 
         # --- TEKENEN ---
         screen.fill((8, 30, 70))

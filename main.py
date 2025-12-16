@@ -17,6 +17,7 @@ def draw_player_fish(surface, fish, pattern, x, y, w=FISH_W, h=FISH_H):
     image = pygame.transform.scale(image, (int(w), int(h)))
     surface.blit(image, (x, y))
 
+<<<<<<< HEAD
     pygame.draw.ellipse(surface, color, (x, y, w, h))
     tail_length = 32 * scale_x
     pygame.draw.polygon(surface, color,
@@ -26,6 +27,11 @@ def draw_player_fish(surface, fish, pattern, x, y, w=FISH_W, h=FISH_H):
     eye_x = x + w - 16 * scale_x
     eye_y = y + h//2
     pygame.draw.circle(surface, (0, 0, 0), (eye_x, eye_y), 4)
+=======
+    # patronen over de image
+    scale_x = w / FISH_W
+    scale_y = h / FISH_H
+>>>>>>> a3c40ea17820a259659be6d76479f10c1e8b11c2
 
     if pattern == "stripes":
         for i in range(3):
@@ -66,6 +72,7 @@ def main():
     # standaard vis
     player_color = (255, 0, 0)
     player_pattern = "none"
+    player_fish = "vis1"
 
     transition_start_pos = (WIDTH//2 - 60, HEIGHT // 2 - 30)
     transition_end_pos = (100, HEIGHT // 2)
@@ -123,7 +130,11 @@ def main():
             current_h = transition_start_size[1] + (transition_end_size[1] - transition_start_size[1]) * t
 
             draw_background(screen, transition_frame)
+<<<<<<< HEAD
             draw_player_fish(screen, player_color, player_pattern, current_x, current_y, current_w, current_h)
+=======
+            draw_player_fish(screen, player_fish, player_pattern, current_x, current_y, current_w, current_h)
+>>>>>>> a3c40ea17820a259659be6d76479f10c1e8b11c2
 
             transition_frame += 1
 
