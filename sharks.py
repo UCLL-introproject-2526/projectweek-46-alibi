@@ -6,6 +6,7 @@ from window import draw_background
 from highscores import load_scores
 import os
 
+
 # -------------------------------
 #   CONSTANTEN
 # -------------------------------
@@ -17,12 +18,55 @@ LEVEL_SCORE = 250
 SHARK_SIZE = (80, 50)
 BOSS_SIZE = (160, 100)   # 2x zo groot
 
+SHARK_SIZE = (80, 50)
+BOSS_SIZE = (160, 100)   # 2x zo groot
+
+# -------------------------------
+#   MUSIC
+# -------------------------------
+
+pygame.mixer.init()
+
+NORMAL_MUSIC = "muziek/normal_theme.mp3"
+BOSS_MUSIC = "muziek/boss_theme.mp3"
+
+
+
 # -------------------------------
 #   SCORE OPSLAAN
 # -------------------------------
 def save_score(score):
     with open("textbestanden/scores.txt", "a") as f:
         f.write(str(score) + "\n")
+
+# -------------------------------
+#   death effect
+# -------------------------------
+
+def death_effect(screen, death_sound):
+    WIDTH, HEIGHT = screen.get_size()
+    clock = pygame.time.Clock()
+
+    overlay = pygame.Surface((WIDTH, HEIGHT))
+    overlay.fill((200, 0, 0))
+
+    death_sound.play()
+    pygame.time.delay(150)
+
+    for alpha in range(0, 160, 12):
+        overlay.set_alpha(alpha)
+        screen.blit(overlay, (0, 0))
+        pygame.display.flip()
+        clock.tick(60)
+
+    overlay.fill((0, 0, 0))
+    for alpha in range(0, 255, 10):
+        overlay.set_alpha(alpha)
+        screen.blit(overlay, (0, 0))
+        pygame.display.flip()
+        clock.tick(60)
+
+
 
 # -------------------------------
 #   VIS TEKENEN
@@ -59,6 +103,14 @@ def draw_player_fish(surface, fish, pattern, x, y):
 # -------------------------------
 def run_game(screen, fish, pattern, coin_manager=None):
     clock = pygame.time.Clock()
+    # -------------------------------
+    #   AUDIO (DEATH SOUND)
+    # -------------------------------
+    if not pygame.mixer.get_init():
+        pygame.mixer.init()
+
+    death_sound = pygame.mixer.Sound("muziek/death.mp3")
+    death_sound.set_volume(0.7)
     WIDTH, HEIGHT = screen.get_size()
     time = 0
     boss_direction = 1  # 1 = naar beneden, -1 = naar boven
@@ -66,8 +118,6 @@ def run_game(screen, fish, pattern, coin_manager=None):
     boss_bullets = []  # lijst voor de boss kogels
     BOSS_BULLET_SPEED = 5
     boss_fire_timer = 0  # frames tot volgende schot
-
-
 
 
     # speler
@@ -299,10 +349,13 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     sharks.remove(shark)
 
                 elif shark.colliderect(player_rect):
+                    if not game_over:
+                        death_effect(screen, death_sound)
                     game_over = True
                     save_score(score)
                     scores.append(score)
                     highscore = max(scores)
+
 
             # laser bullets
             can_shoot = laser_active or boss_active
@@ -337,6 +390,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     boss_bullets.remove(bullet)
                 # check collision met speler
                 elif bullet["rect"].colliderect(player_rect):
+                    if not game_over:
+                        death_effect(screen, death_sound)
                     game_over = True
                     save_score(score)
                     scores.append(score)
@@ -403,11 +458,12 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 boss_rect.y = max(0, min(HEIGHT - boss_rect.height, boss_rect.y))
 
                 if boss_rect.colliderect(player_rect):
+                    if not game_over:
+                        death_effect(screen, death_sound)
                     game_over = True
                     save_score(score)
                     scores.append(score)
                     highscore = max(scores)
-
             # boss verslaan
             if boss_active and boss_hp <= 0:
                 boss_active = False

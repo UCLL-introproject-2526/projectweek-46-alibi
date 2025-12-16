@@ -19,7 +19,6 @@ screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
 pygame.display.set_caption("Shark Attack")
 
 clock = pygame.time.Clock()
-
 # -------------------------------
 #   GAME STATE
 # -------------------------------
@@ -36,6 +35,7 @@ selected_pattern = "none"
 # -------------------------------
 running = True
 coin_manager = CoinManager(spawn_chance=0.05, max_coins=8, save_file="textbestanden/coins.txt")
+
 
 while running:
 
