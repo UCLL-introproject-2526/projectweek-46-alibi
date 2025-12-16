@@ -118,7 +118,7 @@ def main():
             current_h = transition_start_size[1] + (transition_end_size[1] - transition_start_size[1]) * t
 
             draw_background(screen, transition_frame)
-            draw_player_fish(screen, player_fish, player_pattern, current_x, current_y, current_w, current_h)
+            draw_player_fish(screen, player_fish, player_pattern, current_x,current_y, current_w, current_h)
 
             transition_frame += 1
 
