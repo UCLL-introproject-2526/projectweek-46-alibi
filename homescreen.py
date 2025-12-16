@@ -1,19 +1,7 @@
 import pygame
 import math
+from window import draw_background   # zelfde achtergrond
 
-def draw_lightblue_background(screen, time):
-    WIDTH, HEIGHT = screen.get_size()
-
-    screen.fill((135, 200, 240))
-
-    for x in range(0, WIDTH, 160):
-        pygame.draw.line(
-            screen,
-            (200, 235, 255),
-            (x, 0),
-            (x + math.sin(time * 0.01) * 40, HEIGHT),
-            3
-        )
 
 
 def show_home_screen(screen):
@@ -44,7 +32,6 @@ def show_home_screen(screen):
                 if locker_button.collidepoint(event.pos):
                     return "locker"
 
-        draw_lightblue_background(screen, time)
 
         title = title_font.render("SHARK ATTACK", True, (30, 70, 120))
         screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 200))

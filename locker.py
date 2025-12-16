@@ -1,24 +1,16 @@
 import pygame
-import sys
 import random
 import math
 
-pygame.init()
+def show_locker(screen):
+    clock = pygame.time.Clock()
+    font = pygame.font.SysFont(None, 24)
 
-# Scherm
-WIDTH, HEIGHT = 600, 300
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Vis Kleurenpalet")
+    WIDTH, HEIGHT = screen.get_size()
 
-clock = pygame.time.Clock()
-font = pygame.font.SysFont(None, 24)
-
-def show_locker():
-    LOCKER = "locker"
-    GAME = "game"
-    state = LOCKER
-
-    # Kleuren
+    # -------------------------------
+    #   KLEUREN & PATRONEN
+    # -------------------------------
     colors = [
         (255, 0, 0),
         (0, 255, 0),
@@ -26,130 +18,205 @@ def show_locker():
         (255, 255, 0),
         (255, 0, 255),
     ]
-
     selected_color = colors[0]
 
-    BOX_SIZE = 50
+    patterns = ["none", "stripes", "dots", "waves"]
+    selected_pattern = "none"
+
+    BOX_SIZE = (60,40)  # (breedte, hoogte)
     START_X = 40
-    Y = 180
+    COLOR_Y = HEIGHT - 150
+    PATTERN_Y = HEIGHT - 90
 
-    play_button = pygame.Rect(220, 240, 160, 40)
+    # 👉 NIEUWE KNOPPEN
+    start_button = pygame.Rect(WIDTH//2 - 170, HEIGHT - 45, 160, 40)
+    back_button  = pygame.Rect(WIDTH//2 + 10,  HEIGHT - 45, 160, 40)
 
-    # --- Bubbels ---
-    bubbles = []
-    for _ in range(25):
-        bubbles.append({
-            "x": random.randint(0, WIDTH),
-            "y": random.randint(HEIGHT - 100, HEIGHT),
-            "speed": random.uniform(0.4, 1.4),
-            "size": random.randint(3, 7)
-        })
+    # -------------------------------
+    #   ACHTERGROND EFFECTEN
+    # -------------------------------
+    bubbles = [{
+        "x": random.randint(0, WIDTH),
+        "y": random.randint(HEIGHT - 200, HEIGHT),
+        "speed": random.uniform(0.6, 1.8),
+        "size": random.randint(3, 8)
+    } for _ in range(45)]
 
-    # --- Zeewier ---
+    stones = [{
+        "x": random.randint(0, WIDTH),
+        "y": random.randint(HEIGHT - 120, HEIGHT - 50),
+        "w": random.randint(40, 120),
+        "h": random.randint(20, 60),
+        "color": (
+            random.randint(60, 90),
+            random.randint(60, 80),
+            random.randint(60, 80)
+        )
+    } for _ in range(18)]
+
     plants = []
-    for _ in range(15):
+    for _ in range(45):
         x = random.randint(0, WIDTH)
-        h = random.randint(40, 120)
-        wiggle = random.uniform(0.02, 0.06)
+        h = random.randint(40, 140)
+        wiggle = random.uniform(0.015, 0.05)
         plants.append((x, h, wiggle))
 
-    # Vis teken functie
-    def draw_fish(color, x=240, y=60):
+    # -------------------------------
+    #   VIS VOORBEELD
+    # -------------------------------
+    def draw_fish(color, pattern, x=WIDTH//2 - 60, y=HEIGHT // 2 - 30):
         pygame.draw.ellipse(screen, color, (x, y, 120, 60))
         pygame.draw.polygon(screen, color, [(x, y+30), (x-40, y), (x-40, y+60)])
         pygame.draw.circle(screen, (0, 0, 0), (x + 100, y + 30), 5)
 
-    time = 0
-    running = True
+        if pattern == "stripes":
+            for i in range(4):
+                pygame.draw.rect(screen, (255, 255, 255),
+                                 (x + 20 + i*20, y + 5, 10, 50), 2)
 
-    while running:
+        elif pattern == "dots":
+            for i in range(5):
+                pygame.draw.circle(screen, (255, 255, 255),
+                                   (x + 20 + i*18, y + 20 + (i % 2)*10), 6)
+
+        elif pattern == "waves":
+            for i in range(6):
+                wx = x + 15 + i * 17
+                wy = y + 10 + math.sin(i * 0.8) * 6
+                pygame.draw.circle(screen, (255, 255, 255), (wx, wy), 4)
+
+    time = 0
+
+    # -------------------------------
+    #   MAIN LOOP
+    # -------------------------------
+    while True:
         time += 1
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                return "back", None, None
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mx, my = pygame.mouse.get_pos()
+            if event.type == pygame.MOUSEBUTTONUP:
+                mx, my = event.pos
 
-                if state == LOCKER:
-                    # kleur selecteren
-                    for i, color in enumerate(colors):
-                        rect = pygame.Rect(
-                            START_X + i * (BOX_SIZE + 10),
-                            Y,
-                            BOX_SIZE,
-                            BOX_SIZE
-                        )
-                        if rect.collidepoint(mx, my):
-                            selected_color = color
+                # kleur selecteren
+                for i, color in enumerate(colors):
+                    rect = pygame.Rect(
+                        START_X + i*(BOX_SIZE[0]+10),
+                        COLOR_Y,
+                        BOX_SIZE[0],
+                        BOX_SIZE[1]
+                    )
+                    if rect.collidepoint(mx, my):
+                        selected_color = color
 
-                    # naar game
-                    if play_button.collidepoint(mx, my):
-                        state = GAME
+                # patroon selecteren
+                for i, pat in enumerate(patterns):
+                    rect = pygame.Rect(
+                        START_X + i*(BOX_SIZE[0]+10),
+                        PATTERN_Y,
+                        BOX_SIZE[0],
+                        BOX_SIZE[1]
+                    )
+                    if rect.collidepoint(mx, my):
+                        selected_pattern = pat
 
-        # ---------------- LOCKER ----------------
-        if state == LOCKER:
+                # 👉 START GAME
+                if start_button.collidepoint(mx, my):
+                    return "start", selected_color, selected_pattern
 
-            # Achtergrond zee
-            screen.fill((5, 50, 120))
+                # 👉 TERUG
+                if back_button.collidepoint(mx, my):
+                    return "back", None, None
 
-            # Lichtstralen
-            for i in range(80):
-                lx = (i * 15 + time * 0.7) % WIDTH
-                pygame.draw.line(screen, (80, 130, 200), (lx, 0), (lx - 40, HEIGHT), 1)
+        # ---------------- TEKENEN ----------------
+        screen.fill((8, 30, 70))
 
-            # Zeewier
-            for x, h, wiggle in plants:
-                top_x = x + math.sin(time * wiggle) * 6
-                pygame.draw.line(
-                    screen,
-                    (20, 90, 70),
-                    (x, HEIGHT),
-                    (top_x, HEIGHT - h),
-                    5
-                )
+        # Lichtdeeltjes
+        for i in range(180):
+            px = random.randint(0, WIDTH)
+            py = (random.randint(0, HEIGHT) + time) % 650
+            screen.set_at((px, py), (70, 120, 170))
 
-            # Bubbels
-            for b in bubbles:
-                b["y"] -= b["speed"]
-                if b["y"] < 0:
-                    b["y"] = HEIGHT
-                    b["x"] = random.randint(0, WIDTH)
+        # Bodem
+        pygame.draw.rect(screen, (170, 150, 110),
+                         (0, HEIGHT - 140, WIDTH, 140))
 
-                pygame.draw.circle(screen, (200, 220, 255), (int(b["x"]), int(b["y"])), b["size"])
+        # stenen
+        for s in stones:
+            pygame.draw.ellipse(screen, s["color"],
+                            (s["x"], s["y"], s["w"], s["h"]))
 
-            # Vis voorbeeld
-            draw_fish(selected_color)
+        # planten
+        for x, h, wiggle in plants:
+            top_x = x + math.sin(time * wiggle) * (5 + h * 0.05)
+            pygame.draw.line(
+                screen,
+                (40, 120, 90),
+                (x, HEIGHT),
+                (top_x, HEIGHT - h),
+                4
+            )
 
-            # Kleurenpalet
-            for i, color in enumerate(colors):
-                rect = pygame.Rect(
-                    START_X + i * (BOX_SIZE + 10),
-                    Y,
-                    BOX_SIZE,
-                    BOX_SIZE
-                )
-                pygame.draw.rect(screen, color, rect)
-                pygame.draw.rect(screen, (0, 0, 0), rect, 2)
+        # bubbels
+        for b in bubbles:
+            b["y"] -= b["speed"]
+            if b["y"] < 0:
+                b["y"] = HEIGHT
+                b["x"] = random.randint(0, WIDTH)
+            pygame.draw.circle(screen,
+                            (200, 220, 255),
+                            (int(b["x"]), int(b["y"])),
+                            b["size"])
 
-            # Speelknop
-            pygame.draw.rect(screen, (0, 200, 100), play_button)
-            pygame.draw.rect(screen, (0, 0, 0), play_button, 2)
-            screen.blit(font.render("SPELEN", True, (0, 0, 0)), (270, 250))
-            screen.blit(font.render("Kies je viskleur", True, (255, 255, 255)), (220, 20))
+        # vis voorbeeld
+        draw_fish(selected_color, selected_pattern)
 
-        # ---------------- GAME ----------------
-        elif state == GAME:
-            screen.fill((0, 120, 200))
-            draw_fish(selected_color, 240, 120)
-            screen.blit(font.render("Spel gestart!", True, (255, 255, 255)), (250, 20))
+        # kleurpalet
+        for i, color in enumerate(colors):
+            rect = pygame.Rect(
+                START_X + i*(BOX_SIZE[0]+10),
+                COLOR_Y,
+                BOX_SIZE[0],
+                BOX_SIZE[1]
+            )
+            pygame.draw.rect(screen, color, rect)
+            pygame.draw.rect(screen, (0, 0, 0), rect, 2)
+
+        text_surf = font.render("KLEUR", True, (255,255,255))
+        text_rect = text_surf.get_rect(midbottom=(START_X + BOX_SIZE[0]//2, COLOR_Y - 5))
+        screen.blit(text_surf, text_rect)
+
+        # patroonpalet
+        for i, pat in enumerate(patterns):
+            rect = pygame.Rect(
+                START_X + i*(BOX_SIZE[0]+10),
+                PATTERN_Y,
+                BOX_SIZE[0],
+                BOX_SIZE[1]
+            )
+            pygame.draw.rect(screen, (180, 180, 180), rect)
+            pygame.draw.rect(screen, (0, 0, 0), rect, 2)
+
+            # tekst centreren
+            text_surf = font.render(pat, True, (0, 0, 0))
+            text_rect = text_surf.get_rect(center=rect.center)
+            screen.blit(text_surf, text_rect)
+
+        screen.blit(font.render("PATRONEN", True, (255,255,255)),
+                    (START_X, PATTERN_Y - 15))
+
+        # 👉 KNOPPEN
+        pygame.draw.rect(screen, (0, 200, 100), start_button)
+        pygame.draw.rect(screen, (0, 0, 0), start_button, 2)
+        screen.blit(font.render("START GAME", True, (0,0,0)),
+                    (start_button.x + 25, start_button.y + 10))
+
+        pygame.draw.rect(screen, (200, 200, 200), back_button)
+        pygame.draw.rect(screen, (0, 0, 0), back_button, 2)
+        screen.blit(font.render("TERUG", True, (0,0,0)),
+                    (back_button.x + 55, back_button.y + 10))
 
         pygame.display.flip()
         clock.tick(60)
-        return "game", selected_color
-
-
-# Functie starten
-show_locker()
