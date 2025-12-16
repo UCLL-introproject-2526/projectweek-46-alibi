@@ -79,7 +79,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
     fluobeam_image = pygame.image.load("img/Fluobeam.png").convert_alpha()
     fluobeam_image = pygame.transform.scale(fluobeam_image, (20, 4))
 
-    boss_bullet_image = pygame.image.load("img/boss_bullet.png").convert_alpha()
+    boss_bullet_image = pygame.image.load("img/Fluobeam.png").convert_alpha()
     boss_bullet_image = pygame.transform.scale(boss_bullet_image, (14, 6))
 
     # game objecten
@@ -109,7 +109,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
     spawn_delay = 90
     shark_speed = 4
 
-    score = 0
+    score = 240
     score_timer = 0
     last_boss_score = 0
 
