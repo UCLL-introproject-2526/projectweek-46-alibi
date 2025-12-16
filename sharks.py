@@ -123,6 +123,9 @@ def run_game(screen, fish, pattern, coin_manager=None):
         time += 1
 
         # events
+        # -------------------------------
+        #   EVENTS
+        # -------------------------------
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quit"
@@ -130,18 +133,20 @@ def run_game(screen, fish, pattern, coin_manager=None):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return "home"
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_TAB:
+
+                if game_over and event.key == pygame.K_TAB:
                     return "locker"
 
-                if game_over and event.key == pygame.K_RETURN or event.key == pygame.K_TAB:
+                if game_over and event.key == pygame.K_RETURN:
                     player_y = HEIGHT // 2
                     sharks.clear()
+                    laser_bullets.clear()
                     score = 0
                     score_timer = 0
                     level = 1
                     game_over = False
                     boss_active = False
+                    boss_defeated_this_level = False
                     laser_active = False
                     laser_timer = 0
                     fire_timer = 0
@@ -149,15 +154,21 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     chest_rect = None
                     previous_chest_level = 0
 
+
+
+
         # -------------------------------
         #   GAME LOGICA
         # -------------------------------
         if not game_over:
             # score
-            score_timer += 1
-            if score_timer >= 30:
-                score += 1
-                score_timer = 0
+            # score (pauze tijdens boss fight)
+            if not boss_active:
+                score_timer += 1
+                if score_timer >= 30:
+                    score += 1
+                    score_timer = 0
+
 
             chest_level = score // 50
             if chest_level > previous_chest_level:
@@ -257,16 +268,27 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     highscore = max(scores)
 
             # laser bullets
-            if laser_active:
-                fire_timer -= 1
-                if fire_timer <= 0:
-                    laser_bullets.append(pygame.Rect(player_x + FISH_W, player_y + FISH_H//2 - 2, 20, 4))
-                    fire_timer = random.randint(10, 30)
+                can_shoot = laser_active or boss_active
 
-            for bullet in laser_bullets[:]:
-                bullet.x += 10
-                if bullet.x > WIDTH:
-                    laser_bullets.remove(bullet)
+                if can_shoot:
+                    fire_timer -= 1
+                    if fire_timer <= 0:
+                        laser_bullets.append(
+                            pygame.Rect(player_x + FISH_W, player_y + FISH_H//2 - 2, 20, 4)
+                        )
+                        fire_timer = random.randint(8, 15)  # iets sneller schieten bij boss
+
+
+                    for bullet in laser_bullets[:]:
+                        bullet.x += 10
+                        if bullet.x > WIDTH:
+                            laser_bullets.remove(bullet)
+                            
+                for bullet in laser_bullets[:]:
+                    bullet.x += 10
+                    if bullet.x > WIDTH:
+                        laser_bullets.remove(bullet)
+
 
             # collision bullets with sharks
             for bullet in laser_bullets[:]:

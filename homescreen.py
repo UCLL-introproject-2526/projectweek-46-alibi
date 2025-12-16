@@ -2,7 +2,6 @@ import pygame
 import random
 import math
 
-
 # --------------------------------
 #   OUTLINED TEKST
 # --------------------------------
@@ -12,7 +11,6 @@ def draw_outlined_text(screen, text, font, color, outline_color, pos):
             if dx != 0 or dy != 0:
                 outline = font.render(text, True, outline_color)
                 screen.blit(outline, (pos[0] + dx, pos[1] + dy))
-
     screen.blit(font.render(text, True, color), pos)
 
 
@@ -23,19 +21,22 @@ def show_home_screen(screen):
     WIDTH, HEIGHT = screen.get_size()
     clock = pygame.time.Clock()
 
-    # -------- AUDIO --------
+    # ---------- AUDIO ----------
     if not pygame.mixer.get_init():
         pygame.mixer.init()
 
     pygame.mixer.music.load("muziek/jaws.mp3")
-    pygame.mixer.music.set_volume(50)
+    pygame.mixer.music.set_volume(0.4)
     pygame.mixer.music.play(-1)
 
-    # -------- AFBEELDING --------
+    click_sound = pygame.mixer.Sound("muziek/shark_bite.mp3")
+    click_sound.set_volume(0.6)
+
+    # ---------- AFBEELDING ----------
     shark_img = pygame.image.load("img/shark_mouth.png").convert_alpha()
     shark_img = pygame.transform.scale(shark_img, (420, 620))
 
-    # -------- ACHTERGROND EFFECTEN --------
+    # ---------- ACHTERGROND EFFECTEN ----------
     bubbles = [{
         "x": random.randint(0, WIDTH),
         "y": random.randint(HEIGHT - 200, HEIGHT),
@@ -62,7 +63,7 @@ def show_home_screen(screen):
         wiggle = random.uniform(0.015, 0.05)
         plants.append((x, h, wiggle))
 
-    # -------- UI --------
+    # ---------- UI ----------
     title_font = pygame.font.SysFont("arialblack", 72)
     sub_font = pygame.font.SysFont("arial", 32)
     button_font = pygame.font.SysFont("arial", 34)
@@ -71,10 +72,10 @@ def show_home_screen(screen):
     locker_button = pygame.Rect(WIDTH//2 - 160, HEIGHT//2 + 210, 320, 70)
     close_button  = pygame.Rect(WIDTH//2 - 160, HEIGHT//2 + 300, 320, 70)
 
-    time = 0
     pygame.event.clear()
+    time = 0
 
-    # -------- LOOP --------
+    # ---------- LOOP ----------
     while True:
         mouse_pos = pygame.mouse.get_pos()
 
@@ -85,14 +86,17 @@ def show_home_screen(screen):
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if start_button.collidepoint(event.pos):
+                    click_sound.play()
                     pygame.mixer.music.stop()
                     return "start"
 
                 if locker_button.collidepoint(event.pos):
+                    click_sound.play()
                     pygame.mixer.music.stop()
                     return "locker"
 
                 if close_button.collidepoint(event.pos):
+                    click_sound.play()
                     pygame.mixer.music.stop()
                     return "quit"
 
@@ -104,24 +108,17 @@ def show_home_screen(screen):
             py = (random.randint(0, HEIGHT) + time) % HEIGHT
             screen.set_at((px, py), (70, 120, 170))
 
-        pygame.draw.rect(
-            screen,
-            (170, 150, 110),
-            (0, HEIGHT - 140, WIDTH, 140)
-        )
+        pygame.draw.rect(screen, (170, 150, 110),
+                         (0, HEIGHT - 140, WIDTH, 140))
 
         for s in stones:
-            pygame.draw.ellipse(
-                screen,
-                s["color"],
-                (s["x"], s["y"], s["w"], s["h"])
-            )
+            pygame.draw.ellipse(screen, s["color"],
+                                (s["x"], s["y"], s["w"], s["h"]))
 
         for x, h, wiggle in plants:
             top_x = x + math.sin(time * wiggle) * (5 + h * 0.05)
             pygame.draw.line(
-                screen,
-                (40, 120, 90),
+                screen, (40, 120, 90),
                 (x, HEIGHT),
                 (top_x, HEIGHT - h),
                 4
@@ -133,23 +130,21 @@ def show_home_screen(screen):
                 b["y"] = HEIGHT
                 b["x"] = random.randint(0, WIDTH)
             pygame.draw.circle(
-                screen,
-                (200, 220, 255),
+                screen, (200, 220, 255),
                 (int(b["x"]), int(b["y"])),
                 b["size"]
             )
 
-        # ===== HAAI =====
-        shark_x = WIDTH // 2 - shark_img.get_width() // 2
-        shark_y = 120
-        screen.blit(shark_img, (shark_x, shark_y))
+        # ===== HAAI (STIL) =====
+        screen.blit(
+            shark_img,
+            (WIDTH//2 - shark_img.get_width()//2, 120)
+        )
 
-        # ===== TITEL (GE CENTREERD) =====
+        # ===== TITEL =====
         title_text = "SHARK ATTACK"
         title_surface = title_font.render(title_text, True, (30, 70, 120))
-
-        title_x = WIDTH // 2 - title_surface.get_width() // 2
-        title_y = 200
+        title_x = WIDTH//2 - title_surface.get_width()//2
 
         draw_outlined_text(
             screen,
@@ -157,19 +152,16 @@ def show_home_screen(screen):
             title_font,
             (30, 70, 120),
             (255, 255, 255),
-            (title_x, title_y)
+            (title_x, 200)
         )
 
-        # ===== SUBTITEL =====
         subtitle = sub_font.render(
             "Ontwijk de hongerige haaien en verzamel schatten!",
             True,
             (50, 100, 160)
         )
-        screen.blit(
-            subtitle,
-            (WIDTH // 2 - subtitle.get_width() // 2, 280)
-        )
+        screen.blit(subtitle,
+                    (WIDTH//2 - subtitle.get_width()//2, 280))
 
         # ===== KNOPPEN =====
         for rect, text in [
@@ -190,8 +182,8 @@ def show_home_screen(screen):
             label = button_font.render(text, True, (255, 255, 255))
             screen.blit(
                 label,
-                (rect.centerx - label.get_width() // 2,
-                 rect.centery - label.get_height() // 2)
+                (rect.centerx - label.get_width()//2,
+                 rect.centery - label.get_height()//2)
             )
 
         time += 1
