@@ -5,7 +5,7 @@ from homescreen import show_home_screen
 from locker import show_locker
 from sharks import run_game
 from window import draw_background
-from itemshop import show_itemshop       
+from itemshop import show_itemshop      
 
 WIDTH, HEIGHT = 1024, 768
 
@@ -17,7 +17,6 @@ def draw_player_fish(surface, fish, pattern, x, y, w=FISH_W, h=FISH_H):
     image = pygame.transform.scale(image, (int(w), int(h)))
     surface.blit(image, (x, y))
 
-    # patronen over de image
     scale_x = w / FISH_W
     scale_y = h / FISH_H
 
@@ -50,10 +49,10 @@ def main():
     state = "home"
     running = True
 
-    # ----------------------------------------
-    #   NIEUW: COINS + ITEMSHOP DATA
-    # ----------------------------------------
-    coins = 50  # start coins
+    # ----------------------------
+    #   COINS + UNLOCK INFORMATION
+    # ----------------------------
+    coins = 0
     unlocked_colors = []
     unlocked_patterns = []
 
@@ -93,20 +92,22 @@ def main():
                 player_pattern = pattern
                 state = "transition"
 
-            elif action == "itemshop":        # ⬅️ JOUW CODE TOEGEVOEGD
+            elif action == "itemshop":
                 state = "itemshop"
 
             else:
                 state = "home"
 
         # ========== ITEMSHOP ==========
-        elif state == "itemshop":              # ⬅️ NIEUWE STATE
+        elif state == "itemshop":
             coins, unlocked_colors, unlocked_patterns = show_itemshop(
                 screen,
                 coins,
                 unlocked_colors,
                 unlocked_patterns
             )
+
+            # TERUG NAAR LOCKER
             state = "locker"
 
         # ========== TRANSITION ==========
