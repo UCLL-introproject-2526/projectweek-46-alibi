@@ -5,6 +5,9 @@ import math
 from window import draw_background
 from highscores import load_scores
 import os
+import random
+random.seed()  # optioneel, wordt automatisch gedaan, maar kan expliciet helpen
+
 
 
 # -------------------------------
@@ -281,10 +284,11 @@ def run_game(screen, fish, pattern, coin_manager=None):
             # in de loop
             # boss spawn elke 250 punten
             if score >= last_boss_score + 250 and not boss_active:
+                last_boss_score = score  # eerst bijwerken
+
                 boss_active = True
                 sharks.clear()
 
-                # 🔥 MUZIEK WISSELEN
                 pygame.mixer.music.fadeout(500)
                 pygame.mixer.music.load(BOSS_MUSIC)
                 pygame.mixer.music.play(-1)
@@ -294,6 +298,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     x=WIDTH + 40,
                     y=HEIGHT // 2 - boss_image.get_height() // 2
                 )
+
 
                 boss_max_hp = 30 + score // 10
                 boss_hp = boss_max_hp
