@@ -15,37 +15,18 @@ WIDTH, HEIGHT = 1024, 768
 FISH_W = 50
 FISH_H = 30
 
-def draw_player_fish(surface, color, pattern, x, y, w=FISH_W, h=FISH_H):
-    scale_x = w / FISH_W
-    scale_y = h / FISH_H
+def draw_player_fish(surface, fish, pattern, x, y, w=FISH_W, h=FISH_H):
+    image = pygame.image.load(fish + ".png").convert_alpha()
+    image = pygame.transform.scale(image, (int(w), int(h)))
+    surface.blit(image, (x, y))
 
-    # body
-    pygame.draw.ellipse(surface, color, (x, y, w, h))
-
-    # staart
-    tail_length = 32 * scale_x
-    pygame.draw.polygon(
-        surface, color,
-        [(x, y + h//2), (x - tail_length, y), (x - tail_length, y + h)]
-    )
-
-    # oog
-    eye_x = x + w - 16 * scale_x
-    eye_y = y + h//2
-    eye_radius = 4 * scale_x
-    pygame.draw.circle(
-        surface, (0, 0, 0),
-        (eye_x, eye_y),
-        eye_radius
-    )
-
-    # patronen
+    # patronen over de image
     if pattern == "stripes":
         for i in range(3):
-            rect_x = x + 18 * scale_x + i * 18 * scale_x
-            rect_y = y + 4 * scale_y
-            rect_w = 8 * scale_x
-            rect_h = (h - 8 * scale_y)
+            rect_x = x + 18 * (w / FISH_W) + i * 18 * (w / FISH_W)
+            rect_y = y + 4 * (h / FISH_H)
+            rect_w = 8 * (w / FISH_W)
+            rect_h = (h - 8 * (h / FISH_H))
             pygame.draw.rect(
                 surface, (255, 255, 255),
                 (rect_x, rect_y, rect_w, rect_h),
@@ -54,9 +35,9 @@ def draw_player_fish(surface, color, pattern, x, y, w=FISH_W, h=FISH_H):
 
     elif pattern == "dots":
         for i in range(4):
-            dot_x = x + 18 * scale_x + i * 18 * scale_x
-            dot_y = y + 16 * scale_y + (i % 2) * 8 * scale_y
-            dot_radius = 5 * scale_x
+            dot_x = x + 18 * (w / FISH_W) + i * 18 * (w / FISH_W)
+            dot_y = y + 16 * (h / FISH_H) + (i % 2) * 8 * (h / FISH_H)
+            dot_radius = 5 * (w / FISH_W)
             pygame.draw.circle(
                 surface, (255, 255, 255),
                 (dot_x, dot_y),
@@ -65,9 +46,9 @@ def draw_player_fish(surface, color, pattern, x, y, w=FISH_W, h=FISH_H):
 
     elif pattern == "waves":
         for i in range(5):
-            wx = x + 14 * scale_x + i * 16 * scale_x
-            wy = y + h//2 + math.sin(i * 0.9) * 6 * scale_y
-            wave_radius = 3 * scale_x
+            wx = x + 14 * (w / FISH_W) + i * 16 * (w / FISH_W)
+            wy = y + h//2 + math.sin(i * 0.9) * 6 * (h / FISH_H)
+            wave_radius = 3 * (w / FISH_W)
             pygame.draw.circle(surface, (255, 255, 255), (wx, int(wy)), wave_radius)
 
 
@@ -81,7 +62,7 @@ def main():
     running = True
 
     # standaard vis (voor het geval locker niet wordt geopend)
-    player_color = (255, 0, 0)
+    player_fish = "vis1"
     player_pattern = "none"
 
     # transition variables
@@ -112,7 +93,7 @@ def main():
             action, color, pattern = show_locker(screen)
 
             if action == "start":
-                player_color = color
+                player_fish = color
                 player_pattern = pattern
                 state = "transition"
                 transition_frame = 0
@@ -130,7 +111,7 @@ def main():
 
             draw_background(screen, transition_frame)
 
-            draw_player_fish(screen, player_color, player_pattern, current_x, current_y, current_w, current_h)
+            draw_player_fish(screen, player_fish, player_pattern, current_x, current_y, current_w, current_h)
 
             transition_frame += 1
 
@@ -148,7 +129,7 @@ def main():
 
         # ================= GAME =================
         elif state == "game":
-            result = run_game(screen, player_color, player_pattern)
+            result = run_game(screen, player_fish, player_pattern)
 
             if result == "quit":
                 running = False

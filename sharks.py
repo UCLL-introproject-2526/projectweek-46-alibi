@@ -10,22 +10,10 @@ from window import draw_background   # zelfde achtergrond
 FISH_W = 50
 FISH_H = 30
 
-def draw_player_fish(surface, color, pattern, x, y):
-    # body
-    pygame.draw.ellipse(surface, color, (x, y, FISH_W, FISH_H))
-
-    # staart
-    pygame.draw.polygon(
-        surface, color,
-        [(x, y + FISH_H//2), (x - 32, y), (x - 32, y + FISH_H)]
-    )
-
-    # oog
-    pygame.draw.circle(
-        surface, (0, 0, 0),
-        (x + FISH_W - 16, y + FISH_H//2),
-        4
-    )
+def draw_player_fish(surface, fish, pattern, x, y):
+    image = pygame.image.load(fish + ".png").convert_alpha()
+    image = pygame.transform.scale(image, (FISH_W, FISH_H))
+    surface.blit(image, (x, y))
 
     # patronen
     if pattern == "stripes":
@@ -54,7 +42,7 @@ def draw_player_fish(surface, color, pattern, x, y):
 # -------------------------------
 #   GAME
 # -------------------------------
-def run_game(screen, color, pattern):
+def run_game(screen, fish, pattern):
     clock = pygame.time.Clock()
     WIDTH, HEIGHT = screen.get_size()
     time = 0
@@ -219,7 +207,7 @@ def run_game(screen, color, pattern):
                     laser_bullets.remove(bullet)
 
             # tekenen
-            draw_player_fish(screen, color, pattern, player_x, player_y)
+            draw_player_fish(screen, fish, pattern, player_x, player_y)
 
             for shark in sharks:
                 screen.blit(shark_image, shark)
