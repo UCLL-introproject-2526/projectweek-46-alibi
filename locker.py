@@ -3,6 +3,16 @@ import random
 import math
 
 def show_locker(screen):
+    pygame.mixer.init()
+
+    # Muziek laden
+    try:
+        pygame.mixer.music.load("muziek/baby-shark-rhapsody-199067.mp3")
+        pygame.mixer.music.set_volume(0.4)
+        pygame.mixer.music.play(-1)
+    except:
+        print("Kon locker_music.mp3 niet laden!")
+
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 24)
 
@@ -23,12 +33,11 @@ def show_locker(screen):
     patterns = ["none", "stripes", "dots", "waves"]
     selected_pattern = "none"
 
-    BOX_SIZE = (60,40)  # (breedte, hoogte)
+    BOX_SIZE = (60,40)
     START_X = 40
     COLOR_Y = HEIGHT - 150
     PATTERN_Y = HEIGHT - 90
 
-    # 👉 NIEUWE KNOPPEN
     start_button = pygame.Rect(WIDTH//2 - 170, HEIGHT - 45, 160, 40)
     back_button  = pygame.Rect(WIDTH//2 + 10,  HEIGHT - 45, 160, 40)
 
@@ -95,6 +104,7 @@ def show_locker(screen):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.mixer.music.stop()
                 return "back", None, None
 
             if event.type == pygame.MOUSEBUTTONUP:
@@ -122,15 +132,17 @@ def show_locker(screen):
                     if rect.collidepoint(mx, my):
                         selected_pattern = pat
 
-                # 👉 START GAME
+                # START GAME
                 if start_button.collidepoint(mx, my):
+                    pygame.mixer.music.stop()
                     return "start", selected_color, selected_pattern
 
-                # 👉 TERUG
+                # TERUG
                 if back_button.collidepoint(mx, my):
+                    pygame.mixer.music.stop()
                     return "back", None, None
 
-        # ---------------- TEKENEN ----------------
+        # --- TEKENEN ---
         screen.fill((8, 30, 70))
 
         # Lichtdeeltjes
@@ -140,13 +152,12 @@ def show_locker(screen):
             screen.set_at((px, py), (70, 120, 170))
 
         # Bodem
-        pygame.draw.rect(screen, (170, 150, 110),
-                         (0, HEIGHT - 140, WIDTH, 140))
+        pygame.draw.rect(screen, (170, 150, 110), (0, HEIGHT - 140, WIDTH, 140))
 
         # stenen
         for s in stones:
             pygame.draw.ellipse(screen, s["color"],
-                            (s["x"], s["y"], s["w"], s["h"]))
+                                (s["x"], s["y"], s["w"], s["h"]))
 
         # planten
         for x, h, wiggle in plants:
@@ -165,10 +176,9 @@ def show_locker(screen):
             if b["y"] < 0:
                 b["y"] = HEIGHT
                 b["x"] = random.randint(0, WIDTH)
-            pygame.draw.circle(screen,
-                            (200, 220, 255),
-                            (int(b["x"]), int(b["y"])),
-                            b["size"])
+            pygame.draw.circle(screen, (200, 220, 255),
+                               (int(b["x"]), int(b["y"])),
+                               b["size"])
 
         # vis voorbeeld
         draw_fish(selected_color, selected_pattern)
@@ -184,9 +194,9 @@ def show_locker(screen):
             pygame.draw.rect(screen, color, rect)
             pygame.draw.rect(screen, (0, 0, 0), rect, 2)
 
-        text_surf = font.render("KLEUR", True, (255,255,255))
-        text_rect = text_surf.get_rect(midbottom=(START_X + BOX_SIZE[0]//2, COLOR_Y - 5))
-        screen.blit(text_surf, text_rect)
+        # tekst "kleur"
+        screen.blit(font.render("KLEUR", True, (255,255,255)),
+                    (START_X, COLOR_Y - 25))
 
         # patroonpalet
         for i, pat in enumerate(patterns):
@@ -199,15 +209,14 @@ def show_locker(screen):
             pygame.draw.rect(screen, (180, 180, 180), rect)
             pygame.draw.rect(screen, (0, 0, 0), rect, 2)
 
-            # tekst centreren
             text_surf = font.render(pat, True, (0, 0, 0))
             text_rect = text_surf.get_rect(center=rect.center)
             screen.blit(text_surf, text_rect)
 
         screen.blit(font.render("PATRONEN", True, (255,255,255)),
-                    (START_X, PATTERN_Y - 15))
+                    (START_X, PATTERN_Y - 20))
 
-        # 👉 KNOPPEN
+        # knoppen
         pygame.draw.rect(screen, (0, 200, 100), start_button)
         pygame.draw.rect(screen, (0, 0, 0), start_button, 2)
         screen.blit(font.render("START GAME", True, (0,0,0)),
