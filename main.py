@@ -3,7 +3,7 @@ import pygame
 from homescreen import show_home_screen
 from locker import show_locker
 from sharks import run_game
-from coin import CoinManager
+from coins import CoinManager
 from highscores import show_highscores
 from itemshop import show_itemshop
 
