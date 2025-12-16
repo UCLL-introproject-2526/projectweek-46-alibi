@@ -2,23 +2,37 @@ import pygame
 import random
 import math
 
+
+# --------------------------------
+#   OUTLINED TEKST
+# --------------------------------
 def draw_outlined_text(screen, text, font, color, outline_color, pos):
-    # teken outline
-    for dx in [-1, 0, 1]:
-        for dy in [-1, 0, 1]:
-            if dx == 0 and dy == 0:
-                continue
-            outline_surf = font.render(text, True, outline_color)
-            screen.blit(outline_surf, (pos[0] + dx, pos[1] + dy))
-    # teken originele tekst
-    surf = font.render(text, True, color)
-    screen.blit(surf, pos)
+    for dx in [-2, 0, 2]:
+        for dy in [-2, 0, 2]:
+            if dx != 0 or dy != 0:
+                outline = font.render(text, True, outline_color)
+                screen.blit(outline, (pos[0] + dx, pos[1] + dy))
+
+    text_surf = font.render(text, True, color)
+    screen.blit(text_surf, pos)
 
 
-
+# --------------------------------
+#   HOME SCREEN
+# --------------------------------
 def show_home_screen(screen):
     WIDTH, HEIGHT = screen.get_size()
-    
+    clock = pygame.time.Clock()
+
+    # -------- AUDIO --------
+    if not pygame.mixer.get_init():
+        pygame.mixer.init()
+
+    pygame.mixer.music.load("/")
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play(-1)
+
+    # -------- EFFECTEN --------
     bubbles = [{
         "x": random.randint(0, WIDTH),
         "y": random.randint(HEIGHT - 200, HEIGHT),
@@ -45,83 +59,56 @@ def show_home_screen(screen):
         wiggle = random.uniform(0.015, 0.05)
         plants.append((x, h, wiggle))
 
-    clock = pygame.time.Clock()
-
-    WIDTH, HEIGHT = screen.get_size()  # ✅ HIER DE FIX
-
+    # -------- UI --------
     title_font = pygame.font.SysFont("arialblack", 72)
     sub_font = pygame.font.SysFont("arial", 32)
     button_font = pygame.font.SysFont("arial", 34)
 
-    start_button = pygame.Rect(WIDTH // 2 - 160, HEIGHT // 2 + 120, 320, 70)
-    locker_button = pygame.Rect(WIDTH // 2 - 160, HEIGHT // 2 + 210, 320, 70)
+    start_button = pygame.Rect(WIDTH//2 - 160, HEIGHT//2 + 120, 320, 70)
+    locker_button = pygame.Rect(WIDTH//2 - 160, HEIGHT//2 + 210, 320, 70)
 
     time = 0
     pygame.event.clear()
 
+    # -------- LOOP --------
     while True:
         mouse_pos = pygame.mouse.get_pos()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.mixer.music.stop()
                 return "quit"
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if start_button.collidepoint(event.pos):
+                    pygame.mixer.music.stop()
                     return "start"
+
                 if locker_button.collidepoint(event.pos):
+                    pygame.mixer.music.stop()
                     return "locker"
 
-
-        title = title_font.render("SHARK ATTACK", True, (30, 70, 120))
-        screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 200))
-
-        subtitle = sub_font.render(
-            "Ontwijk de hongerige haaien en verzamel schatten!",
-            True,
-            (50, 100, 160)
-        )
-        screen.blit(subtitle, (WIDTH // 2 - subtitle.get_width() // 2, 280))
-
-        for rect, text in [
-            (start_button, "START GAME"),
-            (locker_button, "LOCKER")
-        ]:
-            hover = rect.collidepoint(mouse_pos)
-            color = (70, 140, 200) if hover else (50, 120, 180)
-            pygame.draw.rect(screen, color, rect, border_radius=14)
-            pygame.draw.rect(screen, (255, 255, 255), rect, 2, border_radius=14)
-
-            label = button_font.render(text, True, (255, 255, 255))
-            screen.blit(
-                label,
-                (rect.centerx - label.get_width() // 2,
-                 rect.centery - label.get_height() // 2)
-            )
-
-        time += 1
-        pygame.display.flip()
-        clock.tick(60)
-
-        # ---------------- TEKENEN ----------------
+        # ===== ACHTERGROND =====
         screen.fill((8, 30, 70))
 
-        # Lichtdeeltjes
         for i in range(180):
             px = random.randint(0, WIDTH)
-            py = (random.randint(0, HEIGHT) + time) % 650
+            py = (random.randint(0, HEIGHT) + time) % HEIGHT
             screen.set_at((px, py), (70, 120, 170))
 
-        # Bodem
-        pygame.draw.rect(screen, (170, 150, 110),
-                         (0, HEIGHT - 140, WIDTH, 140))
+        pygame.draw.rect(
+            screen,
+            (170, 150, 110),
+            (0, HEIGHT - 140, WIDTH, 140)
+        )
 
-        # stenen
         for s in stones:
-            pygame.draw.ellipse(screen, s["color"],
-                            (s["x"], s["y"], s["w"], s["h"]))
+            pygame.draw.ellipse(
+                screen,
+                s["color"],
+                (s["x"], s["y"], s["w"], s["h"])
+            )
 
-        # planten
         for x, h, wiggle in plants:
             top_x = x + math.sin(time * wiggle) * (5 + h * 0.05)
             pygame.draw.line(
@@ -132,13 +119,53 @@ def show_home_screen(screen):
                 4
             )
 
-        # bubbels
         for b in bubbles:
             b["y"] -= b["speed"]
             if b["y"] < 0:
                 b["y"] = HEIGHT
                 b["x"] = random.randint(0, WIDTH)
-            pygame.draw.circle(screen,
-                            (200, 220, 255),
-                            (int(b["x"]), int(b["y"])),
-                            b["size"])
+            pygame.draw.circle(
+                screen,
+                (200, 220, 255),
+                (int(b["x"]), int(b["y"])),
+                b["size"]
+            )
+
+        # ===== TITEL =====
+        draw_outlined_text(
+            screen,
+            "SHARK ATTACK",
+            title_font,
+            (30, 70, 120),
+            (255, 255, 255),
+            (WIDTH//2 - 260, 200)
+        )
+
+        subtitle = sub_font.render(
+            "Ontwijk de hongerige haaien en verzamel schatten!",
+            True,
+            (50, 100, 160)
+        )
+        screen.blit(subtitle, (WIDTH//2 - subtitle.get_width()//2, 280))
+
+        # ===== KNOPPEN =====
+        for rect, text in [
+            (start_button, "START GAME"),
+            (locker_button, "LOCKER")
+        ]:
+            hover = rect.collidepoint(mouse_pos)
+            color = (70, 140, 200) if hover else (50, 120, 180)
+
+            pygame.draw.rect(screen, color, rect, border_radius=14)
+            pygame.draw.rect(screen, (255, 255, 255), rect, 2, border_radius=14)
+
+            label = button_font.render(text, True, (255, 255, 255))
+            screen.blit(
+                label,
+                (rect.centerx - label.get_width()//2,
+                 rect.centery - label.get_height()//2)
+            )
+
+        time += 1
+        pygame.display.flip()
+        clock.tick(60)
