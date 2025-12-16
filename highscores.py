@@ -6,7 +6,7 @@ def load_scores():
         with open("scores.txt", "r") as f:
             scores = [int(line.strip()) for line in f if line.strip().isdigit()]
             scores.sort(reverse=True)
-            return scores[:10]   # top 10
+            return scores[:0]   
     except FileNotFoundError:
         return []
 
