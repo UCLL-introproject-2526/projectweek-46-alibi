@@ -359,3 +359,4 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
         pygame.display.flip()
         clock.tick(FPS)
+        
