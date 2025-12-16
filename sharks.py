@@ -130,8 +130,11 @@ def run_game(screen, fish, pattern, coin_manager=None):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return "home"
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_TAB:
+                    return "locker"
 
-                if game_over and event.key == pygame.K_RETURN:
+                if game_over and event.key == pygame.K_RETURN or event.key == pygame.K_TAB:
                     player_y = HEIGHT // 2
                     sharks.clear()
                     score = 0
@@ -366,7 +369,11 @@ def run_game(screen, fish, pattern, coin_manager=None):
             screen.blit(big_font.render("GAME OVER", True, (255, 255, 255)),
                         (WIDTH // 2 - 150, 120))
             screen.blit(font.render("ENTER = opnieuw", True, (255, 255, 255)),
-                        (WIDTH // 2 - 100, 200))
+                        (WIDTH // 2 - 150, 200))
+            screen.blit(font.render("ESC = Terug naar menu", True, (255, 255, 255)),
+                        (WIDTH // 2 - 150, 320))
+            screen.blit(font.render("Tab = Terug naar locker", True, (255, 255, 255)),
+                        (WIDTH // 2 - 150, 440))
 
         pygame.display.flip()
         clock.tick(FPS)
