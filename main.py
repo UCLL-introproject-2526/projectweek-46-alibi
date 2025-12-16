@@ -2,9 +2,9 @@ import pygame
 
 from homescreen import show_home_screen
 from locker import show_locker
-from sharks import run_game
+from sharks import run_game,draw_player_fish
 from highscores import show_highscores
-
+from window import draw_background
 # -------------------------------
 #   INIT
 # -------------------------------
@@ -58,11 +58,7 @@ while running:
     elif state == "quit":
         running = False
 
-<<<<<<< HEAD
-    clock.tick(60)
-=======
-            draw_background(screen, transition_frame)
-            draw_player_fish(screen, player_fish, player_pattern, current_x, current_y, current_w, current_h)
->>>>>>> 2b3db616e7a6a538f232f46de01d4b8b62c1833c
+        draw_background(screen, transition_frame)
+        draw_player_fish(screen, player_fish, player_pattern, current_x, current_y, current_w, current_h)
 
 pygame.quit()
