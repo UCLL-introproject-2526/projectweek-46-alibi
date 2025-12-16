@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+import os
 
 def show_locker(screen):
     pygame.mixer.init()
@@ -71,7 +72,12 @@ def show_locker(screen):
     #   VIS VOORBEELD
     # -------------------------------
     def draw_fish(fish, pattern, x=WIDTH//2 - 60, y=HEIGHT // 2 - 30):
-        image = pygame.image.load(fish + ".png").convert_alpha()
+        # accept 'img/vis1.png', 'vis1.png' or just 'vis1'
+        if fish.startswith("img/") or fish.startswith("img\\") or fish.endswith(".png"):
+            path = fish
+        else:
+            path = os.path.join("img", fish + ".png")
+        image = pygame.image.load(path).convert_alpha()
         image = pygame.transform.scale(image, (120, 60))
         screen.blit(image, (x, y))
 
@@ -195,7 +201,11 @@ def show_locker(screen):
                 BOX_SIZE[1]
             )
             # laad kleine image
-            small_image = pygame.image.load(fish + ".png").convert_alpha()
+            if fish.startswith("img/") or fish.startswith("img\\") or fish.endswith(".png"):
+                small_path = fish
+            else:
+                small_path = os.path.join("img", fish + ".png")
+            small_image = pygame.image.load(small_path).convert_alpha()
             small_image = pygame.transform.scale(small_image, (BOX_SIZE[0], BOX_SIZE[1]))
             screen.blit(small_image, rect)
             pygame.draw.rect(screen, (0, 0, 0), rect, 2)

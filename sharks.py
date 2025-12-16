@@ -3,6 +3,7 @@ import random
 import math
 from window import draw_background
 from highscores import load_scores
+import os
 
 # -------------------------------
 #   CONSTANTEN
@@ -26,7 +27,12 @@ def save_score(score):
 #   VIS TEKENEN
 # -------------------------------
 def draw_player_fish(surface, fish, pattern, x, y):
-    image = pygame.image.load("/img" +fish + ".png").convert_alpha()
+    # support either a full path like "img/vis1.png" or a short name like "vis1"
+    if fish.startswith("img/") or fish.startswith("img\\") or fish.endswith(".png"):
+        path = fish
+    else:
+        path = os.path.join("img", fish + ".png")
+    image = pygame.image.load(path).convert_alpha()
     image = pygame.transform.scale(image, (FISH_W, FISH_H))
     surface.blit(image, (x, y))
 
