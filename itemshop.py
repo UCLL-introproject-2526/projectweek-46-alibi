@@ -21,15 +21,27 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
     back_button = pygame.Rect(20, 20, 120, 45)
 
     # -------------------------------
-    # FISH ITEMS
+    # FISH names
     # -------------------------------
+    fish_names = ["vis1", "vis2", "vis3", "vis4", "vis5", "vis6", "vis7", "vis8", "vis9", "vis10"]
+    start_price = 100
+    step = 100
+
     fish_items = [
-        {"name": "vis1", "price": 10},
-        {"name": "vis2", "price": 100},
-        {"name": "vis3", "price": 200},
-        {"name": "vis4", "price": 300},
-        {"name": "vis5", "price": 500},
+        {"name": name, "price": start_price + i * step}
+        for i, name in enumerate(fish_names)
     ]
+
+    scroll_y = 0
+    SCROLL_SPEED = 40
+
+    items_per_row = 4
+    item_width = 120
+    item_height = 100
+    spacing_x = 40
+    spacing_y = 30
+
+
 
     # -------------------------------
     # MAIN LOOP
@@ -68,8 +80,12 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
         spacing_x = 160
 
         for i, item in enumerate(fish_items):
-            x = start_x + i * spacing_x
-            y = start_y
+            row = i // items_per_row
+            col = i % items_per_row
+
+            x = start_x + col * (item_width + spacing_x)
+            y = start_y + row * (item_height + spacing_y) + scroll_y
+
 
             rect = pygame.Rect(x, y, 120, 100)
             pygame.draw.rect(screen, (180, 220, 255), rect, border_radius=12)
@@ -88,14 +104,12 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
                 screen.blit(status, (x + 15, y + 65))
             else:
                 price_text = font.render(str(item["price"]), True, (0, 0, 0))
-
                 text_x = x + 35
                 text_y = y + 65
 
                 screen.blit(price_text, (text_x, text_y))
                 coin_x = text_x + price_text.get_width() + 4
                 coin_y = text_y + (price_text.get_height() - coin_img.get_height()) // 2
-
                 screen.blit(coin_img, (coin_x, coin_y))
 
 
@@ -104,6 +118,20 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
         # EVENTS
         # -------------------------------
         for event in pygame.event.get():
+            if event.type == pygame.MOUSEWHEEL:
+                scroll_y += event.y * SCROLL_SPEED
+                total_rows = (len(fish_items) + items_per_row - 1) // items_per_row
+                content_height = total_rows * (item_height + spacing_y)
+
+                max_scroll = 0
+                min_scroll = HEIGHT - content_height - start_y - 40
+
+                scroll_y = max(min_scroll, min(max_scroll, scroll_y))
+
+
+
+
+
             if event.type == pygame.QUIT:
                 return "quit"
 
@@ -131,6 +159,7 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
                                 coin_manager._save()
                                 unlocked_fishes.append(item["name"])
                                 save_unlocked_fishes(unlocked_fishes)
+
 
 
 

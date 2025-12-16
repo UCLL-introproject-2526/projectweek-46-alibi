@@ -25,7 +25,7 @@ def show_locker(screen, unlocked_fishes, coins):
     # -------------------------------
     #   VISSEN & PATRONEN
     # -------------------------------
-    fishes = ["vis1", "vis2", "vis3", "vis4", "vis5"]
+    fishes = ["vis1", "vis2", "vis3", "vis4", "vis5", "vis6", "vis7", "vis8", "vis9", "vis10"]
     selected_fish = "vis1"
 
     patterns = ["none", "stripes", "dots", "waves"]
