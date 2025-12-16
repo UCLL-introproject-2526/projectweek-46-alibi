@@ -3,6 +3,7 @@ import pygame
 from homescreen import show_home_screen
 from locker import show_locker
 from sharks import run_game,draw_player_fish
+from coin import CoinManager
 from highscores import show_highscores
 from window import draw_background
 # -------------------------------
@@ -28,6 +29,7 @@ selected_pattern = "none"
 #   MAIN LOOP
 # -------------------------------
 running = True
+coin_manager = CoinManager(spawn_chance=0.05, max_coins=8)
 while running:
 
     if state == "home":
@@ -50,7 +52,7 @@ while running:
                 state = "home"
 
     elif state == "start":
-        state = run_game(screen, selected_fish, selected_pattern)
+        state = run_game(screen, selected_fish, selected_pattern, coin_manager)
 
     elif state == "highscores":
         state = show_highscores(screen)
