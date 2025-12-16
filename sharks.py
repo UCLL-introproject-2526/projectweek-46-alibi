@@ -18,6 +18,16 @@ SHARK_SIZE = (80, 50)
 BOSS_SIZE = (160, 100)   # 2x zo groot
 
 # -------------------------------
+#   MUSIC
+# -------------------------------
+
+pygame.mixer.init()
+
+NORMAL_MUSIC = "muziek/normal_theme.mp3"
+BOSS_MUSIC = "muziek/boss_theme.mp3"
+
+
+# -------------------------------
 #   SCORE OPSLAAN
 # -------------------------------
 def save_score(score):
@@ -59,6 +69,10 @@ def draw_player_fish(surface, fish, pattern, x, y):
 # -------------------------------
 def run_game(screen, fish, pattern, coin_manager=None):
     clock = pygame.time.Clock()
+    pygame.mixer.music.load(NORMAL_MUSIC)
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play(-1)  # -1 = oneindige loop
+
     WIDTH, HEIGHT = screen.get_size()
     time = 0
     boss_direction = 1  # 1 = naar beneden, -1 = naar boven
@@ -182,6 +196,10 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     chest_rect = None
                     previous_chest_level = 0
 
+                    # 🎵 Start normale muziek opnieuw
+                    pygame.mixer.music.load(NORMAL_MUSIC)
+                    pygame.mixer.music.play(-1)
+
 
 
 
@@ -226,7 +244,12 @@ def run_game(screen, fish, pattern, coin_manager=None):
             if score >= last_boss_score + 250 and not boss_active:
                 boss_active = True
                 sharks.clear()
-                # kies willekeurige boss
+
+                # 🔥 MUZIEK WISSELEN
+                pygame.mixer.music.fadeout(500)
+                pygame.mixer.music.load(BOSS_MUSIC)
+                pygame.mixer.music.play(-1)
+
                 boss_image = random.choice(boss_images)
                 boss_rect = boss_image.get_rect(
                     x=WIDTH + 40,
@@ -235,7 +258,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
                 boss_max_hp = 30 + score // 10
                 boss_hp = boss_max_hp
-                last_boss_score = score  # update nu correct
+                last_boss_score = score
+
 
 
 
@@ -303,6 +327,9 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     save_score(score)
                     scores.append(score)
                     highscore = max(scores)
+
+                    # muziek stoppen bij game over
+                    pygame.mixer.music.fadeout(1000)
 
             # laser bullets
             can_shoot = laser_active or boss_active
@@ -407,6 +434,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     save_score(score)
                     scores.append(score)
                     highscore = max(scores)
+                    pygame.mixer.music.fadeout(1000)
+
 
             # boss verslaan
             if boss_active and boss_hp <= 0:
@@ -414,6 +443,12 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 boss_defeated_this_level = True
                 boss_rect = None
                 score += 1
+
+                # 🎶 TERUG NAAR NORMALE MUZIEK
+                pygame.mixer.music.fadeout(500)
+                pygame.mixer.music.load(NORMAL_MUSIC)
+                pygame.mixer.music.play(-1)
+
 
             # -------------------------------
             #   TEKENEN
