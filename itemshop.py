@@ -97,7 +97,7 @@ def show_itemshop(screen, coins, unlocked_colors, unlocked_patterns):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return coins, unlocked_colors, unlocked_patterns, "quit"
+                return  "quit"
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mx, my = event.pos
@@ -108,7 +108,7 @@ def show_itemshop(screen, coins, unlocked_colors, unlocked_patterns):
 
                 # TERUG NAAR LOCKER
                 if shop_open and back_button.collidepoint(mx, my):
-                    return coins, unlocked_colors, unlocked_patterns, "locker"
+                    return "locker"
 
                 if shop_open:
                     # KLEUREN KOPEN
