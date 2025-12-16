@@ -203,23 +203,6 @@ def show_locker(screen):
         screen.blit(font.render("KLEUR", True, (255,255,255)),
                     (START_X, COLOR_Y - 25))
 
-        # patroonpalet
-        for i, pat in enumerate(patterns):
-            rect = pygame.Rect(
-                START_X + i*(BOX_SIZE[0]+10),
-                PATTERN_Y,
-                BOX_SIZE[0],
-                BOX_SIZE[1]
-            )
-            pygame.draw.rect(screen, (180, 180, 180), rect)
-            pygame.draw.rect(screen, (0, 0, 0), rect, 2)
-
-            text_surf = font.render(pat, True, (0, 0, 0))
-            text_rect = text_surf.get_rect(center=rect.center)
-            screen.blit(text_surf, text_rect)
-
-        screen.blit(font.render("PATRONEN", True, (255,255,255)),
-                    (START_X, PATTERN_Y - 20))
 
         # knoppen
         pygame.draw.rect(screen, (0, 200, 100), start_button)
