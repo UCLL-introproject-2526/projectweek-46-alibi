@@ -53,16 +53,16 @@ def run_game(screen, fish, pattern):
     fish_speed = 5
 
     # haaien
-    shark_image = pygame.image.load("shark.png").convert_alpha()
+    shark_image = pygame.image.load("img/shark.png").convert_alpha()
     shark_image = pygame.transform.scale(shark_image, (80, 50))
     sharks = []
 
     # kist image
-    kist_image = pygame.image.load("kist.png").convert_alpha()
+    kist_image = pygame.image.load("img/kist.png").convert_alpha()
     kist_image = pygame.transform.scale(kist_image, (50, 50))
 
     # fluobeam image
-    fluobeam_image = pygame.image.load("Fluobeam.png").convert_alpha()
+    fluobeam_image = pygame.image.load("img/Fluobeam.png").convert_alpha()
     fluobeam_image = pygame.transform.scale(fluobeam_image, (12, 12))
 
     spawn_timer = 0

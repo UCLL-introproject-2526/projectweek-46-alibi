@@ -28,11 +28,11 @@ def show_home_screen(screen):
     if not pygame.mixer.get_init():
         pygame.mixer.init()
 
-    pygame.mixer.music.load("muziek/Jaws-[AudioTrimmer.com].mp3")
+    pygame.mixer.music.load("muziek/jaws.mp3")
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1)
 
-    # -------- EFFECTEN --------
+    # -------- ACHTERGROND EFFECTEN --------
     bubbles = [{
         "x": random.randint(0, WIDTH),
         "y": random.randint(HEIGHT - 200, HEIGHT),
@@ -64,8 +64,9 @@ def show_home_screen(screen):
     sub_font = pygame.font.SysFont("arial", 32)
     button_font = pygame.font.SysFont("arial", 34)
 
-    start_button = pygame.Rect(WIDTH//2 - 160, HEIGHT//2 + 120, 320, 70)
+    start_button  = pygame.Rect(WIDTH//2 - 160, HEIGHT//2 + 120, 320, 70)
     locker_button = pygame.Rect(WIDTH//2 - 160, HEIGHT//2 + 210, 320, 70)
+    close_button  = pygame.Rect(WIDTH//2 - 160, HEIGHT//2 + 300, 320, 70)
 
     time = 0
     pygame.event.clear()
@@ -87,6 +88,10 @@ def show_home_screen(screen):
                 if locker_button.collidepoint(event.pos):
                     pygame.mixer.music.stop()
                     return "locker"
+
+                if close_button.collidepoint(event.pos):
+                    pygame.mixer.music.stop()
+                    return "quit"
 
         # ===== ACHTERGROND =====
         screen.fill((8, 30, 70))
@@ -152,10 +157,15 @@ def show_home_screen(screen):
         # ===== KNOPPEN =====
         for rect, text in [
             (start_button, "START GAME"),
-            (locker_button, "LOCKER")
+            (locker_button, "LOCKER"),
+            (close_button, "SLUITEN")
         ]:
             hover = rect.collidepoint(mouse_pos)
-            color = (70, 140, 200) if hover else (50, 120, 180)
+
+            if rect == close_button:
+                color = (200, 60, 60) if hover else (160, 40, 40)
+            else:
+                color = (70, 140, 200) if hover else (50, 120, 180)
 
             pygame.draw.rect(screen, color, rect, border_radius=14)
             pygame.draw.rect(screen, (255, 255, 255), rect, 2, border_radius=14)
