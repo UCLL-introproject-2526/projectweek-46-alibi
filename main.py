@@ -11,7 +11,7 @@ from itemshop import show_itemshop
 #   INIT
 # -------------------------------
 pygame.init()
-SCREEN_W, SCREEN_H = 1024, 768
+SCREEN_W, SCREEN_H = 1023, 768
 screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
 pygame.display.set_caption("Shark Attack")
 
