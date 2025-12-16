@@ -1,6 +1,8 @@
 import pygame
 import os
 from coins import CoinManager
+from unlocked_fishes import save_unlocked_fishes
+
 
 def show_itemshop(screen, coin_manager, unlocked_fishes):
     pygame.init()
@@ -115,6 +117,8 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
                                 coin_manager.count -= item["price"]
                                 coin_manager._save()
                                 unlocked_fishes.append(item["name"])
+                                save_unlocked_fishes(unlocked_fishes)
+
 
 
         pygame.display.flip()

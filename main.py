@@ -7,6 +7,8 @@ from sharks import run_game
 from coins import CoinManager
 from highscores import show_highscores
 from itemshop import show_itemshop
+from unlocked_fishes import load_unlocked_fishes, save_unlocked_fishes
+
 
 # -------------------------------
 #   INIT
@@ -24,7 +26,7 @@ clock = pygame.time.Clock()
 state = "home"
 unlocked_colors = []
 unlocked_patterns = []
-unlocked_fishes = ["vis1"]  # startvis
+unlocked_fishes = load_unlocked_fishes()
 # gekozen vis (default)
 selected_fish = "img/vis1.png"
 selected_pattern = "none"
@@ -33,7 +35,7 @@ selected_pattern = "none"
 #   MAIN LOOP
 # -------------------------------
 running = True
-coin_manager = CoinManager(spawn_chance=0.05, max_coins=8)
+coin_manager = CoinManager(spawn_chance=0.05, max_coins=8, save_file="textbestanden/coins.txt")
 
 while running:
 
