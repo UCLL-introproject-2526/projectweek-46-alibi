@@ -234,7 +234,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
             # check coin collisions
             if coin_manager:
                 if coin_manager.check_collision(player_rect):
-                    # coin_manager increments its internal counter
+                    # coin_manager increments its internal counters
                     pass
 
             # spawn haaien
