@@ -11,7 +11,7 @@ class CoinManager:
         self.max_coins = max_coins
         self.save_file = save_file
         try:
-            img = pygame.image.load("img/muntje.jpg").convert_alpha()
+            img = pygame.image.load("img/muntje.png").convert_alpha()
             self.image = pygame.transform.scale(img, (32, 32))
         except Exception:
             surf = pygame.Surface((32, 32), pygame.SRCALPHA)
