@@ -12,6 +12,7 @@ FPS = 60
 LEVEL_SCORE = 100
 POWER_UP_DURATION = 10 * FPS
 
+<<<<<<< HEAD
 # -------------------------------
 #   HIGHSCORE
 # -------------------------------
@@ -37,6 +38,12 @@ def draw_player_fish(surface, color, pattern, x, y):
     pygame.draw.circle(surface, (0, 0, 0),
         (x + FISH_W - 16, y + FISH_H//2), 4
     )
+=======
+def draw_player_fish(surface, fish, pattern, x, y):
+    image = pygame.image.load(fish + ".png").convert_alpha()
+    image = pygame.transform.scale(image, (FISH_W, FISH_H))
+    surface.blit(image, (x, y))
+>>>>>>> dc50ced302fd6e8ad41d1885ae5865fc3a7e418e
 
     if pattern == "stripes":
         for i in range(3):
@@ -57,7 +64,7 @@ def draw_player_fish(surface, color, pattern, x, y):
 # -------------------------------
 #   GAME
 # -------------------------------
-def run_game(screen, color, pattern):
+def run_game(screen, fish, pattern):
     clock = pygame.time.Clock()
     WIDTH, HEIGHT = screen.get_size()
     time = 0
@@ -66,9 +73,15 @@ def run_game(screen, color, pattern):
     player_y = HEIGHT // 2
     fish_speed = 5
 
+<<<<<<< HEAD
     shark_image = pygame.image.load("shark.png").convert_alpha()
+=======
+    # haaien
+    shark_image = pygame.image.load("img/shark.png").convert_alpha()
+>>>>>>> dc50ced302fd6e8ad41d1885ae5865fc3a7e418e
     shark_image = pygame.transform.scale(shark_image, (80, 50))
 
+<<<<<<< HEAD
     boss_image = pygame.image.load("boss.png").convert_alpha()
     boss_image = pygame.transform.scale(boss_image, (180, 100))
 
@@ -76,6 +89,14 @@ def run_game(screen, color, pattern):
     kist_image = pygame.transform.scale(kist_image, (50, 50))
 
     fluobeam_image = pygame.image.load("Fluobeam.png").convert_alpha()
+=======
+    # kist image
+    kist_image = pygame.image.load("img/kist.png").convert_alpha()
+    kist_image = pygame.transform.scale(kist_image, (50, 50))
+
+    # fluobeam image
+    fluobeam_image = pygame.image.load("img/Fluobeam.png").convert_alpha()
+>>>>>>> dc50ced302fd6e8ad41d1885ae5865fc3a7e418e
     fluobeam_image = pygame.transform.scale(fluobeam_image, (12, 12))
 
     sharks = []
@@ -215,12 +236,17 @@ def run_game(screen, color, pattern):
                 elif bullet["x"] > WIDTH:
                     laser_bullets.remove(bullet)
 
+<<<<<<< HEAD
             if boss_active and boss_hp <= 0:
                 boss_active = False
                 boss_rect = None
                 score += 50
 
             draw_player_fish(screen, color, pattern, player_x, player_y)
+=======
+            # tekenen
+            draw_player_fish(screen, fish, pattern, player_x, player_y)
+>>>>>>> dc50ced302fd6e8ad41d1885ae5865fc3a7e418e
 
             for shark in sharks:
                 screen.blit(shark_image, shark)
