@@ -121,6 +121,5 @@ def show_itemshop(screen, coins, unlocked_colors, unlocked_patterns):
                                 coins -= item["price"]
                                 unlocked_colors.append(item["color"])
 
-                  
         pygame.display.flip()
         clock.tick(60)

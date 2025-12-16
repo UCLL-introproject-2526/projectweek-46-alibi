@@ -109,7 +109,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
     spawn_delay = 90
     shark_speed = 4
 
-    score = 240
+    score = 0
     score_timer = 0
     last_boss_score = 0
 
@@ -194,7 +194,24 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
             player_rect = pygame.Rect(player_x, player_y, FISH_W, FISH_H)
 
+<<<<<<< HEAD
+            if chest_active and chest_rect and chest_rect.colliderect(player_rect):
+                laser_active = True
+                laser_timer = 10 * FPS
+                fire_timer = random.randint(30, 120)
+                chest_active = False
+                chest_rect = None
+
+            # check coin collisions
+            if coin_manager:
+                if coin_manager.check_collision(player_rect):
+                    # coin_manager increments its internal counters
+                    pass
+
+            # spawn haaien
+=======
             # haaien spawn
+>>>>>>> 995f91f9dd6eaa47f842808b8b3c6d2a41a35765
             if not boss_active:
                 spawn_timer += 1
                 if spawn_timer > spawn_delay:
@@ -315,6 +332,14 @@ def run_game(screen, fish, pattern, coin_manager=None):
         else:
             screen.blit(big_font.render("GAME OVER", True, (255, 255, 255)),
                         (WIDTH // 2 - 150, 150))
+            screen.blit(font.render(f"Final Score: {score}", True, (255, 255, 255)),
+                        (WIDTH // 2 - 80, 220))
+            screen.blit(font.render("klik op TAB om naar de locker te gaan", True, (255, 255, 255)),
+                        (WIDTH // 2 - 120, 260))
+            screen.blit(font.render("Klik op ENTER om opnieuw te starten", True, (255, 255, 255)),
+                        (WIDTH // 2 - 120, 300))
+            screen.blit(font.render("Klik op ESC om af te sluiten", True, (255, 255, 255)),
+                        (WIDTH // 2 - 120, 340))
 
         pygame.display.flip()
         clock.tick(FPS)
