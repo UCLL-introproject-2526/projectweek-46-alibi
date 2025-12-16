@@ -33,6 +33,16 @@ BOSS_MUSIC = "muziek/boss_theme.mp3"
 
 
 # -------------------------------
+#   MUSIC
+# -------------------------------
+
+pygame.mixer.init()
+
+NORMAL_MUSIC = "muziek/normal_theme.mp3"
+BOSS_MUSIC = "muziek/boss_theme.mp3"
+
+
+# -------------------------------
 #   SCORE OPSLAAN
 # -------------------------------
 def save_score(score):
@@ -232,6 +242,10 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     chest_rect = None
                     previous_chest_level = 0
 
+                    # 🎵 Start normale muziek opnieuw
+                    pygame.mixer.music.load(NORMAL_MUSIC)
+                    pygame.mixer.music.play(-1)
+
 
 
 
@@ -276,7 +290,12 @@ def run_game(screen, fish, pattern, coin_manager=None):
             if score >= last_boss_score + 250 and not boss_active:
                 boss_active = True
                 sharks.clear()
-                # kies willekeurige boss
+
+                # 🔥 MUZIEK WISSELEN
+                pygame.mixer.music.fadeout(500)
+                pygame.mixer.music.load(BOSS_MUSIC)
+                pygame.mixer.music.play(-1)
+
                 boss_image = random.choice(boss_images)
                 boss_rect = boss_image.get_rect(
                     x=WIDTH + 40,
@@ -285,7 +304,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
                 boss_max_hp = 30 + score // 10
                 boss_hp = boss_max_hp
-                last_boss_score = score  # update nu correct
+                last_boss_score = score
+
 
 
 
@@ -470,6 +490,12 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 boss_defeated_this_level = True
                 boss_rect = None
                 score += 1
+
+                # 🎶 TERUG NAAR NORMALE MUZIEK
+                pygame.mixer.music.fadeout(500)
+                pygame.mixer.music.load(NORMAL_MUSIC)
+                pygame.mixer.music.play(-1)
+
 
             # -------------------------------
             #   TEKENEN
