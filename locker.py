@@ -202,12 +202,7 @@ def show_locker(screen):
             screen.blit(small_image, rect)
             pygame.draw.rect(screen, (0, 0, 0), rect, 2)
 
-<<<<<<< HEAD
         screen.blit(font.render("KLEUR", True, (255,255,255)),
-=======
-        # tekst "VIS"
-        screen.blit(font.render("VIS", True, (255,255,255)),
->>>>>>> 1b390b184ed12dcab632eee9ef358cb1c723fe9d
                     (START_X, COLOR_Y - 25))
 
         # patroonpalet
