@@ -1,4 +1,5 @@
 import pygame
+
 def show_itemshop(screen, coins, unlocked_colors, unlocked_patterns):
     pygame.init()
     clock = pygame.time.Clock()
@@ -12,8 +13,8 @@ def show_itemshop(screen, coins, unlocked_colors, unlocked_patterns):
 
     shop_button = pygame.Rect(WIDTH - 90, 20, 70, 70)
 
-    # TERUG KNOP
-    back_button = pygame.Rect(20, 20, 100, 40)   # links bovenaan in shop
+    # TERUG KNOP (NAAR LOCKER)
+    back_button = pygame.Rect(20, 20, 100, 40)
 
     color_items = [
         {"color": (255, 100, 0), "price": 10},
@@ -31,18 +32,18 @@ def show_itemshop(screen, coins, unlocked_colors, unlocked_patterns):
         pygame.draw.rect(screen, (20, 40, 80), (0, 0, WIDTH, shop_height))
 
         title = font.render("ITEMSHOP", True, (255, 255, 255))
-        screen.blit(title, (WIDTH//2 - 60, 10))
-        
-        # TERUG-KNOP TEKENEN (ALLEEN ALS SHOP OPEN STAAT)
+        screen.blit(title, (WIDTH // 2 - 60, 10))
+
+        # TERUG-KNOP
         if shop_open:
             pygame.draw.rect(screen, (200, 50, 50), back_button)
-            pygame.draw.rect(screen, (0,0,0), back_button, 3)
-            back_text = font.render("TERUG", True, (255,255,255))
-            screen.blit(back_text, (back_button.x + 10, back_button.y + 10))
+            pygame.draw.rect(screen, (0, 0, 0), back_button, 3)
+            back_text = font.render("TERUG", True, (255, 255, 255))
+            screen.blit(back_text, (back_button.x + 20, back_button.y + 8))
 
         y_offset = 60
 
-        screen.blit(font.render("Kleuren:", True, (255,255,255)), (40, y_offset))
+        screen.blit(font.render("Kleuren:", True, (255, 255, 255)), (40, y_offset))
         y_offset += 40
 
         for i, item in enumerate(color_items):
@@ -50,27 +51,27 @@ def show_itemshop(screen, coins, unlocked_colors, unlocked_patterns):
             rect = pygame.Rect(x, y_offset, 60, 40)
 
             pygame.draw.rect(screen, item["color"], rect)
-            pygame.draw.rect(screen, (0,0,0), rect, 2)
+            pygame.draw.rect(screen, (0, 0, 0), rect, 2)
 
-            price_text = font.render(f"{item['price']}c", True, (255,255,255))
+            price_text = font.render(f"{item['price']}c", True, (255, 255, 255))
             screen.blit(price_text, (x, y_offset + 50))
 
         y_offset += 110
 
-        screen.blit(font.render("Patronen:", True, (255,255,255)), (40, y_offset))
+        screen.blit(font.render("Patronen:", True, (255, 255, 255)), (40, y_offset))
         y_offset += 40
 
         for i, item in enumerate(pattern_items):
             x = 40 + i * 140
             rect = pygame.Rect(x, y_offset, 110, 40)
 
-            pygame.draw.rect(screen, (200,200,200), rect)
-            pygame.draw.rect(screen, (0,0,0), rect, 2)
+            pygame.draw.rect(screen, (200, 200, 200), rect)
+            pygame.draw.rect(screen, (0, 0, 0), rect, 2)
 
-            text = font.render(item["name"], True, (0,0,0))
+            text = font.render(item["name"], True, (0, 0, 0))
             screen.blit(text, (x + 10, y_offset + 10))
 
-            price_text = font.render(f"{item['price']}c", True, (255,255,255))
+            price_text = font.render(f"{item['price']}c", True, (255, 255, 255))
             screen.blit(price_text, (x, y_offset + 50))
 
     # -------------------------------
@@ -88,11 +89,11 @@ def show_itemshop(screen, coins, unlocked_colors, unlocked_patterns):
 
         pygame.draw.rect(screen, (255, 200, 0), shop_button)
         pygame.draw.rect(screen, (0, 0, 0), shop_button, 3)
-        screen.blit(font.render("SHOP", True, (0,0,0)),
+        screen.blit(font.render("SHOP", True, (0, 0, 0)),
                     (shop_button.x + 10, shop_button.y + 20))
 
-        coin_text = font.render(f"Coins: {coins}", True, (255,255,0))
-        screen.blit(coin_text, (20, 20))
+        coin_text = font.render(f"Coins: {coins}", True, (255, 255, 0))
+        screen.blit(coin_text, (20, HEIGHT - 40))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -101,7 +102,7 @@ def show_itemshop(screen, coins, unlocked_colors, unlocked_patterns):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mx, my = event.pos
 
-                # SHOP OPENEN / SLUITEN
+                # SHOP OPEN / SLUIT
                 if shop_button.collidepoint(mx, my):
                     shop_open = not shop_open
 
@@ -116,8 +117,9 @@ def show_itemshop(screen, coins, unlocked_colors, unlocked_patterns):
                         rect = pygame.Rect(x, 100, 60, 40)
 
                         if rect.collidepoint(mx, my) and coins >= item["price"]:
-                            coins -= item["price"]
-                            unlocked_colors.append(item["color"])
+                            if item["color"] not in unlocked_colors:
+                                coins -= item["price"]
+                                unlocked_colors.append(item["color"])
 
                     # PATRONEN KOPEN
                     for i, item in enumerate(pattern_items):
@@ -125,8 +127,9 @@ def show_itemshop(screen, coins, unlocked_colors, unlocked_patterns):
                         rect = pygame.Rect(x, 210, 110, 40)
 
                         if rect.collidepoint(mx, my) and coins >= item["price"]:
-                            coins -= item["price"]
-                            unlocked_patterns.append(item["name"])
+                            if item["name"] not in unlocked_patterns:
+                                coins -= item["price"]
+                                unlocked_patterns.append(item["name"])
 
         pygame.display.flip()
         clock.tick(60)
