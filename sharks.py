@@ -26,7 +26,7 @@ def save_score(score):
 #   VIS TEKENEN
 # -------------------------------
 def draw_player_fish(surface, fish, pattern, x, y):
-    image = pygame.image.load(fish + ".png").convert_alpha()
+    image = pygame.image.load("/img" +fish + ".png").convert_alpha()
     image = pygame.transform.scale(image, (FISH_W, FISH_H))
     surface.blit(image, (x, y))
 

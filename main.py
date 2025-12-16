@@ -22,7 +22,7 @@ clock = pygame.time.Clock()
 state = "home"
 
 # gekozen vis (default)
-selected_fish = "vis1"
+selected_fish = "img/vis1.png"
 selected_pattern = "none"
 
 # -------------------------------
