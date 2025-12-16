@@ -28,7 +28,7 @@ def show_home_screen(screen):
     if not pygame.mixer.get_init():
         pygame.mixer.init()
 
-    pygame.mixer.music.load("/")
+    pygame.mixer.music.load("/muziek/jaws-[AudioTrimmer.com].mp3")
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1)
 
