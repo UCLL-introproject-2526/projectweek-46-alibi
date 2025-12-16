@@ -34,13 +34,16 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
 
     scroll_y = 0
     SCROLL_SPEED = 40
-
-    items_per_row = 4
+    start_x = 120
     item_width = 120
     item_height = 100
     spacing_x = 40
     spacing_y = 30
-
+    right_padding = 40
+    items_per_row = max(
+    1,
+    (WIDTH - start_x) // (item_width + spacing_x)
+)
 
 
     # -------------------------------
