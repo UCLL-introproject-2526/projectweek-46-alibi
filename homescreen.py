@@ -2,6 +2,18 @@ import pygame
 import random
 import math
 
+def draw_outlined_text(screen, text, font, color, outline_color, pos):
+    # teken outline
+    for dx in [-1, 0, 1]:
+        for dy in [-1, 0, 1]:
+            if dx == 0 and dy == 0:
+                continue
+            outline_surf = font.render(text, True, outline_color)
+            screen.blit(outline_surf, (pos[0] + dx, pos[1] + dy))
+    # teken originele tekst
+    surf = font.render(text, True, color)
+    screen.blit(surf, pos)
+
 
 
 def show_home_screen(screen):
@@ -78,6 +90,7 @@ def show_home_screen(screen):
             hover = rect.collidepoint(mouse_pos)
             color = (70, 140, 200) if hover else (50, 120, 180)
             pygame.draw.rect(screen, color, rect, border_radius=14)
+            pygame.draw.rect(screen, (255, 255, 255), rect, 2, border_radius=14)
 
             label = button_font.render(text, True, (255, 255, 255))
             screen.blit(
