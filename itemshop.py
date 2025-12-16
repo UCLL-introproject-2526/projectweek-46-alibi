@@ -1,125 +1,121 @@
 import pygame
+import os
+from coins import CoinManager
 
-def show_itemshop(screen, coins, unlocked_colors, unlocked_patterns):
+def show_itemshop(screen, coin_manager, unlocked_fishes):
     pygame.init()
     clock = pygame.time.Clock()
-    font = pygame.font.SysFont(None, 28)
+    font = pygame.font.SysFont(None, 26)
+    big_font = pygame.font.SysFont(None, 36)
 
     WIDTH, HEIGHT = screen.get_size()
 
-    shop_height = 0
-    shop_target_height = 260
-    shop_open = False
+    # -------------------------------
+    # BUTTONS
+    # -------------------------------
+    back_button = pygame.Rect(20, 20, 120, 45)
 
-    shop_button = pygame.Rect(WIDTH - 90, 20, 70, 70)
-
-    # TERUG KNOP (NAAR LOCKER)
-    back_button = pygame.Rect(20, 20, 100, 40)
-
-    color_items = [
-        {"color": (255, 100, 0), "price": 10},
-        {"color": (0, 255, 200), "price": 15},
-        {"color": (200, 0, 255), "price": 20}
+    # -------------------------------
+    # FISH ITEMS
+    # -------------------------------
+    fish_items = [
+        {"name": "vis1", "price": 0},
+        {"name": "vis2", "price": 10},
+        {"name": "vis3", "price": 20},
+        {"name": "vis4", "price": 30},
+        {"name": "vis5", "price": 50},
     ]
-
-    pattern_items = [
-        {"name": "stripes", "price": 15},
-        {"name": "dots", "price": 20},
-        {"name": "waves", "price": 25}
-    ]
-
-    def draw_shop():
-        pygame.draw.rect(screen, (20, 40, 80), (0, 0, WIDTH, shop_height))
-
-        title = font.render("ITEMSHOP", True, (255, 255, 255))
-        screen.blit(title, (WIDTH // 2 - 60, 10))
-
-        # TERUG-KNOP
-        if shop_open:
-            pygame.draw.rect(screen, (200, 50, 50), back_button)
-            pygame.draw.rect(screen, (0, 0, 0), back_button, 3)
-            back_text = font.render("TERUG", True, (255, 255, 255))
-            screen.blit(back_text, (back_button.x + 20, back_button.y + 8))
-
-        y_offset = 60
-
-        screen.blit(font.render("Kleuren:", True, (255, 255, 255)), (40, y_offset))
-        y_offset += 40
-
-        for i, item in enumerate(color_items):
-            x = 40 + i * 120
-            rect = pygame.Rect(x, y_offset, 60, 40)
-
-            pygame.draw.rect(screen, item["color"], rect)
-            pygame.draw.rect(screen, (0, 0, 0), rect, 2)
-
-            price_text = font.render(f"{item['price']}c", True, (255, 255, 255))
-            screen.blit(price_text, (x, y_offset + 50))
-
-        y_offset += 110
-
-        screen.blit(font.render("Patronen:", True, (255, 255, 255)), (40, y_offset))
-        y_offset += 40
-
-        for i, item in enumerate(pattern_items):
-            x = 40 + i * 140
-            rect = pygame.Rect(x, y_offset, 110, 40)
-
-            pygame.draw.rect(screen, (200, 200, 200), rect)
-            pygame.draw.rect(screen, (0, 0, 0), rect, 2)
-
-            text = font.render(item["name"], True, (0, 0, 0))
-            screen.blit(text, (x + 10, y_offset + 10))
-
-            price_text = font.render(f"{item['price']}c", True, (255, 255, 255))
-            screen.blit(price_text, (x, y_offset + 50))
 
     # -------------------------------
     # MAIN LOOP
     # -------------------------------
     while True:
-        screen.fill((5, 20, 60))
+        screen.fill((10, 30, 70))
 
-        if shop_open and shop_height < shop_target_height:
-            shop_height += 10
-        if not shop_open and shop_height > 0:
-            shop_height -= 10
+        # Titel
+        title = big_font.render("ITEMSHOP", True, (255, 255, 255))
+        screen.blit(title, (WIDTH // 2 - 90, 20))
 
-        draw_shop()
+        # Coins
+        coin_text = font.render(
+            f"Coins: {coin_manager.get_count()}",
+            True,
+            (255, 215, 0)
+        )
+        screen.blit(
+            coin_text,
+            (WIDTH - coin_text.get_width() - 20, 20)
+        )
 
-        pygame.draw.rect(screen, (255, 200, 0), shop_button)
-        pygame.draw.rect(screen, (0, 0, 0), shop_button, 3)
-        screen.blit(font.render("SHOP", True, (0, 0, 0)),
-                    (shop_button.x + 10, shop_button.y + 20))
 
-        coin_text = font.render(f"Coins: {coins}", True, (255, 255, 0))
-        screen.blit(coin_text, (20, HEIGHT - 40))
 
+        # TERUG KNOP
+        pygame.draw.rect(screen, (200, 60, 60), back_button)
+        pygame.draw.rect(screen, (0, 0, 0), back_button, 3)
+        screen.blit(font.render("TERUG", True, (255, 255, 255)),
+                    (back_button.x + 30, back_button.y + 12))
+
+        # -------------------------------
+        # FISH SHOP GRID
+        # -------------------------------
+        start_x = 120
+        start_y = 120
+        spacing_x = 160
+
+        for i, item in enumerate(fish_items):
+            x = start_x + i * spacing_x
+            y = start_y
+
+            rect = pygame.Rect(x, y, 120, 100)
+            pygame.draw.rect(screen, (180, 220, 255), rect, border_radius=12)
+            pygame.draw.rect(screen, (0, 0, 0), rect, 2, border_radius=12)
+
+            # Fish image
+            img_path = os.path.join("img", item["name"] + ".png")
+            if os.path.exists(img_path):
+                img = pygame.image.load(img_path).convert_alpha()
+                img = pygame.transform.scale(img, (90, 45))
+                screen.blit(img, (x + 15, y + 10))
+
+            # STATUS / PRICE
+            if item["name"] in unlocked_fishes:
+                status = font.render("UNLOCKED", True, (0, 150, 0))
+                screen.blit(status, (x + 15, y + 65))
+            else:
+                price = font.render(f"{item['price']}c", True, (0, 0, 0))
+                screen.blit(price, (x + 40, y + 65))
+
+        # -------------------------------
+        # EVENTS
+        # -------------------------------
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return  "quit"
+                return "quit"
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mx, my = event.pos
 
-                # SHOP OPEN / SLUIT
-                if shop_button.collidepoint(mx, my):
-                    shop_open = not shop_open
-
                 # TERUG NAAR LOCKER
-                if shop_open and back_button.collidepoint(mx, my):
+                if back_button.collidepoint(mx, my):
                     return "locker"
 
-                if shop_open:
-                    # KLEUREN KOPEN
-                    for i, item in enumerate(color_items):
-                        x = 40 + i * 120
-                        rect = pygame.Rect(x, 100, 60, 40)
+                if event.type == pygame.QUIT:
+                    return "quit"
 
-                        if rect.collidepoint(mx, my) and coins >= item["price"]:
-                            if item["color"] not in unlocked_colors:
-                                coins -= item["price"]
-                                unlocked_colors.append(item["color"])
+
+                # FISH BUY
+                for i, item in enumerate(fish_items):
+                    x = start_x + i * spacing_x
+                    y = start_y
+                    rect = pygame.Rect(x, y, 120, 100)
+
+                    if rect.collidepoint(mx, my):
+                        if item["name"] not in unlocked_fishes:
+                            if coin_manager.get_count() >= item["price"]:
+                                coin_manager.count -= item["price"]
+                                coin_manager._save()
+                                unlocked_fishes.append(item["name"])
+
 
         pygame.display.flip()
         clock.tick(60)

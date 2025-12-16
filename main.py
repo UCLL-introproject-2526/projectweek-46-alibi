@@ -1,6 +1,6 @@
 import pygame
 
-import coins
+
 from homescreen import show_home_screen
 from locker import show_locker
 from sharks import run_game
@@ -24,6 +24,7 @@ clock = pygame.time.Clock()
 state = "home"
 unlocked_colors = []
 unlocked_patterns = []
+unlocked_fishes = ["vis1"]  # startvis
 # gekozen vis (default)
 selected_fish = "img/vis1.png"
 selected_pattern = "none"
@@ -40,7 +41,7 @@ while running:
         state = show_home_screen(screen)
 
     elif state == "locker":
-        result = show_locker(screen)
+        result = show_locker(screen, unlocked_fishes, coin_manager.get_count())
         # show_locker geeft terug:
         # ("start", fish, pattern)
         # ("back", None, None)
@@ -67,7 +68,7 @@ while running:
                 selected_pattern = pattern
                 state = "start"
     elif state == "itemshop":
-        action = show_itemshop(screen, coins, unlocked_colors, unlocked_patterns)
+        action = show_itemshop(screen, coin_manager, unlocked_fishes)
 
         if action == "locker":
             state = "locker"

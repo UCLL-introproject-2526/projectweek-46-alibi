@@ -2,8 +2,9 @@ import pygame
 import random
 import math
 import os
+from coins import CoinManager
 
-def show_locker(screen):
+def show_locker(screen, unlocked_fishes, coins):
     pygame.mixer.init()
 
     # Muziek laden
@@ -126,8 +127,11 @@ def show_locker(screen):
                         BOX_SIZE[0],
                         BOX_SIZE[1]
                     )
+
                     if rect.collidepoint(mx, my):
-                        selected_fish = fish
+                        if fish in unlocked_fishes:
+                            selected_fish = fish
+
 
                 # patroon selecteren
                 for i, pat in enumerate(patterns):
@@ -194,7 +198,7 @@ def show_locker(screen):
                                b["size"])
 
         # vis voorbeeld
-        draw_fish(selected_fish, selected_pattern)
+        draw_fish(selected_fish,selected_pattern)
 
         # vispalet
         for i, fish in enumerate(fishes):
@@ -212,6 +216,14 @@ def show_locker(screen):
             small_image = pygame.image.load(small_path).convert_alpha()
             small_image = pygame.transform.scale(small_image, (BOX_SIZE[0], BOX_SIZE[1]))
             screen.blit(small_image, rect)
+            # 🔒 LOCK overlay
+            if fish not in unlocked_fishes:
+                lock_overlay = pygame.Surface((BOX_SIZE[0], BOX_SIZE[1]), pygame.SRCALPHA)
+                lock_overlay.fill((0, 0, 0, 160))  # donker transparant
+                screen.blit(lock_overlay, rect)
+
+                lock_text = font.render("LOCK", True, (255, 0, 0))
+                screen.blit(lock_text, (rect.x + 10, rect.y + 10))
 
         screen.blit(font.render("KLEUR", True, (255,255,255)),
                     (START_X, COLOR_Y - 25))
