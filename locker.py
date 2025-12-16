@@ -18,6 +18,8 @@ def show_locker(screen):
     font = pygame.font.SysFont(None, 24)
 
     WIDTH, HEIGHT = screen.get_size()
+    SAND_HEIGHT = 140
+
 
     # -------------------------------
     #   VISSEN & PATRONEN
@@ -30,8 +32,9 @@ def show_locker(screen):
 
     BOX_SIZE = (60,40)
     START_X = 40
-    COLOR_Y = HEIGHT - 150
-    PATTERN_Y = HEIGHT - 90
+    COLOR_Y = HEIGHT - SAND_HEIGHT - 60
+    PATTERN_Y = HEIGHT - SAND_HEIGHT + 10
+
 
     start_button = pygame.Rect(WIDTH//2 - 170, HEIGHT - 45, 160, 40)
     back_button  = pygame.Rect(WIDTH//2 + 10,  HEIGHT - 45, 160, 40)
@@ -208,7 +211,6 @@ def show_locker(screen):
             small_image = pygame.image.load(small_path).convert_alpha()
             small_image = pygame.transform.scale(small_image, (BOX_SIZE[0], BOX_SIZE[1]))
             screen.blit(small_image, rect)
-            pygame.draw.rect(screen, (0, 0, 0), rect, 2)
 
         screen.blit(font.render("KLEUR", True, (255,255,255)),
                     (START_X, COLOR_Y - 25))
