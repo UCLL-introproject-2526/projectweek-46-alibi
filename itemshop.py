@@ -1,3 +1,4 @@
+import pygame
 def show_itemshop(screen, coins, unlocked_colors, unlocked_patterns):
     pygame.init()
     clock = pygame.time.Clock()
