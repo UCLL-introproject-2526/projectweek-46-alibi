@@ -21,7 +21,7 @@ BOSS_SIZE = (160, 100)   # 2x zo groot
 #   SCORE OPSLAAN
 # -------------------------------
 def save_score(score):
-    with open("scores.txt", "a") as f:
+    with open("textbestanden/scores.txt", "a") as f:
         f.write(str(score) + "\n")
 
 # -------------------------------

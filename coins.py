@@ -3,7 +3,7 @@ import random
 
 
 class CoinManager:
-    def __init__(self, speed=4, spawn_chance=0.02, max_coins=6, save_file="coins.txt"):
+    def __init__(self, speed=4, spawn_chance=0.02, max_coins=6, save_file="textbestand/coins.txt"):
         self.coins = []
         self.count = 0
         self.speed = speed

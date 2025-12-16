@@ -3,10 +3,10 @@ import pygame
 
 def load_scores():
     try:
-        with open("scores.txt", "r") as f:
+        with open("textbestanden/scores.txt", "r") as f:
             scores = [int(line.strip()) for line in f if line.strip().isdigit()]
             scores.sort(reverse=True)
-            return scores[:0]   
+            return scores  
     except FileNotFoundError:
         return []
 
