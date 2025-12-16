@@ -9,6 +9,9 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 26)
     big_font = pygame.font.SysFont(None, 36)
+    coin_img = pygame.image.load("img/muntje.png").convert_alpha()
+    coin_img = pygame.transform.scale(coin_img, (24, 24))  # pas grootte aan
+
 
     WIDTH, HEIGHT = screen.get_size()
 
@@ -21,11 +24,11 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
     # FISH ITEMS
     # -------------------------------
     fish_items = [
-        {"name": "vis1", "price": 0},
-        {"name": "vis2", "price": 10},
-        {"name": "vis3", "price": 20},
-        {"name": "vis4", "price": 30},
-        {"name": "vis5", "price": 50},
+        {"name": "vis1", "price": 10},
+        {"name": "vis2", "price": 100},
+        {"name": "vis3", "price": 200},
+        {"name": "vis4", "price": 300},
+        {"name": "vis5", "price": 500},
     ]
 
     # -------------------------------
@@ -84,8 +87,18 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
                 status = font.render("UNLOCKED", True, (0, 150, 0))
                 screen.blit(status, (x + 15, y + 65))
             else:
-                price = font.render(f"{item['price']}c", True, (0, 0, 0))
-                screen.blit(price, (x + 40, y + 65))
+                price_text = font.render(str(item["price"]), True, (0, 0, 0))
+
+                text_x = x + 35
+                text_y = y + 65
+
+                screen.blit(price_text, (text_x, text_y))
+                coin_x = text_x + price_text.get_width() + 4
+                coin_y = text_y + (price_text.get_height() - coin_img.get_height()) // 2
+
+                screen.blit(coin_img, (coin_x, coin_y))
+
+
 
         # -------------------------------
         # EVENTS
