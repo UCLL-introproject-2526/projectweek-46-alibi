@@ -301,7 +301,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     y=HEIGHT // 2 - boss_image.get_height() // 2
                 )
 
-                boss_max_hp = 30 + score // 10
+                boss_max_hp = 30
                 boss_hp = boss_max_hp
                 last_boss_score = score
 
