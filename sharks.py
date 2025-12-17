@@ -454,10 +454,11 @@ def run_game(screen, fish, pattern, coin_manager=None):
                             dying_boss_rect = boss_rect.copy()  # 📍 positie vastzetten
                             # SOUND
                             explosion_sound = pygame.mixer.Sound("muziek/explosion.mp3")
-                            explosion_sound.set_volume(1000000)
+                            pygame.mixer.music.set_volume(0.2)   # muziek dimmen
+                            explosion_sound.set_volume(1.0)
                             explosion_sound.play()
 
-
+                            
 
 
             if boss_active and boss_rect:

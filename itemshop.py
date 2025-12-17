@@ -8,7 +8,9 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
     pygame.init()
     pygame.mixer.init()
     clock = pygame.time.Clock()
-
+    pygame.mixer.music.load("muziek/baby_shark.mp3")
+    pygame.mixer.music.set_volume(50)
+    pygame.mixer.music.play()
     font = pygame.font.SysFont(None, 26)
     big_font = pygame.font.SysFont(None, 36)
 
