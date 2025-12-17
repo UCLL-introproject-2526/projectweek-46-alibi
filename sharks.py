@@ -147,7 +147,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
     boss_bullet_image = pygame.transform.scale(boss_bullet_image, (40,40))  # pas grootte aan indien nodig
 
     explosion_image = pygame.image.load("img/explosion.png").convert_alpha()
-    explosion_image = pygame.transform.scale(explosion_image, (40, 40))
+    explosion_image = pygame.transform.scale(explosion_image, (250, 250))
 
     boss_images = [
     pygame.image.load("img/bombini.png").convert_alpha(),
@@ -195,6 +195,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
     boss_dying = False
     boss_explode_timer = 0
     boss_explosions = []
+    dying_boss_rect = None
+
 
 
     # boss spawn elke 250 punten
@@ -445,8 +447,11 @@ def run_game(screen, fish, pattern, coin_manager=None):
                         laser_bullets.remove(bullet)
                         if boss_hp <= 0 and not boss_dying:
                             boss_dying = True
-                            boss_explode_timer = FPS  # ±1 seconde explosies
-                            boss_bullets.clear()      # 💥 KOGELS DIRECT DESPAWNEN
+                            boss_explode_timer = FPS
+                            boss_bullets.clear()
+                            dying_boss_rect = boss_rect.copy()  # 📍 positie vastzetten
+
+
 
 
             if boss_active and boss_rect:
@@ -498,24 +503,26 @@ def run_game(screen, fish, pattern, coin_manager=None):
                         highscore = max(scores)
                         pygame.mixer.music.fadeout(1000)
             
-            if boss_dying and boss_rect:
+            if boss_dying and dying_boss_rect:
                 boss_explode_timer -= 1
 
                 if boss_explode_timer % 6 == 0:
-                    ex = random.randint(boss_rect.left, boss_rect.right - 40)
-                    ey = random.randint(boss_rect.top, boss_rect.bottom - 40)
+                    ex = random.randint(dying_boss_rect.left, dying_boss_rect.right - 40)
+                    ey = random.randint(dying_boss_rect.top, dying_boss_rect.bottom - 40)
                     boss_explosions.append([ex, ey, 15])
+
 
                 if boss_explode_timer <= 0:
                     boss_dying = False
                     boss_active = False
                     boss_rect = None
+                    dying_boss_rect = None
                     boss_explosions.clear()
-                    score += 50
 
                     pygame.mixer.music.fadeout(500)
                     pygame.mixer.music.load(NORMAL_MUSIC)
                     pygame.mixer.music.play(-1)
+
 
 
             # -------------------------------
@@ -535,8 +542,9 @@ def run_game(screen, fish, pattern, coin_manager=None):
             for shark in sharks:
                 screen.blit(shark_image, shark)
 
-            if boss_active and boss_rect:
+            if boss_active and boss_rect and not boss_dying:
                 screen.blit(boss_image, boss_rect)
+
 
             for bullet in boss_bullets:
                 screen.blit(boss_bullet_image, bullet["rect"])
