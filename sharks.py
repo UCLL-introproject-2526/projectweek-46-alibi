@@ -148,7 +148,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
     pygame.image.load("img/boss.png").convert_alpha(),
     pygame.image.load("img/tung.png").convert_alpha(),
     pygame.image.load("img/bicus.png").convert_alpha(),
-    pygame.image.load("img/comelo.png").convert_alpha(),
+    pygame.image.load("img/camelo.png").convert_alpha(),
     pygame.image.load("img/capuccino.png").convert_alpha(),
     pygame.image.load("img/crocodilo.png").convert_alpha(),
     pygame.image.load("img/din.png").convert_alpha(),
