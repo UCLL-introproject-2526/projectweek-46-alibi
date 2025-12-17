@@ -5,17 +5,15 @@ import os
 from coins import CoinManager
 
 def show_locker(screen, coin_manager, unlocked_fishes, coins):
-    pygame.mixer.init()
+   
 
     coin_img = pygame.image.load("img/muntje.png").convert_alpha()
     coin_img = pygame.transform.scale(coin_img, (24, 24))
     # Muziek laden
-    try:
+    if not pygame.mixer.music.get_busy():
         pygame.mixer.music.load("muziek/baby_shark.mp3")
-        pygame.mixer.music.set_volume(50)
+        pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
-    except:
-        print("Kon locker_music.mp3 niet laden!")
 
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 24)
@@ -163,7 +161,6 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
 
                 # 👉 ITEMSHOP OPENEN
                 if itemshop_button.collidepoint(mx, my):
-                    pygame.mixer.music.stop()
                     return "itemshop", selected_fish, selected_pattern
 
         # --- TEKENEN ---

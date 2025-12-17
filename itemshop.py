@@ -5,12 +5,14 @@ from unlocked_fishes import save_unlocked_fishes
 
 
 def show_itemshop(screen, coin_manager, unlocked_fishes):
-    pygame.init()
-    pygame.mixer.init()
+    
+    
     clock = pygame.time.Clock()
-    pygame.mixer.music.load("muziek/baby_shark.mp3")
-    pygame.mixer.music.set_volume(50)
-    pygame.mixer.music.play()
+    if not pygame.mixer.music.get_busy():
+        pygame.mixer.music.load("muziek/baby_shark.mp3")
+        pygame.mixer.music.set_volume(0.3)
+        pygame.mixer.music.play(-1)
+
     font = pygame.font.SysFont(None, 26)
     big_font = pygame.font.SysFont(None, 36)
 
