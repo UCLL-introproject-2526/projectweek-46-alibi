@@ -450,6 +450,9 @@ def run_game(screen, fish, pattern, coin_manager=None):
                             boss_explode_timer = FPS
                             boss_bullets.clear()
                             dying_boss_rect = boss_rect.copy()  # 📍 positie vastzetten
+                            # SOUND
+                            explosion_sound = pygame.mixer.Sound("muziek/explosion.mp3")
+                            explosion_sound.set_volume(90)
 
 
 
