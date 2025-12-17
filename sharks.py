@@ -561,12 +561,15 @@ def run_game(screen, fish, pattern, coin_manager=None):
         else:
             screen.blit(big_font.render("GAME OVER", True, (255, 255, 255)),
                         (WIDTH // 2 - 150, 120))
+            screen.blit(font.render(f"Score: {score}", True, (255, 255, 255)),
+                        (WIDTH // 2 - 70, 160))
             screen.blit(font.render("ENTER = opnieuw", True, (255, 255, 255)),
                         (WIDTH // 2 - 150, 200))
             screen.blit(font.render("ESC = Terug naar menu", True, (255, 255, 255)),
                         (WIDTH // 2 - 150, 320))
             screen.blit(font.render("Tab = Terug naar locker", True, (255, 255, 255)),
                         (WIDTH // 2 - 150, 440))
+            
 
         pygame.display.flip()
         clock.tick(FPS)
