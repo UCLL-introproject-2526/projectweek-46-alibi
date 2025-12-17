@@ -15,7 +15,7 @@ random.seed()
 FISH_W = 50
 FISH_H = 30
 FPS = 60
-LEVEL_SCORE = 250
+LEVEL_SCORE = 150
 
 SHARK_SIZE = (80, 50)
 BOSS_SIZE = (160, 100)   # 2x zo groot
@@ -284,8 +284,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
 
             # in de loop
-            # boss spawn elke 250 punten
-            if score >= last_boss_score + 250 and not boss_active:
+            # boss spawn elke 150 punten
+            if score >= last_boss_score + 150 and not boss_active:
                 last_boss_score = score  # eerst bijwerken
 
                 boss_active = True
