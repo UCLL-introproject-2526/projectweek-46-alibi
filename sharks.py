@@ -109,10 +109,10 @@ def run_game(screen, fish, pattern, coin_manager=None):
     #   AUDIO (DEATH SOUND)
     # -------------------------------
 
-    death_sound.set_volume(0.7)
+    death_sound.set_volume(80)
     # start normale muziek bij game begin
     pygame.mixer.music.load(NORMAL_MUSIC)
-    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.set_volume(80)
     pygame.mixer.music.play(-1)  # -1 = oneindig herhalen
 
     WIDTH, HEIGHT = screen.get_size()
@@ -146,6 +146,9 @@ def run_game(screen, fish, pattern, coin_manager=None):
     boss_bullet_image = pygame.image.load("img/boss_kogels.png").convert_alpha()
     boss_bullet_image = pygame.transform.scale(boss_bullet_image, (40,40))  # pas grootte aan indien nodig
 
+    explosion_image = pygame.image.load("img/explosion.png").convert_alpha()
+    explosion_image = pygame.transform.scale(explosion_image, (40, 40))
+
     boss_images = [
     pygame.image.load("img/bombini.png").convert_alpha(),
     pygame.image.load("img/boss.png").convert_alpha(),
@@ -174,7 +177,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
     vertical_speed = 0.8
 
     # score & level
-    score = 0
+    score = 240
     score_timer = 0
 
     scores = load_scores()
@@ -189,6 +192,10 @@ def run_game(screen, fish, pattern, coin_manager=None):
     boss_rect = None
     boss_hp = 0
     boss_max_hp = 0
+    boss_dying = False
+    boss_explode_timer = 0
+    boss_explosions = []
+
 
     # boss spawn elke 250 punten
     last_boss_score = 0
@@ -298,8 +305,9 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     y=HEIGHT // 2 - boss_image.get_height() // 2
                 )
 
+                '''+ score'''
 
-                boss_max_hp = 30 + score // 10
+                boss_max_hp = 30 // 10
                 boss_hp = boss_max_hp
                 last_boss_score = score
 
@@ -435,8 +443,11 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     if bullet.colliderect(boss_rect):
                         boss_hp -= 1
                         laser_bullets.remove(bullet)
-                        if boss_hp <= 0:
-                            boss_active = False
+                        if boss_hp <= 0 and not boss_dying:
+                            boss_dying = True
+                            boss_explode_timer = FPS  # ±1 seconde explosies
+                            boss_bullets.clear()      # 💥 KOGELS DIRECT DESPAWNEN
+
 
             if boss_active and boss_rect:
                 boss_fire_timer -= 1
@@ -486,18 +497,25 @@ def run_game(screen, fish, pattern, coin_manager=None):
                         scores.append(score)
                         highscore = max(scores)
                         pygame.mixer.music.fadeout(1000)
+            
+            if boss_dying and boss_rect:
+                boss_explode_timer -= 1
 
-            # boss verslaan
-            if boss_active and boss_hp <= 0:
-                boss_active = False
-                boss_defeated_this_level = True
-                boss_rect = None
-                score += 1
+                if boss_explode_timer % 6 == 0:
+                    ex = random.randint(boss_rect.left, boss_rect.right - 40)
+                    ey = random.randint(boss_rect.top, boss_rect.bottom - 40)
+                    boss_explosions.append([ex, ey, 15])
 
-                # 🎶 TERUG NAAR NORMALE MUZIEK
-                pygame.mixer.music.fadeout(500)
-                pygame.mixer.music.load(NORMAL_MUSIC)
-                pygame.mixer.music.play(-1)
+                if boss_explode_timer <= 0:
+                    boss_dying = False
+                    boss_active = False
+                    boss_rect = None
+                    boss_explosions.clear()
+                    score += 50
+
+                    pygame.mixer.music.fadeout(500)
+                    pygame.mixer.music.load(NORMAL_MUSIC)
+                    pygame.mixer.music.play(-1)
 
 
             # -------------------------------
@@ -531,6 +549,13 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 pygame.draw.rect(screen, (0, 255, 0),
                                  (WIDTH // 2 - bar_w // 2, 20,
                                   int(bar_w * boss_hp / boss_max_hp), 16))
+            for explosion in boss_explosions[:]:
+                x, y, life = explosion
+                screen.blit(explosion_image, (x, y))
+                explosion[2] -= 1
+                if explosion[2] <= 0:
+                    boss_explosions.remove(explosion)
+
 
             # HUD: render score, highscore, level, optional power-up, then coins below them
             hud_x = 10
