@@ -17,6 +17,7 @@ pygame.init()
 SCREEN_W, SCREEN_H = 1023, 768
 screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
 pygame.display.set_caption("Shark Attack")
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 clock = pygame.time.Clock()
 # -------------------------------
