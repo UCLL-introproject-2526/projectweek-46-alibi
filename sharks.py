@@ -147,7 +147,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
     boss_bullet_image = pygame.transform.scale(boss_bullet_image, (40,40))  # pas grootte aan indien nodig
 
     explosion_image = pygame.image.load("img/explosion.png").convert_alpha()
-    explosion_image = pygame.transform.scale(explosion_image, (40, 40))
+    explosion_image = pygame.transform.scale(explosion_image, (250, 250))
 
     boss_images = [
     pygame.image.load("img/bombini.png").convert_alpha(),
