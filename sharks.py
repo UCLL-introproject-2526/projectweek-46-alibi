@@ -230,25 +230,42 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     return "locker"
 
                 if game_over and event.key == pygame.K_RETURN:
-                    player_y = HEIGHT // 2
-                    sharks.clear()
-                    laser_bullets.clear()
-                    score = 0
-                    score_timer = 0
-                    level = 1
-                    game_over = False
-                    boss_active = False
-                    boss_defeated_this_level = False
-                    laser_active = False
-                    laser_timer = 0
-                    fire_timer = 0
-                    chest_active = False
-                    chest_rect = None
-                    previous_chest_level = 0
+                    if game_over and event.key == pygame.K_RETURN:
+                        player_y = HEIGHT // 2
+                        sharks.clear()
+                        laser_bullets.clear()
+                        boss_bullets.clear()
 
-                    # 🎵 Start normale muziek opnieuw
-                    pygame.mixer.music.load(NORMAL_MUSIC)
-                    pygame.mixer.music.play(-1)
+                        score = 0
+                        score_timer = 0
+                        level = 1
+                        game_over = False
+
+                        # 🔥 BELANGRIJK: boss reset
+                        boss_active = False
+                        boss_dying = False
+                        boss_rect = None
+                        dying_boss_rect = None
+                        boss_explosions.clear()
+                        boss_fire_timer = 0
+                        boss_hp = 0
+                        boss_max_hp = 0
+
+                        # 🔥 DEZE WAS DE BUG
+                        last_boss_score = 0
+
+                        # powerups reset
+                        laser_active = False
+                        laser_timer = 0
+                        fire_timer = 0
+
+                        chest_active = False
+                        chest_rect = None
+                        previous_chest_level = 0
+
+                        # 🎵 muziek reset
+                        pygame.mixer.music.load(NORMAL_MUSIC)
+                        pygame.mixer.music.play(-1)
 
 
 
