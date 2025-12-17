@@ -562,6 +562,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
                         (WIDTH // 2 - 150, 120))
             screen.blit(font.render(f"Score: {score}", True, (255, 255, 255)),
                         (WIDTH // 2 - 70, 180))
+            screen.blit(font.render(f"Highscore: {highscore}", True, (255, 255, 255)),
+                        (WIDTH // 2 - 70, 200))
             screen.blit(font.render("ENTER = opnieuw", True, (255, 255, 255)),
                         (WIDTH // 2 - 150, 240))
             screen.blit(font.render("ESC = Terug naar menu", True, (255, 255, 255)),
