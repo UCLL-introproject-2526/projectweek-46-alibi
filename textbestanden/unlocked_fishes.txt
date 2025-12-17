@@ -1,9 +1,2 @@
 vis1
-vis10
-vis9
-vis8
-vis7
-vis2
-vis3
-vis4
-vis5
+
