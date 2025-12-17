@@ -4,9 +4,11 @@ import math
 import os
 from coins import CoinManager
 
-def show_locker(screen, unlocked_fishes, coins):
+def show_locker(screen, coin_manager, unlocked_fishes, coins):
     pygame.mixer.init()
 
+    coin_img = pygame.image.load("img/muntje.png").convert_alpha()
+    coin_img = pygame.transform.scale(coin_img, (24, 24))
     # Muziek laden
     try:
         pygame.mixer.music.load("muziek/baby_shark.mp3")
@@ -20,6 +22,11 @@ def show_locker(screen, unlocked_fishes, coins):
 
     WIDTH, HEIGHT = screen.get_size()
     SAND_HEIGHT = 140
+
+    coin_img = pygame.image.load("img/muntje.png").convert_alpha()
+    coin_img = pygame.transform.scale(coin_img, (24, 24))
+
+   
 
 
     # -------------------------------
@@ -161,6 +168,15 @@ def show_locker(screen, unlocked_fishes, coins):
 
         # --- TEKENEN ---
         screen.fill((8, 30, 70))
+        x = 20
+        y = 20
+
+        screen.blit(coin_img, (x, y))
+        screen.blit(
+            font.render(str(coin_manager.get_count()), True, (255, 215, 0)),
+            (x + 30, y + 2)
+        )
+
 
         # Lichtdeeltjes
         for i in range(180):

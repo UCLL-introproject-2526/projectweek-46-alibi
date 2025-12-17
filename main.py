@@ -1,6 +1,7 @@
 import pygame
 
 
+
 from homescreen import show_home_screen
 from locker import show_locker
 from sharks import run_game
@@ -44,7 +45,8 @@ while running:
         state = show_home_screen(screen)
 
     elif state == "locker":
-        result = show_locker(screen, unlocked_fishes, coin_manager.get_count())
+        result = show_locker(screen, coin_manager, unlocked_fishes, coin_manager.get_count())
+
         # show_locker geeft terug:
         # ("start", fish, pattern)
         # ("back", None, None)
