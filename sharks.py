@@ -146,7 +146,13 @@ def run_game(screen, fish, pattern, coin_manager=None):
     boss_images = [
     pygame.image.load("img/bombini.png").convert_alpha(),
     pygame.image.load("img/boss.png").convert_alpha(),
-    pygame.image.load("img/tung.png").convert_alpha()
+    pygame.image.load("img/tung.png").convert_alpha(),
+    pygame.image.load("img/bicus.png").convert_alpha(),
+    pygame.image.load("img/comelo.png").convert_alpha(),
+    pygame.image.load("img/capuccino.png").convert_alpha(),
+    pygame.image.load("img/crocodilo.png").convert_alpha(),
+    pygame.image.load("img/din.png").convert_alpha(),
+    pygame.image.load("img/bombini.png").convert_alpha()
 ]
 
     # schaal alle afbeeldingen naar dezelfde grootte
@@ -193,7 +199,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
 
 
-    # boss spawn elke 250 punten
+    # boss spawn elke 150 punten
     last_boss_score = 0
 
     font = pygame.font.SysFont(None, 32)
