@@ -33,6 +33,10 @@ NORMAL_MUSIC = "muziek/normal_theme.mp3"
 BOSS_MUSIC = "muziek/boss_theme.mp3"
 death_sound = pygame.mixer.Sound("muziek/death.mp3")
 
+laser_sound = pygame.mixer.Sound("muziek/laser.mp3")
+laser_sound.set_volume(0.1)
+
+
 
 # -------------------------------
 #   SCORE OPSLAAN
@@ -395,6 +399,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     laser_bullets.append(
                         pygame.Rect(player_x + FISH_W, player_y + FISH_H//2 - 2, 20, 4)
                     )
+                    laser_sound.play()
                     fire_timer = int(0.5 * FPS)  # iets sneller schieten bij boss
 
 
