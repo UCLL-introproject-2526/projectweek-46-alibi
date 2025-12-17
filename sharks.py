@@ -77,7 +77,7 @@ def death_effect(screen, death_sound):
 # -------------------------------
 #   VIS TEKENEN
 # -------------------------------
-def draw_player_fish(surface, fish, pattern, x, y):
+def draw_player_fish(surface, fish, x, y, time):
     # support either a full path like "img/vis1.png" or a short name like "vis1"
     if fish.startswith("img/") or fish.startswith("img\\") or fish.endswith(".png"):
         path = fish
@@ -86,23 +86,13 @@ def draw_player_fish(surface, fish, pattern, x, y):
     image = pygame.image.load(path).convert_alpha()
     image = pygame.transform.scale(image, (FISH_W, FISH_H))
     surface.blit(image, (x, y))
+    # kleine rotatie voor staart-zwiep
+    angle = math.sin(time * 0.2) * 5   # 5 graden heen en weer
 
-    if pattern == "stripes":
-        for i in range(3):
-            pygame.draw.rect(surface, (255, 255, 255),
-                             (x + 18 + i * 18, y + 4, 8, FISH_H - 8), 2)
+    rotated_image = pygame.transform.rotate(image, angle)
+    rect = rotated_image.get_rect(center=(x + FISH_W//2, y + FISH_H//2))
 
-    elif pattern == "dots":
-        for i in range(4):
-            pygame.draw.circle(surface, (255, 255, 255),
-                               (x + 18 + i * 18, y + 16 + (i % 2) * 8), 5)
-
-    elif pattern == "waves":
-        for i in range(5):
-            wx = x + 14 + i * 16
-            wy = y + FISH_H // 2 + math.sin(i * 0.9) * 6
-            pygame.draw.circle(surface, (255, 255, 255),
-                               (wx, int(wy)), 3)
+    surface.blit(rotated_image, rect.topleft)
 
 # -------------------------------
 #   GAME
@@ -550,7 +540,16 @@ def run_game(screen, fish, pattern, coin_manager=None):
             # -------------------------------
             #   TEKENEN
             # -------------------------------
-            draw_player_fish(screen, fish, pattern, player_x, player_y)
+            draw_player_fish(screen, fish, player_x, player_y, time)
+            def draw_shark(surface, image, rect, time):
+                # haaien wiebelen agressiever
+                angle = math.sin(time * 0.3 + rect.y * 0.1) * 6
+
+                rotated = pygame.transform.rotate(image, angle)
+                new_rect = rotated.get_rect(center=rect.center)
+
+                surface.blit(rotated, new_rect.topleft)
+
 
             if chest_active and chest_rect:
                 screen.blit(chest_image, chest_rect)
@@ -562,7 +561,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 screen.blit(fluobeam_image, bullet)
 
             for shark in sharks:
-                screen.blit(shark_image, shark)
+                draw_shark(screen, shark_image, shark, time)
+
 
             if boss_active and boss_rect and not boss_dying:
                 screen.blit(boss_image, boss_rect)
