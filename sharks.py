@@ -562,13 +562,13 @@ def run_game(screen, fish, pattern, coin_manager=None):
             screen.blit(big_font.render("GAME OVER", True, (255, 255, 255)),
                         (WIDTH // 2 - 150, 120))
             screen.blit(font.render(f"Score: {score}", True, (255, 255, 255)),
-                        (WIDTH // 2 - 70, 160))
+                        (WIDTH // 2 - 70, 180))
             screen.blit(font.render("ENTER = opnieuw", True, (255, 255, 255)),
-                        (WIDTH // 2 - 150, 200))
+                        (WIDTH // 2 - 150, 240))
             screen.blit(font.render("ESC = Terug naar menu", True, (255, 255, 255)),
-                        (WIDTH // 2 - 150, 320))
+                        (WIDTH // 2 - 150, 300))
             screen.blit(font.render("Tab = Terug naar locker", True, (255, 255, 255)),
-                        (WIDTH // 2 - 150, 440))
+                        (WIDTH // 2 - 150, 360))
             
 
         pygame.display.flip()
