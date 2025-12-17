@@ -152,7 +152,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
     pygame.image.load("img/capuccino.png").convert_alpha(),
     pygame.image.load("img/crocodilo.png").convert_alpha(),
     pygame.image.load("img/din.png").convert_alpha(),
-    pygame.image.load("img/bombini.png").convert_alpha()
+    pygame.image.load("img/saturno.png").convert_alpha()
 ]
 
     # schaal alle afbeeldingen naar dezelfde grootte
