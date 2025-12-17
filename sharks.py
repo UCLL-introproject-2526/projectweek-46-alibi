@@ -421,6 +421,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 elif bullet["rect"].colliderect(player_rect):
                     if not game_over:
                         game_over = True
+                        # clear boss bullets when player dies from them
+                        boss_bullets.clear()
                         death_effect(screen, death_sound)
                         save_score(score)
                         scores.append(score)
@@ -501,6 +503,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 if boss_rect.colliderect(player_rect):
                     if not game_over:
                         game_over = True
+                        # clear boss bullets when player collides with boss
+                        boss_bullets.clear()
                         death_effect(screen, death_sound)
                         save_score(score)
                         scores.append(score)
@@ -511,8 +515,16 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 boss_explode_timer -= 1
 
                 if boss_explode_timer % 6 == 0:
-                    ex = random.randint(dying_boss_rect.left, dying_boss_rect.right - 40)
-                    ey = random.randint(dying_boss_rect.top, dying_boss_rect.bottom - 40)
+                    # spawn explosions centered on the boss area (not beside it)
+                    cx = dying_boss_rect.centerx
+                    cy = dying_boss_rect.centery
+                    ex_w, ex_h = explosion_image.get_size()
+                    max_off_x = max(0, dying_boss_rect.width // 2)
+                    max_off_y = max(0, dying_boss_rect.height // 2)
+                    off_x = random.randint(-max_off_x, max_off_x)
+                    off_y = random.randint(-max_off_y, max_off_y)
+                    ex = int(cx + off_x - ex_w // 2)
+                    ey = int(cy + off_y - ex_h // 2)
                     boss_explosions.append([ex, ey, 15])
 
 
