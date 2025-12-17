@@ -6,8 +6,7 @@ from window import draw_background
 from highscores import load_scores
 import os
 import random
-random.seed()  # optioneel, wordt automatisch gedaan, maar kan expliciet helpen
-
+random.seed()  
 
 
 # -------------------------------
