@@ -4,9 +4,9 @@ FISH_POWERUPS = {
     "vis3": "speed",              # sneller bewegen
     "vis4": "shield",             # 1 hit bescherming
     "vis5": "double_score",       # dubbele score
-    "vis6": "slow_enemies",
-    "vis7": "rapid_fire",
-    "vis8": "extra_life",
-    "vis9": "boss_damage",
-    "vis10": "godmode"
+    "vis6": "coin_magnet",        # trekt coins aan
+    "vis7": "rapid_fire",         # sneller schieten
+    "vis8": "chain_shot",         # schot springt naar vijanden
+    "vis9": "boss_damage",        # extra schade aan bossen
+    "vis10": "godmode"            # onsterfelijk
 }
