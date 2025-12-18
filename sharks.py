@@ -102,6 +102,42 @@ def draw_player_fish(surface, fish, x, y, time):
 # -------------------------------
 def run_game(screen, fish, pattern, coin_manager=None):
     active_power = FISH_POWERUPS.get(fish, None)
+    active_power = FISH_POWERUPS.get(fish, None)
+
+    godmode, shield_hits, laser_active, laser_timer, fish_speed = init_powers(active_power)
+
+    def init_powers(active_power):
+        godmode = active_power == "godmode"
+
+        # shields
+        if godmode:
+            shield_hits = 2
+        elif active_power == "shield":
+            shield_hits = 1
+        else:
+            shield_hits = 0
+
+        # laser
+        if godmode:
+            laser_active = True
+            laser_timer = 60 * FPS
+        elif active_power == "laser":
+            laser_active = True
+            laser_timer = 30 * FPS
+        else:
+            laser_active = False
+            laser_timer = 0
+
+        # speed
+        fish_speed = 5
+        if active_power == "speed":
+            fish_speed = 8
+        if godmode:
+            fish_speed = 10
+
+        return godmode, shield_hits, laser_active, laser_timer, fish_speed
+
+   
 
     godmode = active_power == "godmode"
 
@@ -267,6 +303,9 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
                 if game_over and event.key == pygame.K_RETURN:
                     if game_over and event.key == pygame.K_RETURN:
+                        # 🔁 powers opnieuw initialiseren
+                        godmode, shield_hits, laser_active, laser_timer, fish_speed = init_powers(active_power)
+
                         player_y = HEIGHT // 2
                         sharks.clear()
                         laser_bullets.clear()
@@ -290,10 +329,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
                         # 🔥 DEZE WAS DE BUG
                         last_boss_score = 0
 
-                        # powerups reset
-                        laser_active = False
-                        laser_timer = 0
-                        fire_timer = 0
+                       
 
                         chest_active = False
                         chest_rect = None
