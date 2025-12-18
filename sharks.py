@@ -121,17 +121,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
     
 
 
-    if active_power == "laser":
-        laser_active = True
-        laser_timer = 30 * FPS   # 30 seconden
-    if godmode:
-        fish_speed = 10
-        laser_active = True
-        laser_timer = 60 * FPS   # 60 seconden
-        damage = 5 if godmode else (2 if active_power == "boss_damage" else 1)
-        boss_hp -= damage
-        fire_timer = int(0.1 * FPS) if godmode else fire_timer
-        score += 3 if godmode else 1
+   
 
 
 
