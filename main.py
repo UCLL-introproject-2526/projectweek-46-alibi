@@ -47,13 +47,16 @@ while running:
     elif state == "locker":
         result = show_locker(screen, coin_manager, unlocked_fishes, coin_manager.get_count())
 
-        
+        # show_locker geeft terug:
+        # ("start", fish, pattern)
+        # ("back", None, None)
+        # ("itemshop", fish, pattern)
         if result:
             action, fish, pattern = result
 
             if action == "start":
                 selected_fish = fish
-
+                selected_pattern = pattern
                 state = "start"
 
             elif action == "back":
@@ -62,10 +65,12 @@ while running:
             elif action == "itemshop":
                 # doorverwijzen naar itemshop
                 selected_fish = fish
+                selected_pattern = pattern
                 state = "itemshop"
 
             elif action == "start":
                 selected_fish = fish
+                selected_pattern = pattern
                 state = "start"
     elif state == "itemshop":
         action = show_itemshop(screen, coin_manager, unlocked_fishes)

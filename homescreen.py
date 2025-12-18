@@ -79,6 +79,26 @@ def show_home_screen(screen):
 
         # ===== ACHTERGROND =====
         draw_background(screen, time, scroll=False)
+          # ===== CONTROLS (RECHTS) =====
+        controls_x = WIDTH - 400
+        controls_y = 260
+
+    
+
+        controls = [
+            "CONTROLS:",
+            " PIJLTJE OMHOOG  → VIS OMHOOG",
+            " PIJLTJE OMLAAG  → VIS OMLAAG" ]
+        
+        for i, line in enumerate(controls):
+            draw_outlined_text(
+                screen,
+                line,
+                sub_font,
+                (210, 230, 255),
+                (0, 0, 0),
+                (controls_x, controls_y + 20 + i * 28)
+            )
 
 
 
