@@ -103,6 +103,13 @@ def draw_player_fish(surface, fish, x, y, time):
 def run_game(screen, fish, pattern, coin_manager=None):
     active_power = FISH_POWERUPS.get(fish, None)
     shield_hits = 1 if active_power == "shield" else 0
+    laser_active = False
+    laser_timer = 0
+
+    if active_power == "laser":
+        laser_active = True
+        laser_timer = 30 * FPS   # 30 seconden
+
 
 
     clock = pygame.time.Clock()
@@ -175,8 +182,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
     sharks = []
     laser_bullets = []   # 👈 TOEVOEGEN
 
-    laser_active = False
-    laser_timer = 0
+    
     fire_timer = 0
     chest_active = False
     chest_rect = None
@@ -308,10 +314,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 laser_timer -= 1
                 if laser_timer <= 0:
                     laser_active = False
-            # power-up gedrag
-            if active_power == "laser":
-                laser_active = True
-                laser_timer = 30
+            
 
 
             # level scaling
@@ -362,8 +365,10 @@ def run_game(screen, fish, pattern, coin_manager=None):
             player_rect = pygame.Rect(player_x, player_y, FISH_W, FISH_H)
 
             if chest_active and chest_rect and chest_rect.colliderect(player_rect):
-                laser_active = True
-                laser_timer = 10 * FPS
+                if active_power != "laser":
+                    laser_active = True
+                    laser_timer = 10 * FPS
+
                 fire_timer = 0
                 chest_active = False
                 chest_rect = None
@@ -650,6 +655,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     font.render(f"Skin power: {active_power}", True, (255, 255, 0)),
                     (hud_x, hud_y + idx * line_h)
                 )
+                idx += 1
 
             if laser_active:
                 seconds = laser_timer // FPS
