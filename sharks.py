@@ -5,6 +5,7 @@ import math
 from window import draw_background
 from highscores import load_scores
 from powerups import FISH_POWERUPS
+from bossfights import create_boss_state, update_boss_fight
 import os
 import random
 random.seed()  
@@ -136,6 +137,22 @@ def init_powers(active_power):
 #   GAME
 # -------------------------------
 def run_game(screen, fish, pattern, coin_manager=None):
+    for bullet in boss_bullets[:]:
+        bullet["rect"].x += bullet["dx"]
+        bullet["rect"].y += bullet["dy"]
+
+        if bullet.get("wave"):
+            bullet["t"] += 1
+            bullet["rect"].y = bullet["base_y"] + int(40 * math.sin(bullet["t"] * 0.15))
+
+    # mines from boss_state
+    for m in boss_state["mines"][:]:
+        m["timer"] -= 1
+        if m["timer"] <= 0:
+            # explode / damage if close or colliding (your choice)
+            boss_state["mines"].remove(m)
+
+
     active_power = FISH_POWERUPS.get(fish, None)
 
     godmode, shield_hits, laser_active, laser_timer, fish_speed = init_powers(active_power)
@@ -220,15 +237,16 @@ def run_game(screen, fish, pattern, coin_manager=None):
     explosion_image = pygame.transform.scale(explosion_image, (250, 250))
 
     boss_images = [
-    pygame.image.load("img/bombini.png").convert_alpha(),
+    pygame.image.load("img/mr krabs.png").convert_alpha(),
     pygame.image.load("img/boss.png").convert_alpha(),
-    pygame.image.load("img/tung.png").convert_alpha(),
-    pygame.image.load("img/bicus.png").convert_alpha(),
-    pygame.image.load("img/camelo.png").convert_alpha(),
-    pygame.image.load("img/capuccino.png").convert_alpha(),
-    pygame.image.load("img/crocodilo.png").convert_alpha(),
-    pygame.image.load("img/din.png").convert_alpha(),
-    pygame.image.load("img/saturno.png").convert_alpha()
+    pygame.image.load("img/greninja.png").convert_alpha(),
+    pygame.image.load("img/gyarados.png").convert_alpha(),
+    pygame.image.load("img/kraken.png").convert_alpha(),
+    pygame.image.load("img/lapras.png").convert_alpha(),
+    pygame.image.load("img/megalodon.png").convert_alpha(),
+    pygame.image.load("img/loch ness.png").convert_alpha(),
+    pygame.image.load("img/blastoise.png").convert_alpha(),
+    pygame.image.load("img/kyogre.png").convert_alpha(),
 ]
 
     # schaal alle afbeeldingen naar dezelfde grootte
@@ -274,11 +292,13 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
 
 
-    # boss spawn elke 150 punten
+    # boss spawn elke 50 punten
     last_boss_score = 0
 
     font = pygame.font.SysFont(None, 32)
     big_font = pygame.font.SysFont(None, 56)
+    boss_state = create_boss_state("sniper", "burst", FPS)
+
 
 
 
@@ -349,6 +369,19 @@ def run_game(screen, fish, pattern, coin_manager=None):
         #   GAME LOGICA
         # -------------------------------
         if not game_over:
+            if boss_active and boss_rect and not boss_dying:
+                boss_hp, boss_max_hp = update_boss_fight(
+                    boss_rect,
+                    boss_hp,
+                    boss_max_hp,
+                    boss_bullets,
+                    player_rect,
+                    sharks,
+                    shark_image,
+                    BOSS_BULLET_SPEED,
+                    boss_state
+                )
+
             # score
             # score (pauze tijdens boss fight)
             if not boss_active:
@@ -575,24 +608,6 @@ def run_game(screen, fish, pattern, coin_manager=None):
                             
 
 
-            if boss_active and boss_rect:
-                boss_fire_timer -= 1
-                if boss_fire_timer <= 0:
-                    # spawn 5 kogels in halve cirkel (90 graden), naar links
-                    num_bullets = 5
-                    start_angle = -45   # graden, naar boven links
-                    end_angle = 45      # graden, naar beneden links
-                    for i in range(num_bullets):
-                        angle_deg = start_angle + i * (end_angle - start_angle) / (num_bullets - 1)
-                        angle_rad = math.radians(angle_deg)
-                        dx = -BOSS_BULLET_SPEED * math.cos(angle_rad)  # naar links
-                        dy = BOSS_BULLET_SPEED * math.sin(angle_rad)
-                        boss_bullets.append({
-                            "rect": pygame.Rect(boss_rect.centerx, boss_rect.centery, 20, 20),
-                            "dx": dx,
-                            "dy": dy
-                        })
-                    boss_fire_timer = 90  # nieuwe schot na 90 frames (~1.5 sec)
 
 
 
