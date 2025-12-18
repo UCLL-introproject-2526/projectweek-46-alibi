@@ -4,6 +4,7 @@ import random
 import math
 from window import draw_background
 from highscores import load_scores
+from powerups import FISH_POWERUPS
 import os
 import random
 random.seed()  
@@ -22,6 +23,8 @@ BOSS_SIZE = (160, 100)   # 2x zo groot
 
 SHARK_SIZE = (80, 50)
 BOSS_SIZE = (160, 100)   # 2x zo groot
+
+
 
 # -------------------------------
 #   MUSIC
@@ -98,6 +101,10 @@ def draw_player_fish(surface, fish, x, y, time):
 #   GAME
 # -------------------------------
 def run_game(screen, fish, pattern, coin_manager=None):
+    active_power = FISH_POWERUPS.get(fish, None)
+    shield_hits = 1 if active_power == "shield" else 0
+
+
     clock = pygame.time.Clock()
     # -------------------------------
     #   AUDIO (DEATH SOUND)
@@ -123,6 +130,10 @@ def run_game(screen, fish, pattern, coin_manager=None):
     player_x = 100
     player_y = HEIGHT // 2
     fish_speed = 5
+
+    if active_power == "speed":
+        fish_speed = 8
+
 
     # afbeeldingen
     shark_image = pygame.image.load("img/shark.png").convert_alpha()
@@ -279,8 +290,9 @@ def run_game(screen, fish, pattern, coin_manager=None):
             if not boss_active:
                 score_timer += 1
                 if score_timer >= 30:
-                    score += 1
-                    score_timer = 0
+                    score_timer = 0                  
+                    score += 2 if active_power == "double_score" else 1
+
 
 
             chest_level = score // 20
@@ -296,12 +308,19 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 laser_timer -= 1
                 if laser_timer <= 0:
                     laser_active = False
+            # power-up gedrag
+            if active_power == "laser":
+                laser_active = True
+                laser_timer = 30
+
 
             # level scaling
             new_level = score // LEVEL_SCORE + 1
             if new_level != level:
                 level = new_level
                 shark_speed = 4 + level
+                if active_power == "slow_enemies":
+                    shark_speed *= 0.6
                 spawn_delay = max(30, 90 - level * 5)
                 boss_defeated_this_level = False
 
@@ -352,8 +371,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
             # check coin collisions
             if coin_manager:
                 if coin_manager.check_collision(player_rect):
-                    # coin_manager increments its internal counter
-                    pass
+                    if active_power == "coin_bonus":
+                        coin_manager.add(1)  # extra muntje
 
             # spawn haaien
             if not boss_active:
@@ -392,12 +411,16 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
                 elif shark.colliderect(player_rect):
                     if not game_over:
-                        game_over = True                 # Zet direct game_over
-                        death_effect(screen, death_sound)
-                        save_score(score)
-                        scores.append(score)
-                        highscore = max(scores)
-                        pygame.mixer.music.fadeout(1000)
+                        if shield_hits > 0:
+                            shield_hits -= 1
+                            sharks.remove(shark)
+                        else:                        
+                            game_over = True                 # Zet direct game_over
+                            death_effect(screen, death_sound)
+                            save_score(score)
+                            scores.append(score)
+                            highscore = max(scores)
+                            pygame.mixer.music.fadeout(1000)
 
 
 
@@ -411,7 +434,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
                         pygame.Rect(player_x + FISH_W, player_y + FISH_H//2 - 2, 20, 4)
                     )
                     laser_sound.play()
-                    fire_timer = int(0.5 * FPS)  # iets sneller schieten bij boss
+                    fire_timer = int(0.25 * FPS) if active_power == "rapid_fire" else int(0.5 * FPS)
+
 
 
                 for bullet in laser_bullets[:]:
@@ -461,7 +485,9 @@ def run_game(screen, fish, pattern, coin_manager=None):
             if boss_active and boss_rect:
                 for bullet in laser_bullets[:]:
                     if bullet.colliderect(boss_rect):
-                        boss_hp -= 1
+                        damage = 2 if active_power == "boss_damage" else 1
+                        boss_hp -= damage
+
                         laser_bullets.remove(bullet)
                         if boss_hp <= 0 and not boss_dying:
                             boss_dying = True
@@ -619,6 +645,11 @@ def run_game(screen, fish, pattern, coin_manager=None):
             idx += 1
             screen.blit(font.render(f"Level: {level}", True, (255, 255, 255)), (hud_x, hud_y + idx * line_h))
             idx += 1
+            if active_power:
+                screen.blit(
+                    font.render(f"Skin power: {active_power}", True, (255, 255, 0)),
+                    (hud_x, hud_y + idx * line_h)
+                )
 
             if laser_active:
                 seconds = laser_timer // FPS

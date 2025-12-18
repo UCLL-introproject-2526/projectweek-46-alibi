@@ -3,9 +3,12 @@ import random
 import math
 import os
 from coins import CoinManager
+from powerups import FISH_POWERUPS
+
 
 def show_locker(screen, coin_manager, unlocked_fishes, coins):
-   
+    
+
 
     coin_img = pygame.image.load("img/muntje.png").convert_alpha()
     coin_img = pygame.transform.scale(coin_img, (24, 24))
@@ -238,9 +241,14 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
                 lock_text = font.render("LOCK", True, (255, 0, 0))
                 screen.blit(lock_text, (rect.x + 10, rect.y + 10))
 
+   
+            # ⭐ POWER-UP TEKST (HIER IS fish GELDIG)
+            power = FISH_POWERUPS.get(fish)
+            if power:
+                label = font.render(power, True, (255, 255, 0))
+                screen.blit(label, (rect.x, rect.y - 15))
         screen.blit(font.render("KLEUR", True, (255,255,255)),
-                    (START_X, COLOR_Y - 25))
-
+        (START_X, COLOR_Y - 25))
 
         # knoppen
         pygame.draw.rect(screen, (0, 200, 100), start_button)
