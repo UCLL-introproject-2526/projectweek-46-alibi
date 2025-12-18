@@ -86,8 +86,8 @@ def show_home_screen(screen):
         # ===== ACHTERGROND =====
         draw_background(screen, time, scroll=False)
           # ===== CONTROLS (RECHTS) =====
-        controls_x = WIDTH - 400
-        controls_y = 260
+        controls_x = 15
+        controls_y = -5
 
     
 
