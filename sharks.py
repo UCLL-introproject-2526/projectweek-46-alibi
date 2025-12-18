@@ -15,7 +15,7 @@ random.seed()
 FISH_W = 50
 FISH_H = 30
 FPS = 60
-LEVEL_SCORE = 150
+LEVEL_SCORE = 50
 
 SHARK_SIZE = (80, 50)
 BOSS_SIZE = (160, 100)   # 2x zo groot
@@ -283,7 +283,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     score_timer = 0
 
 
-            chest_level = score // 50
+            chest_level = score // 20
             if chest_level > previous_chest_level:
                 previous_chest_level = chest_level
                 chest_active = True
@@ -307,8 +307,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
 
             # in de loop
-            # boss spawn elke 150 punten
-            if score >= last_boss_score + 150 and not boss_active:
+            # boss spawn elke 50 punten
+            if score >= last_boss_score + 50 and not boss_active:
                 last_boss_score = score  # eerst bijwerken
 
                 boss_active = True
@@ -324,7 +324,7 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     y=HEIGHT // 2 - boss_image.get_height() // 2
                 )
 
-                boss_max_hp = 30
+                boss_max_hp = 5 + level * 2
                 boss_hp = boss_max_hp
                 last_boss_score = score
 

@@ -38,8 +38,8 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
         "vis6", "vis7", "vis8", "vis9", "vis10"
     ]
 
-    start_price = 100
-    step = 100
+    start_price = 20
+    step = 20
 
     fish_items = [
         {"name": name, "price": start_price + i * step}
