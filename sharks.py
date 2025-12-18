@@ -103,17 +103,22 @@ def draw_player_fish(surface, fish, x, y, time):
 def run_game(screen, fish, pattern, coin_manager=None):
     active_power = FISH_POWERUPS.get(fish, None)
 
+    godmode = active_power == "godmode"
+
     # shields
-    if active_power == "godmode":
+    if godmode:
         shield_hits = 2
     elif active_power == "shield":
         shield_hits = 1
     else:
         shield_hits = 0
 
-    laser_active = False
-    laser_timer = 0
-    godmode = active_power == "godmode"
+    # laser start
+    laser_active = godmode or active_power == "laser"
+    laser_timer = 60 * FPS if godmode else (30 * FPS if active_power == "laser" else 0)
+
+
+    
 
 
     if active_power == "laser":
@@ -157,10 +162,13 @@ def run_game(screen, fish, pattern, coin_manager=None):
     # speler
     player_x = 100
     player_y = HEIGHT // 2
-    fish_speed = 5
+    
 
+    fish_speed = 5
     if active_power == "speed":
         fish_speed = 8
+    if godmode:
+        fish_speed = 10
 
 
     # afbeeldingen
@@ -318,7 +326,13 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 score_timer += 1
                 if score_timer >= 30:
                     score_timer = 0                  
-                    score += 2 if active_power == "double_score" else 1
+                    if godmode:
+                        score += 3
+                    elif active_power == "double_score":
+                        score += 2
+                    else:
+                        score += 1
+
 
 
 
@@ -460,7 +474,9 @@ def run_game(screen, fish, pattern, coin_manager=None):
                         pygame.Rect(player_x + FISH_W, player_y + FISH_H//2 - 2, 20, 4)
                     )
                     laser_sound.play()
-                    fire_timer = int(0.25 * FPS) if active_power == "rapid_fire" else int(0.5 * FPS)
+                    fire_timer = int(0.1 * FPS) if godmode else (
+                        int(0.25 * FPS) if active_power == "rapid_fire" else int(0.5 * FPS)
+                    )
 
 
 
@@ -511,8 +527,9 @@ def run_game(screen, fish, pattern, coin_manager=None):
             if boss_active and boss_rect:
                 for bullet in laser_bullets[:]:
                     if bullet.colliderect(boss_rect):
-                        damage = 2 if active_power == "boss_damage" else 1
+                        damage = 5 if godmode else (2 if active_power == "boss_damage" else 1)
                         boss_hp -= damage
+
 
                         laser_bullets.remove(bullet)
                         if boss_hp <= 0 and not boss_dying:
