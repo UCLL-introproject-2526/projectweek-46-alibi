@@ -8,11 +8,13 @@ from window import draw_background
 #   OUTLINED TEKST
 # --------------------------------
 def draw_outlined_text(screen, text, font, color, outline_color, pos):
-    for dx in [-2, 0, 2]:
-        for dy in [-2, 0, 2]:
+    for dx in [-1, 0, 1]:
+        for dy in [-1, 0, 1]:
             if dx != 0 or dy != 0:
                 outline = font.render(text, True, outline_color)
                 screen.blit(outline, (pos[0] + dx, pos[1] + dy))
+
+
     screen.blit(font.render(text, True, color), pos)
 
 
@@ -40,7 +42,7 @@ def show_home_screen(screen):
 
     # ---------- UI ----------
     title_font = pygame.font.SysFont("arialblack", 72)
-    sub_font = pygame.font.SysFont("arial", 32)
+    sub_font = pygame.font.SysFont("arial", 25)
     button_font = pygame.font.SysFont("arial", 34)
 
     start_button  = pygame.Rect(WIDTH//2 - 160, HEIGHT//2 + 120, 320, 70)
@@ -77,6 +79,26 @@ def show_home_screen(screen):
 
         # ===== ACHTERGROND =====
         draw_background(screen, time, scroll=False)
+          # ===== CONTROLS (RECHTS) =====
+        controls_x = WIDTH - 400
+        controls_y = 260
+
+    
+
+        controls = [
+            "CONTROLS:",
+            " PIJLTJE OMHOOG  → VIS OMHOOG",
+            " PIJLTJE OMLAAG  → VIS OMLAAG" ]
+        
+        for i, line in enumerate(controls):
+            draw_outlined_text(
+                screen,
+                line,
+                sub_font,
+                (210, 230, 255),
+                (0, 0, 0),
+                (controls_x, controls_y + 20 + i * 28)
+            )
 
 
 
@@ -101,13 +123,20 @@ def show_home_screen(screen):
             (title_x, 200)
         )
 
-        subtitle = sub_font.render(
-            "Ontwijk de hongerige haaien en verzamel schatten!",
-            True,
-            (50, 100, 160)
+        subtitle_text = "ONTWIJK DE HONGERIGE HAAIEN EN VERZAMEL SCHATTEN!"
+        
+
+        draw_outlined_text(
+            screen,
+            subtitle_text,
+            sub_font,
+            (50, 100, 160),   # tekstkleur
+            (255, 255, 255),  # witte rand (zelfde als titel)
+            (WIDTH//2 - sub_font.size(subtitle_text)[0]//2, 280)
         )
-        screen.blit(subtitle,
-                    (WIDTH//2 - subtitle.get_width()//2, 280))
+
+
+
 
         # ===== KNOPPEN =====
         for rect, text in [
