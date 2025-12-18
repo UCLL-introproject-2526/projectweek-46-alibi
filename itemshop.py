@@ -67,6 +67,8 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
     # MAIN LOOP
     # -------------------------------
     while True:
+        # ===== ACHTERGROND =====
+        draw_background(screen, time, scroll=False)
 
         # -------------------------------
         # HEADER
@@ -179,9 +181,6 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
                                 unlocked_fishes.append(item["name"])
                                 save_unlocked_fishes(unlocked_fishes)
                                 kaching_sound.play()
-        
-        # ===== ACHTERGROND =====
-        draw_background(screen, time, scroll=False)
 
         # -------------------------------
         # SCROLL LIMITS
