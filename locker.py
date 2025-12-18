@@ -1,3 +1,4 @@
+from cmath import rect
 import pygame
 import random
 import math
@@ -172,9 +173,18 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
             # ⭐ POWER-UP TEKST (HIER IS fish GELDIG)
             power = FISH_POWERUPS.get(fish)
             if power:
-                label = font.render(power, True, (255, 255, 0))
-                screen.blit(label, (rect.centerx - label.get_width() // 2,
-                    rect.bottom + 5))
+                power_text = power.replace("_", " ").upper()  # underscores weg
+                label = font.render(power_text, True, (0, 0, 0))  # zwart
+
+                screen.blit(
+                    label,
+                    (
+                        rect.centerx - label.get_width() // 2,
+                        rect.bottom + 10  # iets meer naar onder
+                    )
+                )
+
+
 
 
         screen.blit(font.render("KLEUR", True, (255,255,255)),
