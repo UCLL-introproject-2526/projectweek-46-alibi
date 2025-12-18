@@ -102,13 +102,34 @@ def draw_player_fish(surface, fish, x, y, time):
 # -------------------------------
 def run_game(screen, fish, pattern, coin_manager=None):
     active_power = FISH_POWERUPS.get(fish, None)
-    shield_hits = 1 if active_power == "shield" else 0
+
+    # shields
+    if active_power == "godmode":
+        shield_hits = 2
+    elif active_power == "shield":
+        shield_hits = 1
+    else:
+        shield_hits = 0
+
     laser_active = False
     laser_timer = 0
+    godmode = active_power == "godmode"
+
 
     if active_power == "laser":
         laser_active = True
         laser_timer = 30 * FPS   # 30 seconden
+    if godmode:
+        fish_speed = 10
+        laser_active = True
+        laser_timer = 60 * FPS   # 60 seconden
+        damage = 5 if godmode else (2 if active_power == "boss_damage" else 1)
+        boss_hp -= damage
+        fire_timer = int(0.1 * FPS) if godmode else fire_timer
+        score += 3 if godmode else 1
+
+
+
 
 
 
@@ -376,8 +397,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
             # check coin collisions
             if coin_manager:
                 if coin_manager.check_collision(player_rect):
-                    if active_power == "coin_bonus":
-                        coin_manager.add(1)  # extra muntje
+                
+                    pass
 
             # spawn haaien
             if not boss_active:
@@ -656,6 +677,20 @@ def run_game(screen, fish, pattern, coin_manager=None):
                     (hud_x, hud_y + idx * line_h)
                 )
                 idx += 1
+            if godmode:
+                screen.blit(
+                    font.render("GODMODE ACTIVE", True, (255, 0, 0)),
+                    (hud_x, hud_y + idx * line_h)
+                )
+                idx += 1
+            if shield_hits > 0:
+                screen.blit(
+                    font.render(f"Shields: {shield_hits}", True, (0, 200, 255)),
+                    (hud_x, hud_y + idx * line_h)
+                )
+                idx += 1
+
+
 
             if laser_active:
                 seconds = laser_timer // FPS
