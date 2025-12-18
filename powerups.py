@@ -8,5 +8,5 @@ FISH_POWERUPS = {
     "vis7": "rapid_fire",
     "vis8": "extra_life",
     "vis9": "boss_damage",
-    "vis10": "god_mode"
+    "vis10": "godmode"
 }
