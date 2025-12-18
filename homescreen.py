@@ -1,6 +1,8 @@
 import pygame
 import random
 import math
+# ===== ACHTERGROND =====
+from window import draw_background
 
 # --------------------------------
 #   OUTLINED TEKST
@@ -101,39 +103,9 @@ def show_home_screen(screen):
                     return "quit"
 
         # ===== ACHTERGROND =====
-        screen.fill((8, 30, 70))
+        draw_background(screen, time)
 
-        for i in range(180):
-            px = random.randint(0, WIDTH)
-            py = (random.randint(0, HEIGHT) + time) % HEIGHT
-            screen.set_at((px, py), (70, 120, 170))
 
-        pygame.draw.rect(screen, (170, 150, 110),
-                         (0, HEIGHT - 140, WIDTH, 140))
-
-        for s in stones:
-            pygame.draw.ellipse(screen, s["color"],
-                                (s["x"], s["y"], s["w"], s["h"]))
-
-        for x, h, wiggle in plants:
-            top_x = x + math.sin(time * wiggle) * (5 + h * 0.05)
-            pygame.draw.line(
-                screen, (40, 120, 90),
-                (x, HEIGHT),
-                (top_x, HEIGHT - h),
-                4
-            )
-
-        for b in bubbles:
-            b["y"] -= b["speed"]
-            if b["y"] < 0:
-                b["y"] = HEIGHT
-                b["x"] = random.randint(0, WIDTH)
-            pygame.draw.circle(
-                screen, (200, 220, 255),
-                (int(b["x"]), int(b["y"])),
-                b["size"]
-            )
 
         # ===== HAAI (STIL) =====
         screen.blit(
