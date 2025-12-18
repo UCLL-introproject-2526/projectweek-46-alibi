@@ -758,12 +758,53 @@ def run_game(screen, fish, pattern, coin_manager=None):
                         (WIDTH // 2 - 70, 180))
             screen.blit(font.render(f"Highscore: {highscore}", True, (255, 255, 255)),
                         (WIDTH // 2 - 70, 200))
-            screen.blit(font.render("ENTER = opnieuw", True, (255, 255, 255)),
-                        (WIDTH // 2 - 150, 240))
-            screen.blit(font.render("ESC = Terug naar menu", True, (255, 255, 255)),
-                        (WIDTH // 2 - 150, 300))
-            screen.blit(font.render("Tab = Terug naar locker", True, (255, 255, 255)),
-                        (WIDTH // 2 - 150, 360))
+            # draw three key images (enter, esc, tab) centered with labels under each
+            key_size = (88, 52)
+            spacing = 28
+            # safe loader: returns surface or None
+            def _load_key(name):
+                path = os.path.join("img", name)
+                if os.path.exists(path):
+                    try:
+                        im = pygame.image.load(path).convert_alpha()
+                        return pygame.transform.scale(im, key_size)
+                    except Exception:
+                        return None
+                return None
+
+            enter_img = _load_key("enter.png")
+            esc_img = _load_key("esc.png")
+            tab_img = _load_key("tab.png")
+
+            labels = ["= opnieuw", "= Terug naar menu", "= Terug naar locker"]
+            symbols = ["⏎", "⎋", "⇥"]
+
+            # stack the three keys vertically and put labels to the right of each
+            # adjust offsets to move icons a bit left and down
+            left_offset = 40
+            down_offset = 40
+            col_x = WIDTH // 2 - key_size[0] // 2 - left_offset
+            top_y = 220 + down_offset
+            vert_spacing = key_size[1] + 24
+
+            for i, (img, sym, label) in enumerate(zip((enter_img, esc_img, tab_img), symbols, labels)):
+                y = top_y + i * vert_spacing
+                x = col_x
+                if img:
+                    rect = img.get_rect(topleft=(x, y))
+                    screen.blit(img, rect.topleft)
+                else:
+                    rect = pygame.Rect(x, y, key_size[0], key_size[1])
+                    pygame.draw.rect(screen, (240, 240, 240), rect, border_radius=6)
+                    pygame.draw.rect(screen, (50, 50, 50), rect, 2, border_radius=6)
+                    sym_surf = big_font.render(sym, True, (20, 20, 20))
+                    screen.blit(sym_surf, sym_surf.get_rect(center=rect.center).topleft)
+
+                # draw label to the right of the key, vertically centered
+                label_surf = font.render(label, True, (255, 255, 255))
+                label_x = rect.right + 12
+                label_y = rect.centery - label_surf.get_height() // 2
+                screen.blit(label_surf, (label_x, label_y))
             
 
         pygame.display.flip()
