@@ -12,7 +12,7 @@ from unlocked_fishes import load_unlocked_fishes, save_unlocked_fishes
 
 
 # -------------------------------
-#   INIT
+#   INIT²
 # -------------------------------
 pygame.init()
 SCREEN_W, SCREEN_H = 1023, 768

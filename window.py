@@ -249,7 +249,17 @@ def draw_background(screen, time, scroll = True):
         mult = 0.2 + 0.8 * (1 - b["z"])  # parallax factor
         px = int((b["x"] + base_offset * mult) % w)
         for tile in (-1, 0, 1):
-            pygame.draw.circle(screen, (200,220,255), (px + tile * w, int(b["y"])), b["size"]) 
+            for tile in (-1, 0, 1):
+                # bepaal alpha op basis van diepte (verder weg = subtieler)
+                alpha = max(30, int(200 * (1 - b["z"])))  # 30..200, verder weg = subtieler
+
+                # maak een kleine surface met alpha
+                bubble_surf = pygame.Surface((b["size"]*2, b["size"]*2), pygame.SRCALPHA)
+                pygame.draw.circle(bubble_surf, (200,220,255, alpha), (b["size"], b["size"]), b["size"])
+
+                # teken de bubble
+                screen.blit(bubble_surf, (px + tile * w - b["size"], int(b["y"]) - b["size"]))
+ 
 
     # sand grains (texture) - draw last so they appear on top of sand bands
     for g in sand_grains:

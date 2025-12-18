@@ -86,7 +86,7 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
                 pygame.draw.circle(screen, (255, 255, 255), (wx, wy), 4)
 
     time = 0
-    
+  
     # -------------------------------
     #   MAIN LOOP
     # -------------------------------
@@ -170,6 +170,7 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
 
                 lock_text = font.render("LOCK", True, (255, 0, 0))
                 screen.blit(lock_text, (rect.x + 10, rect.y + 10))
+              
 
    
             # ⭐ POWER-UP TEKST (HIER IS fish GELDIG)
