@@ -53,6 +53,7 @@ while running:
 
             if action == "start":
                 selected_fish = fish
+
                 state = "start"
 
             elif action == "back":
