@@ -4,11 +4,11 @@ import math
 import os
 from coins import CoinManager
 from powerups import FISH_POWERUPS
+from window import draw_background
 
 
 def show_locker(screen, coin_manager, unlocked_fishes, coins):
     SPACING_X = 60
-
 
     coin_img = pygame.image.load("img/muntje.png").convert_alpha()
     coin_img = pygame.transform.scale(coin_img, (24, 24))
@@ -51,35 +51,6 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
     # 👉 ITEMSHOP BUTTON (rechtsboven)
     itemshop_button = pygame.Rect(WIDTH - 150, 20, 130, 40)
     
-
-    # -------------------------------
-    #   ACHTERGROND EFFECTEN
-    # -------------------------------
-    bubbles = [{
-        "x": random.randint(0, WIDTH),
-        "y": random.randint(HEIGHT - 200, HEIGHT),
-        "speed": random.uniform(0.6, 1.8),
-        "size": random.randint(3, 8)
-    } for _ in range(45)]
-
-    stones = [{
-        "x": random.randint(0, WIDTH),
-        "y": random.randint(HEIGHT - 120, HEIGHT - 50),
-        "w": random.randint(40, 120),
-        "h": random.randint(20, 60),
-        "color": (
-            random.randint(60, 90),
-            random.randint(60, 80),
-            random.randint(60, 80)
-        )
-    } for _ in range(18)]
-
-    plants = []
-    for _ in range(45):
-        x = random.randint(0, WIDTH)
-        h = random.randint(40, 140)
-        wiggle = random.uniform(0.015, 0.05)
-        plants.append((x, h, wiggle))
 
     # -------------------------------
     #   VIS VOORBEELD
@@ -156,7 +127,7 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
                     return "itemshop", selected_fish, selected_pattern
 
         # --- TEKENEN ---
-        screen.fill((8, 30, 70))
+        draw_background(screen, time, scroll=False)
         x = 20
         y = 20
 
@@ -166,41 +137,6 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
             (x + 30, y + 2)
         )
 
-
-        # Lichtdeeltjes
-        for i in range(180):
-            px = random.randint(0, WIDTH)
-            py = (random.randint(0, HEIGHT) + time) % 650
-            screen.set_at((px, py), (70, 120, 170))
-
-        # Bodem
-        pygame.draw.rect(screen, (170, 150, 110), (0, HEIGHT - 140, WIDTH, 140))
-
-        # stenen
-        for s in stones:
-            pygame.draw.ellipse(screen, s["color"],
-                                (s["x"], s["y"], s["w"], s["h"]))
-
-        # planten
-        for x, h, wiggle in plants:
-            top_x = x + math.sin(time * wiggle) * (5 + h * 0.05)
-            pygame.draw.line(
-                screen,
-                (40, 120, 90),
-                (x, HEIGHT),
-                (top_x, HEIGHT - h),
-                4
-            )
-
-        # bubbels
-        for b in bubbles:
-            b["y"] -= b["speed"]
-            if b["y"] < 0:
-                b["y"] = HEIGHT
-                b["x"] = random.randint(0, WIDTH)
-            pygame.draw.circle(screen, (200, 220, 255),
-                               (int(b["x"]), int(b["y"])),
-                               b["size"])
 
         # vis voorbeeld
         draw_fish(selected_fish,selected_pattern)
@@ -222,6 +158,7 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
             small_image = pygame.image.load(small_path).convert_alpha()
             small_image = pygame.transform.scale(small_image, (BOX_SIZE[0], BOX_SIZE[1]))
             screen.blit(small_image, rect)
+
             # 🔒 LOCK overlay
             if fish not in unlocked_fishes:
                 lock_overlay = pygame.Surface((BOX_SIZE[0], BOX_SIZE[1]), pygame.SRCALPHA)
