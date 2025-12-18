@@ -40,6 +40,12 @@ def show_home_screen(screen):
     shark_img = pygame.image.load("img/shark_mouth.png").convert_alpha()
     shark_img = pygame.transform.scale(shark_img, (420, 620))
 
+    arrow_up_img = pygame.image.load("img/pijltjeomhoog1.png").convert_alpha()
+    arrow_up_img = pygame.transform.scale(arrow_up_img, (24, 24))
+
+    arrow_down_img = pygame.image.load("img/pijltjeomlaag1.png").convert_alpha()
+    arrow_down_img = pygame.transform.scale(arrow_down_img, (24, 24))
+
     # ---------- UI ----------
     title_font = pygame.font.SysFont("arialblack", 72)
     sub_font = pygame.font.SysFont("arial", 25)
@@ -86,18 +92,26 @@ def show_home_screen(screen):
     
 
         controls = [
-            "CONTROLS:",
-            " PIJLTJE OMHOOG  → VIS OMHOOG",
-            " PIJLTJE OMLAAG  → VIS OMLAAG" ]
+            (None, "CONTROLS:"),
+            ("up", " → VIS OMHOOG"),
+            ("down", " → VIS OMLAAG")
+            ]
         
-        for i, line in enumerate(controls):
+        for i, (img_key, text) in enumerate(controls):
+            x_pos = controls_x
+            if img_key == "up":
+                screen.blit(arrow_up_img, (x_pos, controls_y + 20 + i * 28))
+                x_pos += arrow_up_img.get_width() + 5
+            elif img_key == "down":
+                screen.blit(arrow_down_img, (x_pos, controls_y + 20 + i * 28))
+                x_pos += arrow_down_img.get_width() + 5
             draw_outlined_text(
                 screen,
-                line,
+                text,
                 sub_font,
                 (210, 230, 255),
                 (0, 0, 0),
-                (controls_x, controls_y + 20 + i * 28)
+                (x_pos, controls_y + 20 + i * 28)
             )
 
 
