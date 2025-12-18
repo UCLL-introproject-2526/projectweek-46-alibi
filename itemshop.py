@@ -2,6 +2,8 @@ import pygame
 import os
 from coins import CoinManager
 from unlocked_fishes import save_unlocked_fishes
+# ===== ACHTERGROND =====
+from window import draw_background
 
 
 def show_itemshop(screen, coin_manager, unlocked_fishes):
@@ -59,12 +61,12 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
     # SCROLL
     scroll_y = 0
     SCROLL_SPEED = 40
+    time = 0
 
     # -------------------------------
     # MAIN LOOP
     # -------------------------------
     while True:
-        screen.fill((10, 30, 70))
 
         # -------------------------------
         # HEADER
@@ -177,6 +179,9 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
                                 unlocked_fishes.append(item["name"])
                                 save_unlocked_fishes(unlocked_fishes)
                                 kaching_sound.play()
+        
+        # ===== ACHTERGROND =====
+        draw_background(screen, time, scroll=False)
 
         # -------------------------------
         # SCROLL LIMITS

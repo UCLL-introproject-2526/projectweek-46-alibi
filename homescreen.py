@@ -38,33 +38,6 @@ def show_home_screen(screen):
     shark_img = pygame.image.load("img/shark_mouth.png").convert_alpha()
     shark_img = pygame.transform.scale(shark_img, (420, 620))
 
-    # ---------- ACHTERGROND EFFECTEN ----------
-    bubbles = [{
-        "x": random.randint(0, WIDTH),
-        "y": random.randint(HEIGHT - 200, HEIGHT),
-        "speed": random.uniform(0.6, 1.8),
-        "size": random.randint(3, 8)
-    } for _ in range(45)]
-
-    stones = [{
-        "x": random.randint(0, WIDTH),
-        "y": random.randint(HEIGHT - 120, HEIGHT - 50),
-        "w": random.randint(40, 120),
-        "h": random.randint(20, 60),
-        "color": (
-            random.randint(60, 90),
-            random.randint(60, 80),
-            random.randint(60, 80)
-        )
-    } for _ in range(18)]
-
-    plants = []
-    for _ in range(45):
-        x = random.randint(0, WIDTH)
-        h = random.randint(40, 140)
-        wiggle = random.uniform(0.015, 0.05)
-        plants.append((x, h, wiggle))
-
     # ---------- UI ----------
     title_font = pygame.font.SysFont("arialblack", 72)
     sub_font = pygame.font.SysFont("arial", 32)
