@@ -171,10 +171,18 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
    
             # ⭐ POWER-UP TEKST (HIER IS fish GELDIG)
             power = FISH_POWERUPS.get(fish)
+            power_font = pygame.font.SysFont(None, 18)
+            item_width = 120
             if power:
-                label = font.render(power, True, (255, 255, 0))
-                screen.blit(label, (rect.centerx - label.get_width() // 2,
-                    rect.bottom + 5))
+                power_text = power_font.render(
+                    power.replace("_", " ").upper(),
+                    True,
+                    (0, 0, 0)
+                )
+                power_y = y + 60   # iets lager voor balans
+                power_x = x + (item_width - power_text.get_width()) // 2
+                screen.blit(power_text, (power_x, power_y))
+
 
 
         screen.blit(font.render("KLEUR", True, (255,255,255)),
