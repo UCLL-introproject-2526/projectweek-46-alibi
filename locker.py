@@ -7,7 +7,7 @@ from powerups import FISH_POWERUPS
 
 
 def show_locker(screen, coin_manager, unlocked_fishes, coins):
-    
+    SPACING_X = 60
 
 
     coin_img = pygame.image.load("img/muntje.png").convert_alpha()
@@ -130,27 +130,16 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
                 # vis selecteren
                 for i, fish in enumerate(fishes):
                     rect = pygame.Rect(
-                        START_X + i*(BOX_SIZE[0]+10),
-                        COLOR_Y,
-                        BOX_SIZE[0],
-                        BOX_SIZE[1]
-                    )
+                    START_X + i * (BOX_SIZE[0] + SPACING_X),
+                    COLOR_Y,
+                    BOX_SIZE[0],
+                    BOX_SIZE[1]
+                )
+
 
                     if rect.collidepoint(mx, my):
                         if fish in unlocked_fishes:
                             selected_fish = fish
-
-
-                # patroon selecteren
-                for i, pat in enumerate(patterns):
-                    rect = pygame.Rect(
-                        START_X + i*(BOX_SIZE[0]+10),
-                        PATTERN_Y,
-                        BOX_SIZE[0],
-                        BOX_SIZE[1]
-                    )
-                    if rect.collidepoint(mx, my):
-                        selected_pattern = pat
 
                 # START GAME
                 if start_button.collidepoint(mx, my):
@@ -219,11 +208,12 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
         # vispalet
         for i, fish in enumerate(fishes):
             rect = pygame.Rect(
-                START_X + i*(BOX_SIZE[0]+10),
+                START_X + i * (BOX_SIZE[0] + SPACING_X),
                 COLOR_Y,
                 BOX_SIZE[0],
                 BOX_SIZE[1]
             )
+
             # laad kleine image
             if fish.startswith("img/") or fish.startswith("img\\") or fish.endswith(".png"):
                 small_path = fish
@@ -246,7 +236,10 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
             power = FISH_POWERUPS.get(fish)
             if power:
                 label = font.render(power, True, (255, 255, 0))
-                screen.blit(label, (rect.x, rect.y - 15))
+                screen.blit(label, (rect.centerx - label.get_width() // 2,
+                    rect.bottom + 5))
+
+
         screen.blit(font.render("KLEUR", True, (255,255,255)),
         (START_X, COLOR_Y - 25))
 
