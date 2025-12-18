@@ -86,7 +86,7 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
                 pygame.draw.circle(screen, (255, 255, 255), (wx, wy), 4)
 
     time = 0
-
+    
     # -------------------------------
     #   MAIN LOOP
     # -------------------------------
@@ -128,7 +128,7 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
                 # 👉 ITEMSHOP OPENEN
                 if itemshop_button.collidepoint(mx, my):
                     return "itemshop", selected_fish, selected_pattern
-
+               
         # --- TEKENEN ---
         draw_background(screen, time, scroll=False)
         x = 20
@@ -210,6 +210,7 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
         pygame.draw.rect(screen, (0, 0, 0), itemshop_button, 2)
         screen.blit(font.render("ITEMSHOP", True, (0,0,0)),
                     (itemshop_button.x + 10, itemshop_button.y + 10))
+       
 
         pygame.display.flip()
         clock.tick(60)
