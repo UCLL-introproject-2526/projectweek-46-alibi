@@ -18,8 +18,67 @@ FISH_H = 30
 FPS = 60
 LEVEL_SCORE = 50
 
+SCROLL_SPEED = 6
+
 SHARK_SIZE = (80, 50)
 BOSS_SIZE = (160, 100)   # 2x zo groot
+
+# -------------------------------
+#   BOSS TYPES
+# -------------------------------
+
+BOSS_TYPES = [
+    {
+        "name": "spread",
+        "fire_delay": 90,
+        "bullets": 5,
+        "pattern": "spread",
+        "base_speed": 4
+    },
+    {
+        "name": "aimed",
+        "fire_delay": 75,
+        "bullets": 1,
+        "pattern": "aimed",
+        "base_speed": 6
+    },
+    {
+        "name": "wave",
+        "fire_delay": 60,
+        "bullets": 3,
+        "pattern": "wave",
+        "base_speed": 5
+    },
+    {
+        "name": "rain",
+        "fire_delay": 100,
+        "bullets": 6,
+        "pattern": "rain",
+        "base_speed": 3
+    },
+    {
+        "name": "spiral",
+        "fire_delay": 5,
+        "bullets": 1,
+        "pattern": "spiral",
+        "base_speed": 4
+    },
+    {
+        "name": "burst",
+        "fire_delay": 120,
+        "bullets": 8,
+        "pattern": "burst",
+        "base_speed": 5
+    },
+    {
+        "name": "sniper",
+        "fire_delay": 150,
+        "bullets": 1,
+        "pattern": "sniper",
+        "base_speed": 8
+    },
+]
+
 
 # -------------------------------
 #   MUSIC
@@ -182,9 +241,6 @@ def run_game(screen, fish, pattern, coin_manager):
     shark_image = pygame.image.load("img/shark.png").convert_alpha()
     shark_image = pygame.transform.scale(shark_image, SHARK_SIZE)
 
-    boss_image = pygame.image.load("img/boss.png").convert_alpha()
-    boss_image = pygame.transform.scale(boss_image, BOSS_SIZE)
-
     chest_image = pygame.image.load("img/kist.png").convert_alpha()
     chest_image = pygame.transform.scale(chest_image, (50, 50))
 
@@ -198,15 +254,13 @@ def run_game(screen, fish, pattern, coin_manager):
     explosion_image = pygame.transform.scale(explosion_image, (250, 250))
 
     boss_images = [
-    pygame.image.load("img/bombini.png").convert_alpha(),
+    pygame.image.load("img/blastoise.png").convert_alpha(),
     pygame.image.load("img/boss.png").convert_alpha(),
-    pygame.image.load("img/tung.png").convert_alpha(),
-    pygame.image.load("img/bicus.png").convert_alpha(),
-    pygame.image.load("img/camelo.png").convert_alpha(),
-    pygame.image.load("img/capuccino.png").convert_alpha(),
-    pygame.image.load("img/crocodilo.png").convert_alpha(),
-    pygame.image.load("img/din.png").convert_alpha(),
-    pygame.image.load("img/saturno.png").convert_alpha()
+    pygame.image.load("img/gyarados.png").convert_alpha(),
+    pygame.image.load("img/kraken.png").convert_alpha(),
+    pygame.image.load("img/lapras.png").convert_alpha(),
+    pygame.image.load("img/lochness.png").convert_alpha(),
+    pygame.image.load("img/megalodon.png").convert_alpha()
 ]
 
     # schaal alle afbeeldingen naar dezelfde grootte
@@ -217,6 +271,26 @@ def run_game(screen, fish, pattern, coin_manager):
     # game objecten
     sharks = []
     laser_bullets = []   # 👈 TOEVOEGEN
+
+    # Titanic event
+    titanic_image = pygame.image.load("img/titanic.png").convert_alpha()
+    titanic_rect = None
+    titanic_active = False
+    titanic_sunk = False
+
+    titanic_spawn_score = 150
+
+    # zinken
+    titanic_sink_velocity = 0.0
+    titanic_sink_accel = 0.1
+    titanic_sink_max = 4
+
+    # kantelen
+    titanic_angle = 0.08
+    titanic_tilt_speed = 0.015
+    titanic_max_angle = 18   # graden
+
+
 
     
     fire_timer = 0
@@ -230,7 +304,7 @@ def run_game(screen, fish, pattern, coin_manager):
     vertical_speed = 0.8
 
     # score & level
-    score = 0
+    score = 140
     score_timer = 0
 
     scores = load_scores()
@@ -249,6 +323,9 @@ def run_game(screen, fish, pattern, coin_manager):
     boss_explode_timer = 0
     boss_explosions = []
     dying_boss_rect = None
+    current_boss = None
+    boss_bullet_speed = 0
+
 
 
 
@@ -310,6 +387,14 @@ def run_game(screen, fish, pattern, coin_manager):
                         # 🔥 DEZE WAS DE BUG
                         last_boss_score = 0
 
+                        titanic_active = False
+                        titanic_sunk = False
+                        titanic_rect = None
+                        titanic_angle = 0
+                        titanic_sink_velocity = 0
+
+
+
                        
 
                         chest_active = False
@@ -331,6 +416,17 @@ def run_game(screen, fish, pattern, coin_manager):
             # score (pauze tijdens boss fight)
             if not boss_active:
                 score_timer += 1
+                if score >= titanic_spawn_score and not titanic_active:
+                    titanic_active = True
+                    titanic_rect = titanic_image.get_rect(
+                        x=WIDTH + 40,
+                        y=40
+                    )
+                    titanic_sink_velocity = 0.0
+                    titanic_angle = 0.0
+                    titanic_sunk = False
+
+
                 if score_timer >= 30:
                     score_timer = 0                  
                     if godmode:
@@ -382,15 +478,50 @@ def run_game(screen, fish, pattern, coin_manager):
                 pygame.mixer.music.load(BOSS_MUSIC)
                 pygame.mixer.music.play(-1)
 
+                current_boss = random.choice(BOSS_TYPES)
                 boss_image = random.choice(boss_images)
+
                 boss_rect = boss_image.get_rect(
                     x=WIDTH + 40,
                     y=HEIGHT // 2 - boss_image.get_height() // 2
                 )
 
-                boss_max_hp = 5 + level * 2
+                boss_max_hp = 6 + level * 2
                 boss_hp = boss_max_hp
-                last_boss_score = score
+
+                boss_bullet_speed = current_boss["base_speed"] + level * 0.4
+                boss_fire_timer = max(30, current_boss["fire_delay"] - level * 3)
+
+            if titanic_active and titanic_rect:
+                # meescrollen met achtergrond (zelfde snelheid)
+                titanic_rect.x -= SCROLL_SPEED
+
+                sand_y_mid = HEIGHT - 100
+
+                if not titanic_sunk:
+                    # versnellen tijdens zinken
+                    titanic_sink_velocity += titanic_sink_accel
+                    titanic_sink_velocity = min(titanic_sink_velocity, titanic_sink_max)
+
+                    titanic_rect.y += titanic_sink_velocity
+
+                    # kantelen tijdens zinken
+                    if titanic_angle < titanic_max_angle:
+                        titanic_angle -= titanic_tilt_speed
+
+                    # bodem geraakt → afremmen
+                    if titanic_rect.bottom >= sand_y_mid:
+                        titanic_rect.bottom = sand_y_mid
+                        titanic_sink_velocity *= 0.25   # demping
+                        titanic_tilt_speed *= 0.6
+
+                        # bijna stil → gestrand
+                        if titanic_sink_velocity < 0.05:
+                            titanic_sink_velocity = 0
+                            titanic_sunk = True
+
+
+
 
 
 
@@ -410,9 +541,10 @@ def run_game(screen, fish, pattern, coin_manager):
                 # Grant temporary laser for 10s when opening a chest, but only
                 # if a laser isn't already active and the previous power has finished.
                 # This prevents overriding an existing power or godmode.
-                if not godmode and not laser_active and laser_timer <= 0:
+                if not laser_active:
                     laser_active = True
-                    laser_timer = 10 * FPS
+                    laser_timer = max(laser_timer, 10 * FPS)
+
 
                 fire_timer = 0
                 chest_active = False
@@ -596,24 +728,80 @@ def run_game(screen, fish, pattern, coin_manager):
                             
 
 
-            if boss_active and boss_rect:
+            if boss_active and boss_rect and current_boss:
                 boss_fire_timer -= 1
                 if boss_fire_timer <= 0:
-                    # spawn 5 kogels in halve cirkel (90 graden), naar links
-                    num_bullets = 5
-                    start_angle = -45   # graden, naar boven links
-                    end_angle = 45      # graden, naar beneden links
-                    for i in range(num_bullets):
-                        angle_deg = start_angle + i * (end_angle - start_angle) / (num_bullets - 1)
-                        angle_rad = math.radians(angle_deg)
-                        dx = -BOSS_BULLET_SPEED * math.cos(angle_rad)  # naar links
-                        dy = BOSS_BULLET_SPEED * math.sin(angle_rad)
+                    pattern = current_boss["pattern"]
+
+                    if pattern == "spread":
+                        for i in range(5):
+                            angle = -45 + i * (90 / 4)
+                            rad = math.radians(angle)
+                            boss_bullets.append({
+                                "rect": pygame.Rect(boss_rect.center, (20,20)),
+                                "dx": -boss_bullet_speed * math.cos(rad),
+                                "dy": boss_bullet_speed * math.sin(rad)
+                            })
+
+                    elif pattern == "aimed":
+                        dx = player_rect.centerx - boss_rect.centerx
+                        dy = player_rect.centery - boss_rect.centery
+                        dist = max(1, math.hypot(dx, dy))
                         boss_bullets.append({
-                            "rect": pygame.Rect(boss_rect.centerx, boss_rect.centery, 20, 20),
-                            "dx": dx,
-                            "dy": dy
+                            "rect": pygame.Rect(boss_rect.center, (20,20)),
+                            "dx": boss_bullet_speed * dx / dist,
+                            "dy": boss_bullet_speed * dy / dist
                         })
-                    boss_fire_timer = 90  # nieuwe schot na 90 frames (~1.5 sec)
+
+                    elif pattern == "wave":
+                        for i in range(3):
+                            boss_bullets.append({
+                                "rect": pygame.Rect(boss_rect.center, (20,20)),
+                                "dx": -boss_bullet_speed,
+                                "dy": math.sin(time * 0.1 + i) * 3
+                            })
+
+                    elif pattern == "rain":
+                        for _ in range(6):
+                            boss_bullets.append({
+                                "rect": pygame.Rect(
+                                    boss_rect.left,
+                                    random.randint(0, HEIGHT),
+                                    20, 20),
+                                "dx": -boss_bullet_speed,
+                                "dy": 0
+                            })
+
+                    elif pattern == "spiral":
+                        angle = time * 0.15
+                        boss_bullets.append({
+                            "rect": pygame.Rect(boss_rect.center, (20,20)),
+                            "dx": -boss_bullet_speed * math.cos(angle),
+                            "dy": boss_bullet_speed * math.sin(angle)
+                        })
+
+                    elif pattern == "burst":
+                        for _ in range(8):
+                            ang = random.uniform(-60, 60)
+                            rad = math.radians(ang)
+                            boss_bullets.append({
+                                "rect": pygame.Rect(boss_rect.center, (20,20)),
+                                "dx": -boss_bullet_speed * math.cos(rad),
+                                "dy": boss_bullet_speed * math.sin(rad)
+                            })
+
+                    elif pattern == "sniper":
+                        dx = player_rect.centerx - boss_rect.centerx
+                        dy = player_rect.centery - boss_rect.centery
+                        dist = max(1, math.hypot(dx, dy))
+                        boss_bullets.append({
+                            "rect": pygame.Rect(boss_rect.center, (30,30)),
+                            "dx": boss_bullet_speed * 1.5 * dx / dist,
+                            "dy": boss_bullet_speed * 1.5 * dy / dist
+                        })
+
+                    boss_fire_timer = max(30, current_boss["fire_delay"] - level * 3)
+
 
 
 
@@ -680,6 +868,13 @@ def run_game(screen, fish, pattern, coin_manager):
             # -------------------------------
             #   TEKENEN
             # -------------------------------
+            # Titanic tekenen (achter voorgrond, vóór player)
+            if titanic_active and titanic_rect:
+                rotated = pygame.transform.rotate(titanic_image, -titanic_angle)
+                r_rect = rotated.get_rect(center=titanic_rect.center)
+                screen.blit(rotated, r_rect.topleft)
+
+
             draw_player_fish(screen, fish, player_x, player_y, time)
             def draw_shark(surface, image, rect, time):
                 # haaien wiebelen agressiever
