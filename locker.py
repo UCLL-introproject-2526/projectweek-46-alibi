@@ -21,6 +21,8 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
 
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 24)
+    power_font = pygame.font.SysFont(None, 18)
+
 
     WIDTH, HEIGHT = screen.get_size()
     SAND_HEIGHT = 140
@@ -172,15 +174,17 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
    
             # ⭐ POWER-UP TEKST (HIER IS fish GELDIG)
             power = FISH_POWERUPS.get(fish)
-            if power:
-                power_text = power.replace("_", " ").upper()  # underscores weg
-                label = font.render(power_text, True, (255, 255, 255))  # wit
+
+           
+            if fish != "vis1" and power:
+                power_text = power.replace("_", " ").upper()
+                label = power_font.render(power_text, True, (255, 255, 255))
 
                 screen.blit(
                     label,
                     (
                         rect.centerx - label.get_width() // 2,
-                        rect.y - label.get_height() - 5  # boven de vis
+                        rect.y - label.get_height() - 6
                     )
                 )
 
@@ -188,9 +192,8 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
 
 
 
-        screen.blit(font.render("KLEUR", True, (255,255,255)),
-        (START_X, COLOR_Y - 25))
 
+       
         # knoppen
         pygame.draw.rect(screen, (0, 200, 100), start_button)
         pygame.draw.rect(screen, (0, 0, 0), start_button, 2)
