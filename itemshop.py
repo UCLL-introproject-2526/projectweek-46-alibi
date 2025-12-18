@@ -4,6 +4,7 @@ from coins import CoinManager
 from unlocked_fishes import save_unlocked_fishes
 # ===== ACHTERGROND =====
 from window import draw_background
+from powerups import FISH_POWERUPS
 
 
 def show_itemshop(screen, coin_manager, unlocked_fishes):
@@ -17,6 +18,7 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
 
     font = pygame.font.SysFont(None, 26)
     big_font = pygame.font.SysFont(None, 36)
+    power_font = pygame.font.SysFont(None, 18)
 
     coin_img = pygame.image.load("img/muntje.png").convert_alpha()
     coin_img = pygame.transform.scale(coin_img, (24, 24))
@@ -136,18 +138,30 @@ def show_itemshop(screen, coin_manager, unlocked_fishes):
                 img = pygame.transform.scale(img, (90, 45))
                 screen.blit(img, (x + 15, y + 10))
 
+            # POWER-UP TEKST (zelfde logica als locker)
+            power = FISH_POWERUPS.get(item["name"])
+
+            if power:
+                power_text = power_font.render(
+                    power.replace("_", " ").upper(),
+                    True,
+                    (0, 0, 0)
+                )
+                power_y = y + 60   # iets lager voor balans
+                power_x = x + (item_width - power_text.get_width()) // 2
+                screen.blit(power_text, (power_x, power_y))
+
             # STATUS / PRICE
             if item["name"] in unlocked_fishes:
                 status = font.render("UNLOCKED", True, (0, 150, 0))
-                screen.blit(status, (x + 15, y + 65))
+                screen.blit(status, (x + 15, y + 75))
             else:
                 price_text = font.render(str(item["price"]), True, (0, 0, 0))
-                screen.blit(price_text, (x + 35, y + 65))
+                screen.blit(price_text, (x + 35, y + 75))
 
                 coin_x = x + 35 + price_text.get_width() + 4
-                coin_y = y + 65 + (price_text.get_height() - coin_img.get_height()) // 2
+                coin_y = y + 75 + (price_text.get_height() - coin_img.get_height()) // 2
                 screen.blit(coin_img, (coin_x, coin_y))
-
         # -------------------------------
         # EVENTS
         # -------------------------------
