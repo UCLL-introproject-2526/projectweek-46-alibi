@@ -21,26 +21,27 @@ LEVEL_SCORE = 50
 SHARK_SIZE = (80, 50)
 BOSS_SIZE = (160, 100)   # 2x zo groot
 
-SHARK_SIZE = (80, 50)
-BOSS_SIZE = (160, 100)   # 2x zo groot
-
-
-
 # -------------------------------
 #   MUSIC
 # -------------------------------
-
-pygame.mixer.init()
+try:
+    pygame.mixer.init()
+except Exception:
+    # ignore if audio cannot be initialized in this environment
+    pass
 
 NORMAL_MUSIC = "muziek/normal_theme.mp3"
 BOSS_MUSIC = "muziek/boss_theme.mp3"
-death_sound = pygame.mixer.Sound("muziek/death.mp3")
+try:
+    death_sound = pygame.mixer.Sound("muziek/death.mp3")
+except Exception:
+    death_sound = None
 
-laser_sound = pygame.mixer.Sound("muziek/laser.mp3")
-laser_sound.set_volume(0.1)
-
-
-
+try:
+    laser_sound = pygame.mixer.Sound("muziek/laser.mp3")
+    laser_sound.set_volume(0.1)
+except Exception:
+    laser_sound = None
 # -------------------------------
 #   SCORE OPSLAAN
 # -------------------------------
@@ -112,18 +113,11 @@ def init_powers(active_power):
     else:
         shield_hits = 0
 
-    # laser
-    if godmode:
-        laser_active = True
-        laser_timer = 60 * FPS
-    elif active_power == "laser":
-        laser_active = True
-        laser_timer = 30 * FPS
-    else:
-        laser_active = False
-        laser_timer = 0
+    # laser start
+    laser_active = godmode or active_power == "laser"
+    laser_timer = 60 * FPS if godmode else (30 * FPS if active_power == "laser" else 0)
 
-    # speed
+    # movement speed
     fish_speed = 5
     if active_power == "speed":
         fish_speed = 8
@@ -132,29 +126,13 @@ def init_powers(active_power):
 
     return godmode, shield_hits, laser_active, laser_timer, fish_speed
 
+
 # -------------------------------
-#   GAME
+#   GAME ENTRY
 # -------------------------------
-def run_game(screen, fish, pattern, coin_manager=None):
+def run_game(screen, fish, pattern, coin_manager):
     active_power = FISH_POWERUPS.get(fish, None)
-
     godmode, shield_hits, laser_active, laser_timer, fish_speed = init_powers(active_power)
-
-   
-
-    godmode = active_power == "godmode"
-
-    # shields
-    if godmode:
-        shield_hits = 2
-    elif active_power == "shield":
-        shield_hits = 1
-    else:
-        shield_hits = 0
-
-    # laser start
-    laser_active = godmode or active_power == "laser"
-    laser_timer = 60 * FPS if godmode else (30 * FPS if active_power == "laser" else 0)
 
 
     
@@ -502,25 +480,30 @@ def run_game(screen, fish, pattern, coin_manager=None):
             if can_shoot:
                 fire_timer -= 1
                 if fire_timer <= 0:
-                    laser_bullets.append(
-                        pygame.Rect(player_x + FISH_W, player_y + FISH_H//2 - 2, 20, 4)
-                    )
+                    laser_bullets.append({
+                        "rect": pygame.Rect(player_x + FISH_W, player_y + FISH_H//2 - 2, 20, 4),
+                        "dx": 10,
+                        "chain": 2 if active_power == "chain_shot" else 1
+                    })
                     laser_sound.play()
                     fire_timer = int(0.1 * FPS) if godmode else (
                         int(0.25 * FPS) if active_power == "rapid_fire" else int(0.5 * FPS)
                     )
 
+            # move bullets (handle legacy Rect bullets and dict bullets)
+            for b in laser_bullets[:]:
+                # convert legacy Rect entries to dict for backwards compatibility
+                if isinstance(b, pygame.Rect):
+                    idx = laser_bullets.index(b)
+                    b = {"rect": b, "dx": 10, "chain": 1}
+                    laser_bullets[idx] = b
 
-
-                for bullet in laser_bullets[:]:
-                    bullet.x += 10
-                    if bullet.x > WIDTH:
-                        laser_bullets.remove(bullet)
-
-            for bullet in laser_bullets[:]:
-                bullet.x += 10
-                if bullet.x > WIDTH:
-                    laser_bullets.remove(bullet)
+                b["rect"].x += b.get("dx", 10)
+                if b["rect"].left > WIDTH:
+                    try:
+                        laser_bullets.remove(b)
+                    except ValueError:
+                        pass
             
             # boss bullets
 
@@ -547,23 +530,58 @@ def run_game(screen, fish, pattern, coin_manager=None):
 
 
 
-            # collision bullets with sharks
-            for bullet in laser_bullets[:]:
+            # collision bullets with sharks (chain-shot: kill first hit, then nearest, then stop)
+            for b in laser_bullets[:]:
+                br = b["rect"] if isinstance(b, dict) else (b if isinstance(b, pygame.Rect) else None)
+                if br is None:
+                    continue
+                hit_any = False
                 for shark in sharks[:]:
-                    if bullet.colliderect(shark):
-                        sharks.remove(shark)
-                        laser_bullets.remove(bullet)
+                    if br.colliderect(shark):
+                        # kill the first shark hit
+                        try:
+                            sharks.remove(shark)
+                        except ValueError:
+                            pass
+                        hit_any = True
+                        # if chain remains, find nearest remaining shark and kill it as well
+                        if b.get("chain", 1) > 1 and sharks:
+                            sx, sy = br.centerx, br.centery
+                            nearest = min(sharks, key=lambda s: (s.centerx - sx) ** 2 + (s.centery - sy) ** 2)
+                            try:
+                                sharks.remove(nearest)
+                            except ValueError:
+                                pass
+                        # bullet stops after applying its chain hits
+                        try:
+                            laser_bullets.remove(b)
+                        except ValueError:
+                            pass
                         break
 
             # collision with boss
             if boss_active and boss_rect:
                 for bullet in laser_bullets[:]:
-                    if bullet.colliderect(boss_rect):
+                    # support dict bullets and legacy Rect bullets
+                    if isinstance(bullet, dict):
+                        brect = bullet.get("rect")
+                        bullet_obj = bullet
+                    elif isinstance(bullet, pygame.Rect):
+                        brect = bullet
+                        bullet_obj = bullet
+                    else:
+                        brect = None
+                        bullet_obj = bullet
+
+                    if brect and brect.colliderect(boss_rect):
                         damage = 5 if godmode else (2 if active_power == "boss_damage" else 1)
                         boss_hp -= damage
 
+                        try:
+                            laser_bullets.remove(bullet_obj)
+                        except ValueError:
+                            pass
 
-                        laser_bullets.remove(bullet)
                         if boss_hp <= 0 and not boss_dying:
                             boss_dying = True
                             boss_explode_timer = FPS
@@ -680,7 +698,15 @@ def run_game(screen, fish, pattern, coin_manager=None):
                 coin_manager.draw(screen)
 
             for bullet in laser_bullets:
-                screen.blit(fluobeam_image, bullet)
+                # bullets may be legacy Rects or dicts with a 'rect' key
+                if isinstance(bullet, dict):
+                    rect = bullet.get("rect")
+                elif isinstance(bullet, pygame.Rect):
+                    rect = bullet
+                else:
+                    rect = None
+                if rect:
+                    screen.blit(fluobeam_image, rect)
 
             for shark in sharks:
                 draw_shark(screen, shark_image, shark, time)
