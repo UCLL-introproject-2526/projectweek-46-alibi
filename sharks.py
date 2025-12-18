@@ -286,8 +286,8 @@ def run_game(screen, fish, pattern, coin_manager=None):
     #   MAIN LOOP
     # -------------------------------
     while True:
-        draw_background(screen, time)
-        time += 1
+        draw_background(screen, time, scroll=True)
+
 
         # events
         # -------------------------------

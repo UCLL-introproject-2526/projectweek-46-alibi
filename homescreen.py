@@ -103,7 +103,8 @@ def show_home_screen(screen):
                     return "quit"
 
         # ===== ACHTERGROND =====
-        draw_background(screen, time)
+        draw_background(screen, time, scroll=False)
+
 
 
 

@@ -151,7 +151,7 @@ def _init_background_for_size(width, height):
     _bg_initialized = True
 
 
-def draw_background(screen, time):
+def draw_background(screen, time, scroll = True):
     global scroll_x, _bg_initialized, _bg_width, _bg_height
     w, h = screen.get_size()
 
@@ -162,8 +162,11 @@ def draw_background(screen, time):
     screen.fill((8, 30, 70))
 
     # scrolling update (keep increasing to avoid teleporting)
-    scroll_x += SCROLL_SPEED
+    # scrolling update
+    if scroll:
+        scroll_x += SCROLL_SPEED
     base_offset = -scroll_x
+
 
     # Far layer (slow parallax)
     m = 0.35
