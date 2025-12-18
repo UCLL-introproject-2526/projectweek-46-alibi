@@ -174,15 +174,16 @@ def show_locker(screen, coin_manager, unlocked_fishes, coins):
             power = FISH_POWERUPS.get(fish)
             if power:
                 power_text = power.replace("_", " ").upper()  # underscores weg
-                label = font.render(power_text, True, (0, 0, 0))  # zwart
+                label = font.render(power_text, True, (255, 255, 255))  # wit
 
                 screen.blit(
                     label,
                     (
                         rect.centerx - label.get_width() // 2,
-                        rect.bottom + 10  # iets meer naar onder
+                        rect.y - label.get_height() - 5  # boven de vis
                     )
                 )
+
 
 
 
