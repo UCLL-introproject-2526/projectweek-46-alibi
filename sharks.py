@@ -429,7 +429,10 @@ def run_game(screen, fish, pattern, coin_manager=None):
             player_rect = pygame.Rect(player_x, player_y, FISH_W, FISH_H)
 
             if chest_active and chest_rect and chest_rect.colliderect(player_rect):
-                if active_power != "laser":
+                # Grant temporary laser for 10s when opening a chest, but only
+                # if a laser isn't already active and the previous power has finished.
+                # This prevents overriding an existing power or godmode.
+                if not godmode and not laser_active and laser_timer <= 0:
                     laser_active = True
                     laser_timer = 10 * FPS
 
