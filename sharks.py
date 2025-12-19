@@ -610,7 +610,8 @@ def run_game(screen, fish, pattern, coin_manager):
 
             # optional power / godmode / shields / power timer
             if active_power:
-                ap_surf = font.render(f"Skin power: {active_power}", True, (255, 255, 0))
+                ap_text = active_power.replace("_", " ")
+                ap_surf = font.render(f"Skin power: {ap_text}", True, (255, 255, 255))
                 hud_rects.append(pygame.Rect(hud_x, hud_y + idx_h * line_h, ap_surf.get_width(), ap_surf.get_height()))
                 idx_h += 1
             if godmode:
@@ -1178,7 +1179,8 @@ def run_game(screen, fish, pattern, coin_manager):
                 idx += 1
 
                 if active_power:
-                    ap_surf = font.render(f"Skin power: {active_power}", True, (255, 255, 0))
+                    ap_text = active_power.replace("_", " ")
+                    ap_surf = font.render(f"Skin power: {ap_text}", True, (255, 255, 255))
                     ap_surf.set_alpha(hud_alpha)
                     screen.blit(ap_surf, (hud_x, hud_y + idx * line_h))
                     idx += 1
