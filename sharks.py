@@ -493,32 +493,62 @@ def run_game(screen, fish, pattern, coin_manager):
                 boss_fire_timer = max(30, current_boss["fire_delay"] - level * 3)
 
             if titanic_active and titanic_rect:
-                # meescrollen met achtergrond (zelfde snelheid)
+                # scroll with background (same speed)
                 titanic_rect.x -= SCROLL_SPEED
 
                 sand_y_mid = HEIGHT - 100
 
+                # realistic sinking: acceleration with drag, tilt related to sink speed
                 if not titanic_sunk:
-                    # versnellen tijdens zinken
+                    # apply acceleration and simple drag
                     titanic_sink_velocity += titanic_sink_accel
+                    # simple quadratic drag proportional to v^2 to avoid runaway
+                    drag = 0.02 * (titanic_sink_velocity ** 2)
+                    titanic_sink_velocity = max(0.0, titanic_sink_velocity - drag)
                     titanic_sink_velocity = min(titanic_sink_velocity, titanic_sink_max)
 
+                    # move vertically
                     titanic_rect.y += titanic_sink_velocity
 
-                    # kantelen tijdens zinken
-                    if titanic_angle < titanic_max_angle:
-                        titanic_angle -= titanic_tilt_speed
+                    # tilt (bow down) proportional to how fast we're sinking
+                    tilt_target = -min(titanic_max_angle, 2 + (titanic_sink_velocity / max(1.0, titanic_sink_max)) * titanic_max_angle)
+                    # smooth towards target tilt
+                    titanic_angle += (tilt_target - titanic_angle) * 0.06
 
-                    # bodem geraakt → afremmen
+                    # seabed contact: bounce/damp and then settle
                     if titanic_rect.bottom >= sand_y_mid:
+                        # clamp to seabed
                         titanic_rect.bottom = sand_y_mid
-                        titanic_sink_velocity *= 0.25   # demping
-                        titanic_tilt_speed *= 0.6
 
-                        # bijna stil → gestrand
-                        if titanic_sink_velocity < 0.05:
-                            titanic_sink_velocity = 0
+                        # give a small rebound opposite to sinking direction and damp
+                        titanic_sink_velocity = -titanic_sink_velocity * 0.18
+                        # reduce tilt change speed
+                        titanic_tilt_speed *= 0.4
+
+                        # if rebound is negligible, mark as sunk and start gentle rocking
+                        if abs(titanic_sink_velocity) < 0.3:
+                            titanic_sink_velocity = 0.0
                             titanic_sunk = True
+                            # store rocking params on the rect for smoother motion
+                            titanic_rock_ampl = 2.5
+                            titanic_rock_speed = 0.03
+                            titanic_rock_decay = 0.995
+                    
+                else:
+                    # when settled, apply small rocking that decays slowly
+                    try:
+                        titanic_rock_ampl
+                    except NameError:
+                        titanic_rock_ampl = 2.5
+                        titanic_rock_speed = 0.03
+                        titanic_rock_decay = 0.995
+
+                    # apply rocking to angle
+                    titanic_angle += math.sin(time * titanic_rock_speed) * (titanic_rock_ampl * 0.02)
+                    titanic_rock_ampl *= titanic_rock_decay
+                    # clamp tiny angle drift
+                    if abs(titanic_rock_ampl) < 0.01:
+                        titanic_rock_ampl = 0
 
 
 
