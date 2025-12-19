@@ -237,6 +237,9 @@ def run_game(screen, fish, pattern, coin_manager):
     player_x = 100
     player_y = HEIGHT // 2
     prev_player_y = player_y
+    hud_hidden = False
+    hud_alpha = 255
+    HUD_FADE_STEP = 18
     
 
     fish_speed = 5
@@ -581,6 +584,67 @@ def run_game(screen, fish, pattern, coin_manager):
             prev_player_y = player_y
 
             player_rect = pygame.Rect(player_x, player_y, FISH_W, FISH_H)
+
+            # HUD rects (score, highscore, level, optional powerups and coins)
+            hud_x = 10
+            hud_y = 10
+            line_h = 30
+
+            hud_rects = []
+            idx_h = 0
+
+            # score
+            score_surf = font.render(f"Score: {score}", True, (255, 255, 255))
+            hud_rects.append(pygame.Rect(hud_x, hud_y + idx_h * line_h, score_surf.get_width(), score_surf.get_height()))
+            idx_h += 1
+
+            # highscore
+            hs_surf = font.render(f"Highscore: {highscore}", True, (255, 255, 255))
+            hud_rects.append(pygame.Rect(hud_x, hud_y + idx_h * line_h, hs_surf.get_width(), hs_surf.get_height()))
+            idx_h += 1
+
+            # level
+            lvl_surf = font.render(f"Level: {level}", True, (255, 255, 255))
+            hud_rects.append(pygame.Rect(hud_x, hud_y + idx_h * line_h, lvl_surf.get_width(), lvl_surf.get_height()))
+            idx_h += 1
+
+            # optional power / godmode / shields / power timer
+            if active_power:
+                ap_surf = font.render(f"Skin power: {active_power}", True, (255, 255, 0))
+                hud_rects.append(pygame.Rect(hud_x, hud_y + idx_h * line_h, ap_surf.get_width(), ap_surf.get_height()))
+                idx_h += 1
+            if godmode:
+                gm_surf = font.render("GODMODE ACTIVE", True, (255, 0, 0))
+                hud_rects.append(pygame.Rect(hud_x, hud_y + idx_h * line_h, gm_surf.get_width(), gm_surf.get_height()))
+                idx_h += 1
+            if shield_hits > 0:
+                sh_surf = font.render(f"Shields: {shield_hits}", True, (0, 200, 255))
+                hud_rects.append(pygame.Rect(hud_x, hud_y + idx_h * line_h, sh_surf.get_width(), sh_surf.get_height()))
+                idx_h += 1
+            if laser_active:
+                seconds = laser_timer // FPS
+                lt_surf = font.render(f"Power-up: {seconds}s", True, (255, 255, 255))
+                hud_rects.append(pygame.Rect(hud_x, hud_y + idx_h * line_h, lt_surf.get_width(), lt_surf.get_height()))
+                idx_h += 1
+
+            # coins area (icon + count)
+            if coin_manager:
+                try:
+                    icon = coin_manager.image
+                    icon_w, icon_h = icon.get_size()
+                except Exception:
+                    icon_w, icon_h = (24, 24)
+                hud_rects.append(pygame.Rect(hud_x, hud_y + idx_h * line_h, icon_w + 80, max(icon_h, line_h)))
+
+            # collision: hide HUD elements while overlapping any HUD element
+            colliding_hud = any(player_rect.colliderect(r) for r in hud_rects)
+            hud_hidden = colliding_hud
+
+            # update HUD alpha for smooth fade
+            if hud_hidden and hud_alpha > 0:
+                hud_alpha = max(0, hud_alpha - HUD_FADE_STEP)
+            elif (not hud_hidden) and hud_alpha < 255:
+                hud_alpha = min(255, hud_alpha + HUD_FADE_STEP)
 
             if chest_active and chest_rect and chest_rect.colliderect(player_rect):
                 # Grant temporary laser for 10s when opening a chest, but only
@@ -1025,7 +1089,7 @@ def run_game(screen, fish, pattern, coin_manager):
                 screen.blit(rotated, r_rect.topleft)
 
 
-            # pass vertical delta to draw for tilt/bob
+            # pass vertical delta to draw for tilt/bob (player always drawn)
             draw_player_fish(screen, fish, player_x, player_y, time, dy)
             def draw_shark(surface, image, rect, time):
                 # haaien wiebelen agressiever
@@ -1091,49 +1155,69 @@ def run_game(screen, fish, pattern, coin_manager):
 
 
             # HUD: render score, highscore, level, optional power-up, then coins below them
-            hud_x = 10
-            hud_y = 10
-            line_h = 30
-            idx = 0
-            screen.blit(font.render(f"Score: {score}", True, (255, 255, 255)), (hud_x, hud_y + idx * line_h))
-            idx += 1
-            screen.blit(font.render(f"Highscore: {highscore}", True, (255, 255, 255)), (hud_x, hud_y + idx * line_h))
-            idx += 1
-            screen.blit(font.render(f"Level: {level}", True, (255, 255, 255)), (hud_x, hud_y + idx * line_h))
-            idx += 1
-            if active_power:
-                screen.blit(
-                    font.render(f"Skin power: {active_power}", True, (255, 255, 0)),
-                    (hud_x, hud_y + idx * line_h)
-                )
-                idx += 1
-            if godmode:
-                screen.blit(
-                    font.render("GODMODE ACTIVE", True, (255, 0, 0)),
-                    (hud_x, hud_y + idx * line_h)
-                )
-                idx += 1
-            if shield_hits > 0:
-                screen.blit(
-                    font.render(f"Shields: {shield_hits}", True, (0, 200, 255)),
-                    (hud_x, hud_y + idx * line_h)
-                )
+            # use hud_alpha for fade in/out
+            if hud_alpha > 0:
+                hud_x = 10
+                hud_y = 10
+                line_h = 30
+                idx = 0
+
+                s_surf = font.render(f"Score: {score}", True, (255, 255, 255))
+                s_surf.set_alpha(hud_alpha)
+                screen.blit(s_surf, (hud_x, hud_y + idx * line_h))
                 idx += 1
 
-
-
-            if laser_active:
-                seconds = laser_timer // FPS
-                screen.blit(font.render(f"Power-up: {seconds}s", True, (255, 255, 255)), (hud_x, hud_y + idx * line_h))
+                hs_surf = font.render(f"Highscore: {highscore}", True, (255, 255, 255))
+                hs_surf.set_alpha(hud_alpha)
+                screen.blit(hs_surf, (hud_x, hud_y + idx * line_h))
                 idx += 1
 
-            if coin_manager:
-                # draw coin icon then count to the right
-                icon = coin_manager.image
-                icon_w, icon_h = icon.get_size()
-                y_pos = hud_y + idx * line_h
-                screen.blit(icon, (hud_x, y_pos))
-                screen.blit(font.render(str(coin_manager.get_count()), True, (255, 255, 255)), (hud_x + icon_w + 8, y_pos))
+                lvl_surf = font.render(f"Level: {level}", True, (255, 255, 255))
+                lvl_surf.set_alpha(hud_alpha)
+                screen.blit(lvl_surf, (hud_x, hud_y + idx * line_h))
+                idx += 1
+
+                if active_power:
+                    ap_surf = font.render(f"Skin power: {active_power}", True, (255, 255, 0))
+                    ap_surf.set_alpha(hud_alpha)
+                    screen.blit(ap_surf, (hud_x, hud_y + idx * line_h))
+                    idx += 1
+                if godmode:
+                    gm_surf = font.render("GODMODE ACTIVE", True, (255, 0, 0))
+                    gm_surf.set_alpha(hud_alpha)
+                    screen.blit(gm_surf, (hud_x, hud_y + idx * line_h))
+                    idx += 1
+                if shield_hits > 0:
+                    sh_surf = font.render(f"Shields: {shield_hits}", True, (0, 200, 255))
+                    sh_surf.set_alpha(hud_alpha)
+                    screen.blit(sh_surf, (hud_x, hud_y + idx * line_h))
+                    idx += 1
+
+                if laser_active:
+                    seconds = laser_timer // FPS
+                    lt_surf = font.render(f"Power-up: {seconds}s", True, (255, 255, 255))
+                    lt_surf.set_alpha(hud_alpha)
+                    screen.blit(lt_surf, (hud_x, hud_y + idx * line_h))
+                    idx += 1
+
+                if coin_manager:
+                    # draw coin icon then count to the right
+                    icon = coin_manager.image
+                    try:
+                        icon_w, icon_h = icon.get_size()
+                    except Exception:
+                        icon_w, icon_h = (24, 24)
+                    y_pos = hud_y + idx * line_h
+                    try:
+                        icon_copy = icon.copy()
+                        icon_copy.set_alpha(hud_alpha)
+                        screen.blit(icon_copy, (hud_x, y_pos))
+                    except Exception:
+                        pass
+
+                    cnt_surf = font.render(str(coin_manager.get_count()), True, (255, 255, 255))
+                    cnt_surf.set_alpha(hud_alpha)
+                    screen.blit(cnt_surf, (hud_x + icon_w + 8, y_pos))
 
         else:
             screen.blit(big_font.render("GAME OVER", True, (255, 255, 255)),
