@@ -658,10 +658,12 @@ def run_game(screen, fish, pattern, coin_manager):
                 fire_timer -= 1
                 if fire_timer <= 0:
                     laser_bullets.append({
-                        "rect": pygame.Rect(player_x + FISH_W, player_y + FISH_H//2 - 2, 20, 4),
-                        "dx": 10,
-                        "chain": 2 if active_power == "chain_shot" else 1
-                    })
+                    "rect": pygame.Rect(player_x + FISH_W, player_y + FISH_H//2 - 2, 20, 4),
+                    "dx": 10,
+                    "dy": 0,
+                    "chain": 2 if active_power == "chain_shot" else 1
+})
+
                     laser_sound.play()
                     fire_timer = int(0.1 * FPS) if godmode else (
                         int(0.25 * FPS) if active_power == "rapid_fire" else int(0.5 * FPS)
@@ -675,7 +677,19 @@ def run_game(screen, fish, pattern, coin_manager):
                     b = {"rect": b, "dx": 10, "chain": 1}
                     laser_bullets[idx] = b
 
+                # homing movement (alleen als er een target is)
+                t = b.get("target")
+                if t is not None and t in sharks:
+                    dx = t.centerx - b["rect"].centerx
+                    dy = t.centery - b["rect"].centery
+                    dist = max(1.0, math.hypot(dx, dy))
+                    sp = b.get("speed", 10)
+                    b["dx"] = sp * dx / dist
+                    b["dy"] = sp * dy / dist
+                else:
+                    b["target"] = None  # target weg of dood
                 b["rect"].x += b.get("dx", 10)
+                b["rect"].y += b.get("dy", 0)
                 if b["rect"].left > WIDTH:
                     try:
                         laser_bullets.remove(b)
@@ -707,34 +721,125 @@ def run_game(screen, fish, pattern, coin_manager):
 
 
 
-            # collision bullets with sharks (chain-shot: kill first hit, then nearest, then stop)
+                        # collision bullets with sharks (chain-shot: max 2 kills, same bullet continues)
             for b in laser_bullets[:]:
-                br = b["rect"] if isinstance(b, dict) else (b if isinstance(b, pygame.Rect) else None)
+                if not isinstance(b, dict):
+                    continue
+
+                br = b.get("rect")
                 if br is None:
                     continue
-                hit_any = False
-                for shark in sharks[:]:
+
+                hit = None
+                for shark in sharks:
                     if br.colliderect(shark):
-                        # kill the first shark hit
-                        try:
-                            sharks.remove(shark)
-                        except ValueError:
-                            pass
-                        hit_any = True
-                        # if chain remains, find nearest remaining shark and kill it as well
-                        if b.get("chain", 1) > 1 and sharks:
-                            sx, sy = br.centerx, br.centery
-                            nearest = min(sharks, key=lambda s: (s.centerx - sx) ** 2 + (s.centery - sy) ** 2)
+                        hit = shark
+                        break
+
+                if hit is None:
+                    continue
+
+                # 1) kill the shark we hit
+                try:
+                    sharks.remove(hit)
+                except ValueError:
+                    pass
+
+                # consume a chain "charge"
+                b["chain"] = b.get("chain", 1) - 1
+
+                # 2) if we still have 1 kill left, redirect bullet toward nearest next shark
+                if b["chain"] > 0 and sharks:
+                    # move bullet to the impact point (looks like it passed through)
+                    br.center = hit.center
+
+                    # pick nearest remaining shark
+                    target = min(
+                        sharks,
+                        key=lambda s: (s.centerx - br.centerx) ** 2 + (s.centery - br.centery) ** 2
+                    )
+
+                    dx = target.centerx - br.centerx
+                    dy = target.centery - br.centery
+                    dist = max(1.0, math.hypot(dx, dy))
+
+                    # accelerate strongly towards the next target
+                    base_speed = math.hypot(b.get("dx", 10), b.get("dy", 0))
+                    if base_speed < 0.1:
+                        base_speed = 10  # fallback
+
+                    # make it "heel hard versneld": 3x the previous speed, minimum 25
+                    new_speed = max(base_speed * 3.0, 25)
+                    b["speed"] = new_speed
+                    b["target"] = target
+
+                    b["dx"] = new_speed * dx / dist
+                    b["dy"] = new_speed * dy / dist
+
+                    # If the next target already overlaps the bullet at impact point,
+                    # treat as an immediate second hit (so two nearby sharks die instantly)
+                    try:
+                        if br.colliderect(target):
+                            tx, ty = target.centerx, target.centery
                             try:
-                                sharks.remove(nearest)
+                                sharks.remove(target)
                             except ValueError:
                                 pass
-                        # bullet stops after applying its chain hits
-                        try:
-                            laser_bullets.remove(b)
-                        except ValueError:
-                            pass
-                        break
+                            else:
+                                if explosion_sound:
+                                    explosion_sound.play()
+                                try:
+                                    ex_w, ex_h = explosion_image.get_size()
+                                except Exception:
+                                    ex_w = ex_h = 32
+                                boss_explosions.append([int(tx - ex_w//2), int(ty - ex_h//2), 6])
+
+                                if godmode:
+                                    score += 3
+                                elif active_power == "double_score":
+                                    score += 2
+                                else:
+                                    score += 1
+
+                                if coin_manager and random.random() < 0.25:
+                                    coin_manager.spawn_at(tx, ty)
+
+                            # consume another chain charge (only on successful second kill)
+                            b["chain"] = b.get("chain", 1) - 1
+
+                            # if no more chain or no sharks left, remove the bullet
+                            if b["chain"] <= 0 or not sharks:
+                                try:
+                                    laser_bullets.remove(b)
+                                except ValueError:
+                                    pass
+                            else:
+                                # redirect to next nearest shark (if any)
+                                br.center = (tx, ty)
+                                next_target = min(
+                                    sharks,
+                                    key=lambda s: (s.centerx - br.centerx) ** 2 + (s.centery - br.centery) ** 2
+                                )
+                                dx2 = next_target.centerx - br.centerx
+                                dy2 = next_target.centery - br.centery
+                                dist2 = max(1.0, math.hypot(dx2, dy2))
+                                speed2 = max(new_speed * 1.5, 25)
+                                b["speed"] = speed2
+                                b["dx"] = speed2 * dx2 / dist2
+                                b["dy"] = speed2 * dy2 / dist2
+                    except Exception:
+                        # if something goes wrong with collision test, just continue flying
+                        pass
+                else:
+                    # no chain left OR no more sharks -> remove bullet
+                    try:
+                        laser_bullets.remove(b)
+                    except ValueError:
+                        pass
+
+
+
+
 
             # collision with boss
             if boss_active and boss_rect:
