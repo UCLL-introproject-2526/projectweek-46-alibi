@@ -313,7 +313,7 @@ def run_game(screen, fish, pattern, coin_manager):
     vertical_speed = 0.8
 
     # score & level
-    score = 140
+    score = 0
     score_timer = 0
 
     scores = load_scores()
