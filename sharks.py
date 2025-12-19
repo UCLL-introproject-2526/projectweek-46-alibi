@@ -956,18 +956,27 @@ def run_game(screen, fish, pattern, coin_manager):
             if boss_active and boss_rect and not boss_dying:
                 screen.blit(boss_image, boss_rect)
 
+            # Boss HP balk boven de boss
+                bar_w = boss_rect.width
+                bar_h = 12
+                bar_x = boss_rect.left
+                bar_y = boss_rect.top - bar_h - 6  # kleine ruimte boven boss
+
+                # achtergrond (rood)
+                pygame.draw.rect(screen, (180, 0, 0),
+                                (bar_x, bar_y, bar_w, bar_h))
+
+                # foreground (groen)
+                hp_ratio = boss_hp / boss_max_hp
+                pygame.draw.rect(screen, (0, 220, 0),
+                                (bar_x, bar_y, int(bar_w * hp_ratio), bar_h))
+
+
 
             for bullet in boss_bullets:
                 screen.blit(boss_bullet_image, bullet["rect"])
 
 
-                # HP balk
-                bar_w = 200
-                pygame.draw.rect(screen, (255, 0, 0),
-                                 (WIDTH // 2 - bar_w // 2, 20, bar_w, 16))
-                pygame.draw.rect(screen, (0, 255, 0),
-                                 (WIDTH // 2 - bar_w // 2, 20,
-                                  int(bar_w * boss_hp / boss_max_hp), 16))
             for explosion in boss_explosions[:]:
                 x, y, life = explosion
                 screen.blit(explosion_image, (x, y))
