@@ -140,7 +140,7 @@ def death_effect(screen, death_sound):
 # -------------------------------
 #   VIS TEKENEN
 # -------------------------------
-def draw_player_fish(surface, fish, x, y, time):
+def draw_player_fish(surface, fish, x, y, time, dy=0):
     # support either a full path like "img/vis1.png" or a short name like "vis1"
     if fish.startswith("img/") or fish.startswith("img\\") or fish.endswith(".png"):
         path = fish
@@ -150,10 +150,18 @@ def draw_player_fish(surface, fish, x, y, time):
     image = pygame.transform.scale(image, (FISH_W, FISH_H))
     surface.blit(image, (x, y))
     # kleine rotatie voor staart-zwiep
-    angle = math.sin(time * 0.2) * 5   # 5 graden heen en weer
+    # base tail sway
+    base_sway = math.sin(time * 0.2) * 5   # 5 graden heen en weer
 
-    rotated_image = pygame.transform.rotate(image, angle)
-    rect = rotated_image.get_rect(center=(x + FISH_W//2, y + FISH_H//2))
+    # movement tilt: negative dy (moving up) -> positive tilt (nose up)
+    movement_tilt = -max(-1.0, min(1.0, dy)) * 12
+
+    # slight bob when moving to sell movement feel
+    bob = int(math.sin(time * 0.4) * abs(dy) * 1.8)
+
+    total_angle = base_sway + movement_tilt
+    rotated_image = pygame.transform.rotate(image, total_angle)
+    rect = rotated_image.get_rect(center=(x + FISH_W//2, y + FISH_H//2 + bob))
 
     surface.blit(rotated_image, rect.topleft)
 
@@ -228,6 +236,7 @@ def run_game(screen, fish, pattern, coin_manager):
     # speler
     player_x = 100
     player_y = HEIGHT // 2
+    prev_player_y = player_y
     
 
     fish_speed = 5
@@ -559,11 +568,17 @@ def run_game(screen, fish, pattern, coin_manager):
 
             # speler beweging
             keys = pygame.key.get_pressed()
+            # remember previous y to compute vertical movement for tilt
+            prev_y = player_y
             if keys[pygame.K_UP]:
                 player_y -= fish_speed
             if keys[pygame.K_DOWN]:
                 player_y += fish_speed
             player_y = max(0, min(HEIGHT - FISH_H, player_y))
+
+            # delta y for tilt calculations
+            dy = player_y - prev_y
+            prev_player_y = player_y
 
             player_rect = pygame.Rect(player_x, player_y, FISH_W, FISH_H)
 
@@ -905,7 +920,8 @@ def run_game(screen, fish, pattern, coin_manager):
                 screen.blit(rotated, r_rect.topleft)
 
 
-            draw_player_fish(screen, fish, player_x, player_y, time)
+            # pass vertical delta to draw for tilt/bob
+            draw_player_fish(screen, fish, player_x, player_y, time, dy)
             def draw_shark(surface, image, rect, time):
                 # haaien wiebelen agressiever
                 angle = math.sin(time * 0.3 + rect.y * 0.1) * 6
